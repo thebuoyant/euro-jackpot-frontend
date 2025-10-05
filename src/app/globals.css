@@ -1,11 +1,23 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background-color: #ffffff;
+  --foreground-color: #171717;
+}
+
+body {
+  color: var(--foreground-color);
+  background: var(--background-color);
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
 }
 
 html,
 body {
   height: 100%;
-  margin: 0;
-  padding: 0;
+  overflow: hidden;
+}
+
+.layout-definition {
+  height: 100%;
+  overflow: hidden;
 }
