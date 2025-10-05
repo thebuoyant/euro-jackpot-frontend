@@ -1,6 +1,7 @@
 :root {
   --background-color: #ffffff;
   --foreground-color: #171717;
+  --page-header-height: 36px;
 }
 
 body {
@@ -20,4 +21,16 @@ body {
 .layout-definition {
   height: 100%;
   overflow: hidden;
+}
+
+.page-header {
+  height: var(--page-header-height);
+  display: flex;
+  align-items: flex-start;
+  overflow: hidden;
+}
+
+.page-content {
+  height: calc(100% - var(--page-header-height));
+  overflow-y: auto;
 }

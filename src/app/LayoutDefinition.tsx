@@ -37,6 +37,7 @@ export default function LayoutDefinition({
             height: "100%",
             width: `${calculatedContentMainWidth}`,
             overflow: "hidden",
+            padding: "16px",
           }}
         >
           {children}
