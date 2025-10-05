@@ -1,4 +1,4 @@
-import Providers from "./providers";
+import LayoutProvider from "./LayoutProvider";
 
 export default function RootLayout({
   children,
@@ -8,7 +8,7 @@ export default function RootLayout({
   return (
     <html lang="de">
       <body>
-        <Providers>{children}</Providers>
+        <LayoutProvider>{children}</LayoutProvider>
       </body>
     </html>
   );
