@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "data": "tsx src/app/scripts/csv-to-json.ts"
+    "data": "tsx src/app/_app-scripts/csv-to-json.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

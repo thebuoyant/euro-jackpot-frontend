@@ -1,4 +1,4 @@
-import { TRecord } from "../types/record.types";
+import { TRecord } from "../_app-types/record.types";
 import { handleReadJsonData } from "./handleReadJsonData";
 
 export function handleGetAllFirstClassDraws(limit = 0): TRecord[] {

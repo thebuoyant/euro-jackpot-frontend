@@ -1,7 +1,7 @@
-import { TRecord, RawRecord } from "../types/record.types";
-import { handleRecordMapping } from "../utils/record-mapping.util";
-import { sortByDateAsc } from "../utils/sort-by-date.util";
-import JsonDataFromCsv from "../data/data.json";
+import { TRecord, RawRecord } from "../_app-types/record.types";
+import { handleRecordMapping } from "../_app-utils/record-mapping.util";
+import { sortByDateAsc } from "../_app-utils/sort-by-date.util";
+import JsonDataFromCsv from "../_app-data/data.json";
 
 export function handleReadJsonData(limit = 0): TRecord[] {
   const src = (

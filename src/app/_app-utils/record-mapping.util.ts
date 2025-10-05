@@ -1,4 +1,4 @@
-import { DayTag, RawRecord, DrawRecord } from "../types/record.types";
+import { DayTag, RawRecord, DrawRecord } from "../_app-types/record.types";
 
 function toDayTag(value: string): DayTag {
   return value === "Di" || value === "Fr" ? value : "Fr";
