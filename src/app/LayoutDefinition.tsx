@@ -1,3 +1,4 @@
+import AppHeader from "./_app-components/app-header/AppHeader";
 import { APP_LAYOUT_CONST } from "./_app-constants/app-layout.const";
 
 export default function LayoutDefinition({
@@ -13,7 +14,7 @@ export default function LayoutDefinition({
   return (
     <div className="layout-definition">
       <div className="layout-header" style={{ height: `${headerHeight}px` }}>
-        header
+        <AppHeader />
       </div>
       <div
         className="layout-content"

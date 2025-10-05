@@ -1,0 +1,7 @@
+.app-header {
+  align-items: center;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  padding: 0 16px;
+}
