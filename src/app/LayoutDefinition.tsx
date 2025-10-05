@@ -1,4 +1,5 @@
 import AppHeader from "./_app-components/app-header/AppHeader";
+import AppSidebar from "./_app-components/app-sidebar/AppSidebar";
 import { APP_LAYOUT_CONST } from "./_app-constants/app-layout.const";
 
 export default function LayoutDefinition({
@@ -28,7 +29,7 @@ export default function LayoutDefinition({
             overflow: "hidden",
           }}
         >
-          sidebar
+          <AppSidebar />
         </div>
         <div
           className="layout-content-main"
