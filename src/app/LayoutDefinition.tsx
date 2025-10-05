@@ -6,18 +6,39 @@ export default function LayoutDefinition({
   children: React.ReactNode;
 }) {
   const sidebarWidth = APP_LAYOUT_CONST.sidebarWidth;
+  const headerHeight = APP_LAYOUT_CONST.headerHeight;
+  const calculatedContentHeight = `calc(100% - ${headerHeight}px)`;
+  const calculatedContentMainWidth = `calc(100% - ${sidebarWidth}px)`;
 
   return (
     <div className="layout-definition">
-      <div className="layout-header">header</div>
-      <div className="layout-content" style={{ display: "flex" }}>
+      <div className="layout-header" style={{ height: `${headerHeight}px` }}>
+        header
+      </div>
+      <div
+        className="layout-content"
+        style={{ display: "flex", height: calculatedContentHeight }}
+      >
         <div
           className="layout-content-sidebar"
-          style={{ width: `${sidebarWidth}px` }}
+          style={{
+            width: `${sidebarWidth}px`,
+            height: "100%",
+            overflow: "hidden",
+          }}
         >
           sidebar
         </div>
-        <div className="layout-content-main">{children}</div>
+        <div
+          className="layout-content-main"
+          style={{
+            height: "100%",
+            width: `${calculatedContentMainWidth}`,
+            overflow: "hidden",
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
