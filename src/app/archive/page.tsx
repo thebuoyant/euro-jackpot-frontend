@@ -8,10 +8,10 @@ import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 
 export default function ArchivePage() {
   useEffect(() => {
-    console.log("backend call");
     const backendCall = async () => {
       const res = await fetch(
-        `${API_ROUTE_CONST.archive}?numberOfResults=${10}`,
+        // `${API_ROUTE_CONST.archive}?numberOfResults=${0}`,
+        `${API_ROUTE_CONST.archive}`,
         {
           method: "GET",
         }
