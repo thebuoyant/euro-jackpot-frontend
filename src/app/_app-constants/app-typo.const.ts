@@ -26,7 +26,7 @@ export const APP_TYPO_CONST = {
         headerLabelClass1: "Status",
         tooltip: {
           classOne: "Klasse 1 - Gewinn",
-          classMax: "Klasse 1 - 120.000.000,00 €",
+          classMax: "Klasse 1 mit 120.000.000,00 €",
         },
       },
     },

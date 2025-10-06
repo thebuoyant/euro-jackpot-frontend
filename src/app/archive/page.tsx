@@ -192,10 +192,7 @@ export default function ArchivePage() {
                 <Tooltip
                   title={APP_TYPO_CONST.pages.archive.table.tooltip.classMax}
                 >
-                  <StarIcon
-                    className="table-star-icon"
-                    sx={{ position: "relative", top: 0.5 }}
-                  />
+                  <StarIcon className="star-icon" style={{ height: "100%" }} />
                 </Tooltip>
               );
             }
@@ -204,8 +201,8 @@ export default function ArchivePage() {
                 title={APP_TYPO_CONST.pages.archive.table.tooltip.classOne}
               >
                 <StarBorderIcon
-                  className="table-star-icon"
-                  sx={{ position: "relative", top: 0.5 }}
+                  className="star-icon"
+                  style={{ height: "100%" }}
                 />
               </Tooltip>
             );
