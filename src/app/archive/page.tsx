@@ -9,6 +9,9 @@ import { useArchiveStore } from "../_app-stores/archive.store";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
 import { formatNumberToString } from "../_app-utils/record.util";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
+import StarIcon from "@mui/icons-material/Star";
+import { APP_CONST } from "../_app-constants/app.const";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
@@ -33,13 +36,13 @@ export default function ArchivePage() {
     backendCall();
   }, []);
 
-  console.log("records", records);
-
   const columns: GridColDef[] = [
     {
       field: "datum",
       headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDate,
       width: 100,
+      align: "center",
+      headerAlign: "center",
     },
     {
       field: "nummer1",
@@ -106,6 +109,36 @@ export default function ArchivePage() {
       width: 50,
       align: "center",
       headerAlign: "center",
+    },
+    {
+      field: "anzahlKlasse1",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelClass1,
+      width: 90,
+      align: "center",
+      headerAlign: "center",
+      renderCell: (params) => {
+        const countClass = params.row.anzahlKlasse1;
+        const countQuoteKlasse1 = params.row.quoteKlasse1;
+
+        if (countClass > 0) {
+          if (countQuoteKlasse1 === APP_CONST.maxJackpotValue) {
+            return (
+              <StarIcon
+                className="table-start-icon"
+                style={{ position: "relative", top: "6px" }}
+              />
+            );
+          }
+          return (
+            <StarBorderIcon
+              className="table-start-icon"
+              style={{ position: "relative", top: "6px" }}
+            />
+          );
+        }
+
+        return <>{countClass > 0}</>;
+      },
     },
     // {
     //   field: "actions",
