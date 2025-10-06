@@ -40,26 +40,55 @@ export default function ArchivePage() {
       headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDate,
       width: 100,
     },
-    // {
-    //   field: "anschrift",
-    //   headerName: t.page.owners.tableColumnOwnerAddress,
-    //   width: 300,
-    // },
-    // {
-    //   field: "eigentuemerTypName",
-    //   headerName: t.page.owners.tableColumnOwnerTypeOfOwnership,
-    //   width: 200,
-    // },
-    // {
-    //   field: "gemarkung",
-    //   headerName: t.page.owners.tableColumnOwnerCadastralDirstrict,
-    //   width: 250,
-    // },
-    // {
-    //   field: "fkz",
-    //   headerName: t.page.owners.tableColumnOwnerParcelNumber,
-    //   width: 200,
-    // },
+    {
+      field: "nummer1",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber1,
+      width: 115,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "nummer2",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber2,
+      width: 115,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "nummer3",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber3,
+      width: 115,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "nummer4",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber4,
+      width: 115,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "nummer5",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber5,
+      width: 115,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "zz1",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelEuroNumber1,
+      width: 100,
+      align: "right",
+      headerAlign: "right",
+    },
+    {
+      field: "zz2",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelEuroNumber2,
+      width: 100,
+      align: "right",
+      headerAlign: "right",
+    },
     // {
     //   field: "actions",
     //   headerName: t.page.owners.tableColumnOwnerActions,
@@ -93,7 +122,7 @@ export default function ArchivePage() {
     }
 
     return (
-      <Box sx={{ height: 670, width: "100%" }}>
+      <Box sx={{ height: 705, width: "100%" }}>
         <DataGrid
           className="owners-table"
           rows={records}
