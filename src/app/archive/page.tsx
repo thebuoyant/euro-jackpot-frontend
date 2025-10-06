@@ -5,24 +5,32 @@ import "./Archive.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { useEffect } from "react";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
+import { useArchiveStore } from "../_app-stores/archive.store";
 
 export default function ArchivePage() {
+  const { setIsLoading, setRecords, records, numberOfResults } =
+    useArchiveStore() as any;
+
   useEffect(() => {
     const backendCall = async () => {
+      setIsLoading(true);
+
       const res = await fetch(
-        // `${API_ROUTE_CONST.archive}?numberOfResults=${0}`,
-        `${API_ROUTE_CONST.archive}`,
+        `${API_ROUTE_CONST.archive}?numberOfResults=${numberOfResults}`,
         {
           method: "GET",
         }
       );
       const data = await res.json();
 
-      console.log("data", data);
+      setRecords(data.records);
+      setIsLoading(false);
     };
 
     backendCall();
   }, []);
+
+  console.log("records", records);
 
   return (
     <div className="archive-page">
