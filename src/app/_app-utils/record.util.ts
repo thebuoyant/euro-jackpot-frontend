@@ -26,7 +26,7 @@ export function formatNumberToEuroString(
         : "")
     );
   } catch (e) {
-    // eslint-disable-next-line no-console
+     
     /* istanbul ignore next */
     console.error(e);
   }
@@ -75,7 +75,7 @@ export function formatNumberToString(
         : "")
     );
   } catch (e) {
-    // eslint-disable-next-line no-console
+     
     /* istanbul ignore next */
     console.error(e);
   }
