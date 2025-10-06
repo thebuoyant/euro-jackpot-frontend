@@ -226,7 +226,7 @@ export default function ArchivePage() {
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />
         ) : (
-          <Box sx={{ height: 705, width: "100%" }}>
+          <Box sx={{ height: 634, width: "100%" }}>
             <DataGrid
               className="archive-table"
               rows={records}
