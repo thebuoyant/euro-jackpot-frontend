@@ -1,14 +1,16 @@
 "use client";
 
-import { Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import "./Archive.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { useEffect } from "react";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { useArchiveStore } from "../_app-stores/archive.store";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
 
 export default function ArchivePage() {
-  const { setIsLoading, setRecords, records, numberOfResults } =
+  const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function ArchivePage() {
       );
       const data = await res.json();
 
-      setRecords(data.records);
+      setRecords(data.records || []);
       setIsLoading(false);
     };
 
@@ -31,6 +33,82 @@ export default function ArchivePage() {
   }, []);
 
   console.log("records", records);
+
+  const columns: GridColDef[] = [
+    {
+      field: "datum",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDate,
+      width: 100,
+    },
+    // {
+    //   field: "anschrift",
+    //   headerName: t.page.owners.tableColumnOwnerAddress,
+    //   width: 300,
+    // },
+    // {
+    //   field: "eigentuemerTypName",
+    //   headerName: t.page.owners.tableColumnOwnerTypeOfOwnership,
+    //   width: 200,
+    // },
+    // {
+    //   field: "gemarkung",
+    //   headerName: t.page.owners.tableColumnOwnerCadastralDirstrict,
+    //   width: 250,
+    // },
+    // {
+    //   field: "fkz",
+    //   headerName: t.page.owners.tableColumnOwnerParcelNumber,
+    //   width: 200,
+    // },
+    // {
+    //   field: "actions",
+    //   headerName: t.page.owners.tableColumnOwnerActions,
+    //   width: 150,
+    //   align: "left",
+    //   headerAlign: "left",
+    //   renderCell: (params) => {
+    //     return (
+    //       <>
+    //         <Tooltip title={t.general.tooltip.read}>
+    //           <IconButton
+    //             disableRipple
+    //             onClick={() => openDrawer("read-owner", params.row)}
+    //             color="primary"
+    //             size="small"
+    //           >
+    //             <ManageSearchIcon
+    //               style={{ position: "relative", top: "-2px" }}
+    //             />
+    //           </IconButton>
+    //         </Tooltip>
+    //       </>
+    //     );
+    //   },
+    // },
+  ];
+
+  const renderOwnersGrid = () => {
+    function getRandomInt(max: number) {
+      return Math.floor(Math.random() * max);
+    }
+
+    return (
+      <Box sx={{ height: 670, width: "100%" }}>
+        <DataGrid
+          className="owners-table"
+          rows={records}
+          columns={columns}
+          disableRowSelectionOnClick
+          getRowId={() => {
+            return getRandomInt(99999999);
+          }}
+          showToolbar={false}
+          density="compact"
+          disableColumnFilter
+        />
+      </Box>
+    );
+  };
 
   return (
     <div className="archive-page">
@@ -40,7 +118,11 @@ export default function ArchivePage() {
         </Typography>
       </div>
       <div className="archive-page-content page-content">
-        archive page content
+        {isLoading ? (
+          <SkeletonTable columns={10} rows={15} rowHeight={3} />
+        ) : (
+          renderOwnersGrid()
+        )}
       </div>
     </div>
   );

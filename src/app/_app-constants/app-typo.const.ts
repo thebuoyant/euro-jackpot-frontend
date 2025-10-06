@@ -12,6 +12,9 @@ export const APP_TYPO_CONST = {
     },
     archive: {
       headerTitle: "Archiv",
+      table: {
+        headerLabelDate: "Datum",
+      },
     },
   },
 };
