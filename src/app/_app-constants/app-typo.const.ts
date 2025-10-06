@@ -24,6 +24,10 @@ export const APP_TYPO_CONST = {
         headerLabelStake: "Spieleinsatz (€)",
         headerLabelDay: "Tag",
         headerLabelClass1: "Status",
+        tooltip: {
+          classOne: "Klasse 1 - Gewinn",
+          classMax: "Klasse 1 - 120.000.000,00 €",
+        },
       },
     },
   },

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import { Box, Tooltip, Typography } from "@mui/material";
 import {
   DataGrid,
   type GridColDef,
@@ -189,17 +189,25 @@ export default function ArchivePage() {
           if (countClass > 0) {
             if (countQuoteKlasse1 === APP_CONST.maxJackpotValue) {
               return (
-                <StarIcon
-                  className="table-star-icon"
-                  sx={{ position: "relative", top: 0.5 }}
-                />
+                <Tooltip
+                  title={APP_TYPO_CONST.pages.archive.table.tooltip.classMax}
+                >
+                  <StarIcon
+                    className="table-star-icon"
+                    sx={{ position: "relative", top: 0.5 }}
+                  />
+                </Tooltip>
               );
             }
             return (
-              <StarBorderIcon
-                className="table-star-icon"
-                sx={{ position: "relative", top: 0.5 }}
-              />
+              <Tooltip
+                title={APP_TYPO_CONST.pages.archive.table.tooltip.classOne}
+              >
+                <StarBorderIcon
+                  className="table-star-icon"
+                  sx={{ position: "relative", top: 0.5 }}
+                />
+              </Tooltip>
             );
           }
           return <></>;
