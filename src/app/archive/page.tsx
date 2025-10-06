@@ -1,5 +1,4 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -24,37 +23,36 @@ export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
-  // Fixe Seitengröße 15 — Pagination-Buttons bleiben sichtbar
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 15,
   });
 
-  // Daten holen (mit AbortController)
   useEffect(() => {
-    const ac = new AbortController();
+    let alive = true;
 
     (async () => {
       try {
         setIsLoading(true);
         const res = await fetch(
-          `${API_ROUTE_CONST.archive}?numberOfResults=${numberOfResults}`,
-          { signal: ac.signal }
+          `${API_ROUTE_CONST.archive}?numberOfResults=${numberOfResults}`
         );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        setRecords(data.records ?? []);
+        if (alive) setRecords(data.records ?? []);
       } catch (err) {
         if (process.env.NODE_ENV !== "production") console.error(err);
-        setRecords([]);
+        if (alive) setRecords([]);
       } finally {
-        setIsLoading(false);
+        if (alive) setIsLoading(false);
       }
     })();
 
-    return () => ac.abort();
+    return () => {
+      alive = false;
+    };
   }, [numberOfResults, setIsLoading, setRecords]);
 
-  // Spalten
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -216,7 +214,6 @@ export default function ArchivePage() {
     []
   );
 
-  // Stabile Row-ID (kein Math.random)
   const getRowId = (row: any) =>
     row.id ??
     `${row.datum}-${row.nummer1}-${row.nummer2}-${row.nummer3}-${row.nummer4}-${row.nummer5}-${row.zz1}-${row.zz2}`;
@@ -241,12 +238,10 @@ export default function ArchivePage() {
               getRowId={getRowId}
               density="compact"
               disableRowSelectionOnClick
-              // Header-Actions deaktivieren
               disableColumnMenu
               disableColumnFilter
               disableColumnSelector
               sortingOrder={[]}
-              // Pagination: fix 15, nur Buttons sichtbar
               paginationModel={paginationModel}
               onPaginationModelChange={setPaginationModel}
               pageSizeOptions={[15]}
