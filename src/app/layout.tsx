@@ -1,5 +1,5 @@
-import LayoutProvider from "./LayoutProvider";
 import "./globals.css";
+import LayoutProvider from "./LayoutProvider";
 
 export default function RootLayout({
   children,
