@@ -1,10 +1,8 @@
 "use client";
 
 import { ThemeProvider, CssBaseline } from "@mui/material";
-import { createTheme } from "@mui/material/styles";
 import LayoutDefinition from "./LayoutDefinition";
-
-const theme = createTheme();
+import { theme } from "./theme";
 
 export default function LayoutProvider({
   children,
