@@ -23,7 +23,7 @@ export const APP_TYPO_CONST = {
         headerLabelEuroNumber2: "Eurozahl - 2",
         headerLabelStake: "Spieleinsatz (€)",
         headerLabelDay: "Tag",
-        headerLabelClass1: "Klasse - 1",
+        headerLabelClass1: "Status",
       },
     },
   },

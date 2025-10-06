@@ -34,3 +34,9 @@ body {
   height: calc(100% - var(--page-header-height));
   overflow-y: auto;
 }
+
+.MuiDataGrid-columnHeader {
+  .MuiDataGrid-columnHeaderTitle {
+    font-weight: 600;
+  }
+}
