@@ -1,8 +1,29 @@
+"use client";
+
 import { Typography } from "@mui/material";
 import "./Archive.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
+import { useEffect } from "react";
+import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 
 export default function ArchivePage() {
+  useEffect(() => {
+    console.log("backend call");
+    const backendCall = async () => {
+      const res = await fetch(
+        `${API_ROUTE_CONST.archive}?numberOfResults=${10}`,
+        {
+          method: "GET",
+        }
+      );
+      const data = await res.json();
+
+      console.log("data", data);
+    };
+
+    backendCall();
+  }, []);
+
   return (
     <div className="archive-page">
       <div className="archive-page-header page-header">
