@@ -8,6 +8,7 @@ import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { useArchiveStore } from "../_app-stores/archive.store";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
+import { formatNumberToString } from "../_app-utils/record.util";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
@@ -88,6 +89,23 @@ export default function ArchivePage() {
       width: 100,
       align: "right",
       headerAlign: "right",
+    },
+    {
+      field: "spielEinsatz",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelStake,
+      width: 150,
+      align: "right",
+      headerAlign: "right",
+      renderCell: (params) => {
+        return <>{formatNumberToString(params.row.spielEinsatz, 2)}</>;
+      },
+    },
+    {
+      field: "tag",
+      headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDay,
+      width: 50,
+      align: "center",
+      headerAlign: "center",
     },
     // {
     //   field: "actions",

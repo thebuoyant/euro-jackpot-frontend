@@ -21,6 +21,8 @@ export const APP_TYPO_CONST = {
         headerLabelWinningNumber5: "Gewinnzahl - 5",
         headerLabelEuroNumber1: "Eurozahl - 1",
         headerLabelEuroNumber2: "Eurozahl - 2",
+        headerLabelStake: "Spieleinsatz (€)",
+        headerLabelDay: "Tag",
       },
     },
   },
