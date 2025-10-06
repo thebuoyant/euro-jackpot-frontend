@@ -4,8 +4,14 @@ export const APP_TYPO_CONST = {
     navItemArchive: "Archiv",
   },
   pages: {
+    home: {
+      headerTitle: "Herzlich Willkommen",
+    },
     dashboard: {
       headerTitle: "Dashboard",
+    },
+    archive: {
+      headerTitle: "Archiv",
     },
   },
 };
