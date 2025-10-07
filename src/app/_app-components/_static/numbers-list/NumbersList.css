@@ -1,0 +1,26 @@
+.numbers-list {
+  .default-numbers {
+    .MuiButtonBase-root {
+      margin-right: 4px;
+      box-shadow: none;
+      pointer-events: none;
+    }
+
+    .MuiButtonBase-root:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .micro-numbers {
+    display: flex;
+
+    .micro-number {
+      margin-right: 2px;
+      cursor: default;
+    }
+
+    .micro-number:last-child {
+      margin-right: 0;
+    }
+  }
+}
