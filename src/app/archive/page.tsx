@@ -20,6 +20,7 @@ import { formatNumberToString } from "../_app-utils/record.util";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { useDrawDetailsStore } from "../_app-stores/draw-details.store";
+import ArchiveToolbar, { type ArchiveDateRange } from "./ArchiveToolbar";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
@@ -32,6 +33,73 @@ export default function ArchivePage() {
     page: 0,
     pageSize: 15,
   });
+
+  // Date-Range-Filter (gesteuert von ArchiveToolbar)
+  const [dateRange, setDateRange] = useState<ArchiveDateRange>({
+    from: null,
+    to: null,
+  });
+
+  /**
+   * Robust: akzeptiert "dd.MM.yyyy", "dd.MM.yy", "yyyy-MM-dd" (ISO)
+   * Gibt einen **UTC-mittags**-Zeitpunkt zurück, um TZ-Side-Effects zu vermeiden.
+   */
+  const parseToComparableDate = (raw: string): number | null => {
+    if (!raw) return null;
+
+    // ISO yyyy-MM-dd
+    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (iso) {
+      const [, y, m, d] = iso;
+      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
+    }
+
+    // dd.MM.yyyy
+    const de = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+    if (de) {
+      const [, d, m, y] = de;
+      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
+    }
+
+    // dd.MM.yy  -> 20yy (Fallback)
+    const deshort = raw.match(/^(\d{2})\.(\d{2})\.(\d{2})$/);
+    if (deshort) {
+      const [, d, m, yy] = deshort;
+      const y = 2000 + Number(yy);
+      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
+    }
+
+    return null;
+  };
+
+  /** Records -> gefiltert nach dateRange (inklusive 'Bis'-Tag) */
+  const filteredRecords = useMemo(() => {
+    if (!Array.isArray(records)) return [];
+
+    const fromTs = dateRange.from
+      ? parseToComparableDate(dateRange.from)
+      : null;
+    const toTsEndOfDay = dateRange.to
+      ? ((): number | null => {
+          const base = parseToComparableDate(dateRange.to);
+          if (base == null) return null;
+          // End-of-day, aber weiterhin TZ-neutral: +11h (von 12:00 auf 23:00 UTC ~ Ende)
+          return base + 11 * 60 * 60 * 1000;
+        })()
+      : null;
+
+    return records.filter((row: any) => {
+      // Erwartetes Feld aus API: row.datum z.B. "03.05.2024"
+      const ts =
+        typeof row?.datum === "string"
+          ? parseToComparableDate(row.datum)
+          : null;
+      if (ts == null) return false;
+      if (fromTs != null && ts < fromTs) return false;
+      if (toTsEndOfDay != null && ts > toTsEndOfDay) return false;
+      return true;
+    });
+  }, [records, dateRange]);
 
   useEffect(() => {
     let alive = true;
@@ -269,7 +337,16 @@ export default function ArchivePage() {
           {APP_TYPO_CONST.pages.archive.headerTitle}
         </Typography>
       </div>
-
+      <div className="archive-toolbar">
+        <ArchiveToolbar
+          value={dateRange}
+          onChange={setDateRange}
+          onApply={() => {
+            /* optional: Filter ist bereits reaktiv */
+          }}
+          onClear={() => setDateRange({ from: null, to: null })}
+        />
+      </div>
       <div className="archive-page-content page-content">
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />
