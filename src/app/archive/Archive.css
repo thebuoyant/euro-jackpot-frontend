@@ -1,3 +1,7 @@
 .archive-page {
   height: 100%;
+
+  .archive-toolbar {
+    height: 60px;
+  }
 }

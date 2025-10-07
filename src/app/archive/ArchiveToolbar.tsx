@@ -47,15 +47,14 @@ export default function ArchiveToolbar({
         InputLabelProps={{ shrink: true }}
         size="small"
       />
-      <Button variant="contained" onClick={onApply} size="small">
-        Anwenden
-      </Button>
       <Button
-        variant="text"
-        onClick={onClear}
-        size="small"
+        variant="contained"
+        onClick={onApply}
         sx={{ textTransform: "none" }}
       >
+        Anwenden
+      </Button>
+      <Button variant="text" onClick={onClear} sx={{ textTransform: "none" }}>
         Zurücksetzen
       </Button>
     </Box>
