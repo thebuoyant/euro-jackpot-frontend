@@ -1,0 +1,71 @@
+.modal-draw-details-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  @media only screen and (max-width: 400px) {
+    font-size: 16px;
+  }
+
+  @media only screen and (max-width: 320px) {
+    font-size: 14px;
+  }
+
+  .close-icon {
+    position: relative;
+    right: -12px;
+  }
+}
+
+.modal-draw-details {
+  .draw-details-section {
+    .numbers {
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .MuiFab-root {
+        margin-right: 4px;
+        box-shadow: none;
+        pointer-events: none;
+      }
+
+      .MuiFab-root:last-child {
+        margin-right: 0;
+      }
+    }
+  }
+
+  .class-section {
+    margin-top: 16px;
+
+    .class-item {
+      height: 56px;
+      background-color: var(--color-archive-draw);
+      color: var(--color-white);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 4px;
+
+      .header {
+        margin-bottom: 4px;
+      }
+
+      .content {
+        display: flex;
+        justify-content: space-between;
+      }
+    }
+
+    .class-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .class-item:hover {
+      opacity: 0.8;
+    }
+  }
+}

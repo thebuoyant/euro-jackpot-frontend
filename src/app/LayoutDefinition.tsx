@@ -1,3 +1,4 @@
+import DrawDetailsModal from "./_app-components/_static/draw-details-modal/RecordDetailModal";
 import AppHeader from "./_app-components/app-header/AppHeader";
 import AppSidebar from "./_app-components/app-sidebar/AppSidebar";
 import { APP_LAYOUT_CONST } from "./_app-constants/app-layout.const";
@@ -43,6 +44,7 @@ export default function LayoutDefinition({
           {children}
         </div>
       </div>
+      <DrawDetailsModal />
     </div>
   );
 }
