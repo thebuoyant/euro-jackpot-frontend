@@ -1,3 +1,5 @@
+import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
+
 export function formatNumberToEuroString(
   amount = 0,
   decimalCount = 2,
@@ -26,7 +28,6 @@ export function formatNumberToEuroString(
         : "")
     );
   } catch (e) {
-     
     /* istanbul ignore next */
     console.error(e);
   }
@@ -75,8 +76,15 @@ export function formatNumberToString(
         : "")
     );
   } catch (e) {
-     
     /* istanbul ignore next */
     console.error(e);
   }
+}
+
+export function resolveDay(dayShortValue: "Di" | "Fr"): string {
+  if (dayShortValue === "Di") {
+    return APP_TYPO_CONST.common.tuesday;
+  }
+
+  return APP_TYPO_CONST.common.friday;
 }

@@ -1,7 +1,16 @@
 export const APP_TYPO_CONST = {
+  common: {
+    friday: "Freitag",
+    tuesday: "Dienstag",
+  },
   sidebar: {
     navItemDashboard: "Dashboard",
     navItemArchive: "Archiv",
+  },
+  components: {
+    drawDetailsModal: {
+      title: "Ziehung vom",
+    },
   },
   pages: {
     home: {

@@ -6,7 +6,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useDrawDetailsStore } from "src/app/_app-stores/draw-details.store";
 
 export default function DrawDetailsModal() {
-  const { isOpen, setIsOpen } = useDrawDetailsStore() as any;
+  const { isOpen, setIsOpen, drawRecord } = useDrawDetailsStore() as any;
 
   const handleClose = () => {
     setIsOpen(false);
