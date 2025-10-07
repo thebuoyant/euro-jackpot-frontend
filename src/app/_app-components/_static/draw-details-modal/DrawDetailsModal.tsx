@@ -54,7 +54,7 @@ export default function DrawDetailsModal() {
               euroNumber1={drawRecord?.zz1 || 6}
               euroNumber2={drawRecord?.zz2 || 7}
             />
-            <div className="class-section" style={{ marginTop: "24px" }}>
+            <div className="class-section" style={{ marginTop: "12px" }}>
               <ClassCount
                 label={`${APP_TYPO_CONST.common.class} 1`}
                 count={drawRecord?.anzahlKlasse1}

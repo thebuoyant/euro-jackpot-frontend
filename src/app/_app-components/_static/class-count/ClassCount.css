@@ -8,9 +8,13 @@
   margin-bottom: 4px;
 
   .header {
-    margin-bottom: 4px;
     overflow: hidden;
     color: var(--color-primary);
+
+    .MuiTypography-root {
+      position: relative;
+      top: 2px;
+    }
   }
 
   .content {

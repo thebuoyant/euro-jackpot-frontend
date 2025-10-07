@@ -18,13 +18,13 @@ export default function ClassCount({
 }: ClassCountProps) {
   return (
     <div className="class-count">
-      <div className="header" style={{ height: "20px" }}>
+      <div className="header">
         <Typography variant="body2">{label}</Typography>
       </div>
       <div className="content">
         <div className="left">
           <Typography variant="caption">
-            {formatNumberToString(count, 0)}
+            {formatNumberToString(count, 0)} x
           </Typography>
         </div>
         <div className="right">
