@@ -50,11 +50,15 @@ export default function ArchiveToolbar({
       <Button
         variant="contained"
         onClick={onApply}
-        sx={{ textTransform: "none" }}
+        sx={{ textTransform: "none", width: "135px" }}
       >
         Anwenden
       </Button>
-      <Button variant="text" onClick={onClear} sx={{ textTransform: "none" }}>
+      <Button
+        variant="contained"
+        onClick={onClear}
+        sx={{ textTransform: "none", width: "135px" }}
+      >
         Zurücksetzen
       </Button>
     </Box>
