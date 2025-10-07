@@ -18,10 +18,15 @@ import { APP_CONST } from "../_app-constants/app.const";
 import { useArchiveStore } from "../_app-stores/archive.store";
 import { formatNumberToString } from "../_app-utils/record.util";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
+import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
+import { useDrawDetailsStore } from "../_app-stores/draw-details.store";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
+
+  const { setIsOpen: setDrawDetailsIsOpen, setDrawRecord } =
+    useDrawDetailsStore() as any;
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
@@ -210,8 +215,47 @@ export default function ArchivePage() {
           return <></>;
         },
       },
+      {
+        field: "1",
+        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelActions,
+        sortable: false,
+        filterable: false,
+        hideable: false,
+        resizable: false,
+        renderCell: (params) => {
+          const handleDrawDetailsClick = () => {
+            setDrawRecord(params.row);
+            setDrawDetailsIsOpen(true);
+          };
+
+          return (
+            <div
+              className="actions-wrapper"
+              style={{ height: "100%", display: "flex", alignItems: "center" }}
+            >
+              <Tooltip
+                title={
+                  APP_TYPO_CONST.pages.archive.table.tooltip.actionDrawDetails
+                }
+              >
+                <span onClick={handleDrawDetailsClick}>
+                  <PlaylistAddCheckCircleIcon
+                    className="star-icon"
+                    style={{
+                      height: "100%",
+                      cursor: "pointer",
+                      position: "relative",
+                      top: "6px",
+                    }}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+          );
+        },
+      },
     ],
-    []
+    [setDrawDetailsIsOpen, setDrawRecord]
   );
 
   const getRowId = (row: any) =>
