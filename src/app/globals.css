@@ -1,6 +1,13 @@
 :root {
   --background-color: #ffffff;
   --foreground-color: #171717;
+  --color-archive-record: #8899aa;
+  --color-list-border: #123456;
+  --color-primary: #123456;
+  --color-success: #2e7d32;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-gold: #e7c785;
   --page-header-height: 40px;
 }
 

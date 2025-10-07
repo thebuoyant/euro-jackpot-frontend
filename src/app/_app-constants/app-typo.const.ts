@@ -2,6 +2,7 @@ export const APP_TYPO_CONST = {
   common: {
     friday: "Freitag",
     tuesday: "Dienstag",
+    class: "Klasse",
   },
   sidebar: {
     navItemDashboard: "Dashboard",

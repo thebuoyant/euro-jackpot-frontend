@@ -1,0 +1,28 @@
+.class-count {
+  background-color: var(--color-archive-record);
+  color: var(--color-white);
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 4px;
+
+  .header {
+    margin-bottom: 4px;
+    overflow: hidden;
+    color: var(--color-primary);
+  }
+
+  .content {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+
+.class-count:last-child {
+  margin-bottom: 0;
+}
+
+.class-count:hover {
+  opacity: 0.8;
+}
