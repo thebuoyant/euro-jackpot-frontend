@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Box, Button, TextField } from "@mui/material";
+import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 export type ArchiveDateRange = {
   from: string | null; // yyyy-MM-dd (native date input)
@@ -32,34 +33,41 @@ export default function ArchiveToolbar({
       }}
     >
       <TextField
-        label="Von"
+        label={APP_TYPO_CONST.pages.archive.toolbar.labelFrom}
         type="date"
         value={value.from ?? ""}
         onChange={(e) => onChange({ ...value, from: e.target.value || null })}
         InputLabelProps={{ shrink: true }}
         size="small"
+        sx={{ width: "170px" }}
       />
       <TextField
-        label="Bis"
+        label={APP_TYPO_CONST.pages.archive.toolbar.labelTo}
         type="date"
         value={value.to ?? ""}
         onChange={(e) => onChange({ ...value, to: e.target.value || null })}
         InputLabelProps={{ shrink: true }}
         size="small"
+        sx={{ width: "170px" }}
       />
       <Button
         variant="contained"
-        onClick={onApply}
-        sx={{ textTransform: "none", width: "135px" }}
+        color="inherit"
+        onClick={onClear}
+        sx={{ textTransform: "none", width: "150px" }}
+        disableElevation
+        disabled
       >
-        Anwenden
+        {APP_TYPO_CONST.pages.archive.toolbar.buttonLabelReset}
       </Button>
       <Button
         variant="contained"
-        onClick={onClear}
-        sx={{ textTransform: "none", width: "135px" }}
+        onClick={onApply}
+        sx={{ textTransform: "none", width: "150px" }}
+        disableElevation
+        disabled
       >
-        Zurücksetzen
+        {APP_TYPO_CONST.pages.archive.toolbar.buttonLabelApply}
       </Button>
     </Box>
   );

@@ -41,6 +41,12 @@ export const APP_TYPO_CONST = {
           actionDrawDetails: "Details der Ziehung",
         },
       },
+      toolbar: {
+        labelFrom: "von",
+        labelTo: "bis",
+        buttonLabelApply: "Anwenden",
+        buttonLabelReset: "Zurücksetzen",
+      },
     },
   },
 };
