@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Card, CardContent, Typography, Divider } from "@mui/material";
@@ -43,7 +44,7 @@ export default function DashboardPage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [setIsLoadingLastDrawData, setLastDrawRecord]);
 
   // Demo data for the charts
   const mock = Array.from({ length: 10 }).map((_, i) => ({

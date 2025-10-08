@@ -1,5 +1,3 @@
-import { title } from "process";
-
 export const APP_TYPO_CONST = {
   common: {
     friday: "Freitag",

@@ -1,29 +1,12 @@
 "use client";
 
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  Divider,
-  Typography,
-} from "@mui/material";
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
+import { Card, CardContent, Divider, Typography } from "@mui/material";
 import { DrawRecord } from "src/app/_app-types/record.types";
 import {
   formatNumberToString,
   resolveDay,
 } from "src/app/_app-utils/record.util";
-
-type Item = { name: string; value: number };
 
 export default function DashboardCardLastDraw({
   title,
@@ -42,8 +25,6 @@ export default function DashboardCardLastDraw({
   labelDay: string;
   draw: DrawRecord;
 }) {
-  console.log("draw", draw);
-
   if (!draw) {
     return null;
   }
