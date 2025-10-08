@@ -1,21 +1,22 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Card, CardContent, Typography, Divider } from "@mui/material";
+import { Typography } from "@mui/material";
 import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
-import ChartCard from "../_app-components/_static/chart-card/ChartCard";
 import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDrawCard";
 import { useDashboardStore } from "../_app-stores/dashboard.store";
 import { useEffect } from "react";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { DrawRecord } from "../_app-types/record.types";
+import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDrawCard";
 
 export default function DashboardPage() {
   const {
     lastDrawRecord,
     setIsLoadingLastDrawData,
     setLastDrawRecord,
+    firstDrawRecord,
     setIsLoadingFirstDrawData,
     setFirstDrawRecord,
   } = useDashboardStore() as any;
@@ -82,24 +83,6 @@ export default function DashboardPage() {
     };
   }, [setIsLoadingFirstDrawData, setFirstDrawRecord]);
 
-  // Demo data for the charts
-  const mock = Array.from({ length: 10 }).map((_, i) => ({
-    name: `KW ${i + 1}`,
-    value: Math.round(10 + Math.random() * 30),
-  }));
-
-  // Build 8+ tiles (mix of simple cards and charts as demo)
-  const tiles = [
-    { type: "last-draw" as const, title: "Letzte Ziehung" },
-    { type: "chart" as const, title: "Einsätze (Demo A)", data: mock },
-    { type: "chart" as const, title: "Einsätze (Demo B)", data: mock },
-    { type: "chart" as const, title: "Einsätze (Demo C)", data: mock },
-    { type: "text" as const, title: "Hinweis A" },
-    { type: "text" as const, title: "Hinweis B" },
-    { type: "text" as const, title: "Hinweis C" },
-    { type: "text" as const, title: "Hinweis D" },
-  ];
-
   return (
     <div className="dashboard-page">
       {/* Header */}
@@ -117,7 +100,6 @@ export default function DashboardPage() {
           role="region"
           aria-label="Dashboard layout"
         >
-          {/* Render tiles */}
           <DashboardCardLastDraw
             title={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.title}
             labelDate={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelDate}
@@ -133,7 +115,22 @@ export default function DashboardPage() {
             labelDay={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelDay}
             draw={lastDrawRecord}
           />
-          {tiles.map((tile, idx) => {
+          <DashboardCardFirstDraw
+            title={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.title}
+            labelDate={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelDate}
+            labelWinningNumbers={
+              APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelWinningNumbers
+            }
+            labelEuroNumbers={
+              APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelEuroNumbers
+            }
+            labelStake={
+              APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelStake
+            }
+            labelDay={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelDay}
+            draw={firstDrawRecord}
+          />
+          {/* {tiles.map((tile, idx) => {
             if (tile.type === "last-draw") {
               return (
                 <Card key={idx} className="card" elevation={4}>
@@ -190,7 +187,7 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             );
-          })}
+          })} */}
         </div>
       </div>
     </div>
