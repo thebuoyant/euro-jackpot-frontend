@@ -1,3 +1,71 @@
+/* Root page scope */
 .dashboard-page {
-  height: 100%;
+  /* Header */
+  .dashboard-page-header.page-header {
+    margin-bottom: 12px;
+  }
+
+  /* Scrollable content wrapper */
+  .dashboard-page-content.page-content {
+    /* Full-height minus header spacing; adjust to your layout if needed */
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+
+    /* Contrast so card elevation (shadows) pop */
+    background: #f5f6f8;
+    border-radius: 12px;
+
+    /* Keep outer card shadows visible */
+    padding: 16px;
+    box-sizing: border-box;
+
+    /* Two equal-width columns; cards wrap to next row */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(
+        2,
+        minmax(0, 1fr)
+      ); /* exactly two columns */
+      gap: 16px;
+
+      /* Cards */
+      .card {
+        border-radius: 12px;
+        overflow: hidden; /* remove if tooltips need overflow */
+      }
+
+      /* Lists inside cards */
+      .card-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          display: grid;
+          grid-template-columns: 120px 1fr;
+          gap: 8px;
+          padding: 6px 0;
+        }
+
+        .label {
+          color: var(--mui-palette-text-secondary, #6b7280);
+        }
+
+        .value {
+          font-variant-numeric: tabular-nums;
+        }
+      }
+    }
+  }
+}
+
+/* (Optional) if you later need responsive tweaks, keep them nested too */
+@media (min-width: 1200px) {
+  .dashboard-page {
+    .dashboard-page-content.page-content {
+      .dashboard-grid {
+        gap: 20px;
+      }
+    }
+  }
 }
