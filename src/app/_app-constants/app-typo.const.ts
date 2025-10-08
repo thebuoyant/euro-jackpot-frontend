@@ -1,3 +1,5 @@
+import { title } from "process";
+
 export const APP_TYPO_CONST = {
   common: {
     friday: "Freitag",
@@ -19,6 +21,15 @@ export const APP_TYPO_CONST = {
     },
     dashboard: {
       headerTitle: "Dashboard",
+      cards: {
+        lastDraw: {
+          title: "Letzte Ziehung",
+          labelDate: "Datum",
+          labelWinningNumbers: "Gewinnzahlen",
+          labelEuroNumbers: "Eurozahlen",
+          labelStake: "Spieleinsatz",
+        },
+      },
     },
     archive: {
       headerTitle: "Archiv",

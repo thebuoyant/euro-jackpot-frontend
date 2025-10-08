@@ -4,6 +4,7 @@ import { Card, CardContent, Typography, Divider } from "@mui/material";
 import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import ChartCard from "../_app-components/_static/chart-card/ChartCard";
+import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDrawCard";
 
 export default function DashboardPage() {
   // Demo data for the charts
@@ -42,6 +43,19 @@ export default function DashboardPage() {
           aria-label="Dashboard layout"
         >
           {/* Render tiles */}
+          <DashboardCardLastDraw
+            title={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.title}
+            labelDate={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelDate}
+            labelWinningNumbers={
+              APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelWinningNumbers
+            }
+            labelEuroNumbers={
+              APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelEuroNumbers
+            }
+            labelStake={
+              APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelStake
+            }
+          />
           {tiles.map((tile, idx) => {
             if (tile.type === "last-draw") {
               return (
