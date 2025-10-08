@@ -9,4 +9,12 @@ export const useDashboardStore = create((set) => ({
   lastDrawRecord: null as DrawRecord | null,
   setLastDrawRecord: (receivedValue: DrawRecord | null) =>
     set(() => ({ lastDrawRecord: receivedValue })),
+
+  isLoadingFirstDrawData: false as boolean,
+  setIsLoadingFirstDrawData: (receivedValue: boolean) =>
+    set(() => ({ isLoadingFirstDrawData: receivedValue })),
+
+  firstDrawRecord: null as DrawRecord | null,
+  setFirstDrawRecord: (receivedValue: DrawRecord | null) =>
+    set(() => ({ firstDrawRecord: receivedValue })),
 }));
