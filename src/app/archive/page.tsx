@@ -15,16 +15,22 @@ import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { useArchiveStore } from "../_app-stores/archive.store";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
 import { useDrawDetailsStore } from "../_app-stores/draw-details.store";
-import ArchiveToolbar, { type ArchiveDateRange } from "./ArchiveToolbar";
+import ArchiveToolbar, {
+  type ArchiveDateRange,
+  type DayFilter,
+} from "./ArchiveToolbar";
 import { getArchiveColumns, type ArchiveRecord } from "./_archiveColumns";
 
 export default function ArchivePage() {
+  // Global archive state (Zustand)
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
+  // Drawer for draw details (Zustand)
   const { setIsOpen: setDrawDetailsIsOpen, setDrawRecord } =
     useDrawDetailsStore() as any;
 
+  // Local pagination state for DataGrid
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 15,
@@ -35,6 +41,9 @@ export default function ArchivePage() {
     from: null,
     to: null,
   });
+
+  // Weekday filter state: 'tue' | 'fri' | 'both' (controlled by ArchiveToolbar)
+  const [dayFilter, setDayFilter] = useState<DayFilter>("both");
 
   /**
    * Parse a date string into a comparable UTC timestamp (set to 12:00)
@@ -70,16 +79,23 @@ export default function ArchivePage() {
   }, []);
 
   /**
-   * Filter records by selected date range.
-   * - If both from/to are empty -> return original array (fast path).
+   * Filter records by selected date range and weekday.
+   * - If both from/to are empty and dayFilter is "both" -> return original array (fast path).
    * - End date is included by extending the comparable end to ~end-of-day.
+   * - Weekday uses `row.tag` with values "Di" (Tuesday) or "Fr" (Friday).
    */
   const filteredRecords: ArchiveRecord[] = useMemo(() => {
     if (!Array.isArray(records)) return [];
+
     const hasFrom = !!dateRange.from;
     const hasTo = !!dateRange.to;
-    if (!hasFrom && !hasTo) return records as ArchiveRecord[];
+    const isBoth = dayFilter === "both";
 
+    if (!hasFrom && !hasTo && isBoth) {
+      return records as ArchiveRecord[]; // nothing to filter
+    }
+
+    // Date range boundary timestamps
     const fromTs = hasFrom ? parseToComparableDate(dateRange.from!) : null;
     const toTsEndOfDay = hasTo
       ? (() => {
@@ -90,7 +106,19 @@ export default function ArchivePage() {
         })()
       : null;
 
+    // Weekday predicate: "Di" = Tue, "Fr" = Fri
+    const matchesDay = (row: ArchiveRecord) => {
+      if (isBoth) return true;
+      if (dayFilter === "tue") return row.tag === "Di";
+      if (dayFilter === "fri") return row.tag === "Fr";
+      return true;
+    };
+
     return (records as ArchiveRecord[]).filter((row) => {
+      // First: weekday check (cheap bailout)
+      if (!matchesDay(row)) return false;
+
+      // Then: date range check (if any)
       const ts =
         typeof row?.datum === "string"
           ? parseToComparableDate(row.datum)
@@ -98,9 +126,10 @@ export default function ArchivePage() {
       if (ts == null) return false;
       if (fromTs != null && ts < fromTs) return false;
       if (toTsEndOfDay != null && ts > toTsEndOfDay) return false;
+
       return true;
     });
-  }, [records, dateRange, parseToComparableDate]);
+  }, [records, dateRange, dayFilter, parseToComparableDate]);
 
   /**
    * Fetch records when `numberOfResults` changes.
@@ -162,18 +191,28 @@ export default function ArchivePage() {
 
   return (
     <div className="archive-page">
+      {/* Page header */}
       <div className="archive-page-header page-header">
         <Typography variant="h6">
           {APP_TYPO_CONST.pages.archive.headerTitle}
         </Typography>
       </div>
+
+      {/* Toolbar: date + weekday filter */}
       <div className="archive-toolbar">
         <ArchiveToolbar
           value={dateRange}
           onChange={setDateRange}
-          onClear={() => setDateRange({ from: null, to: null })}
+          day={dayFilter}
+          onDayChange={setDayFilter}
+          onClear={() => {
+            setDateRange({ from: null, to: null });
+            setDayFilter("both");
+          }}
         />
       </div>
+
+      {/* Page content */}
       <div className="archive-page-content page-content">
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />
