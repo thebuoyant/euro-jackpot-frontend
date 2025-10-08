@@ -12,8 +12,13 @@ import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { DrawRecord } from "../_app-types/record.types";
 
 export default function DashboardPage() {
-  const { lastDrawRecord, setIsLoadingLastDrawData, setLastDrawRecord } =
-    useDashboardStore() as any;
+  const {
+    lastDrawRecord,
+    setIsLoadingLastDrawData,
+    setLastDrawRecord,
+    setIsLoadingFirstDrawData,
+    setFirstDrawRecord,
+  } = useDashboardStore() as any;
 
   // last draw data
   useEffect(() => {
@@ -45,6 +50,37 @@ export default function DashboardPage() {
       alive = false;
     };
   }, [setIsLoadingLastDrawData, setLastDrawRecord]);
+
+  // first draw data
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        setIsLoadingFirstDrawData(true);
+
+        const res = await fetch(`${API_ROUTE_CONST.firstDraw}`);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+
+        setFirstDrawRecord(data.firstDrawRecord);
+        if (alive)
+          setFirstDrawRecord((data?.firstDrawRecord ?? {}) as DrawRecord);
+      } catch (err) {
+        // Log only outside production to keep prod console clean
+        if (process.env.NODE_ENV !== "production") console.error(err);
+        if (alive) setFirstDrawRecord(null);
+      } finally {
+        if (alive) setIsLoadingFirstDrawData(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [setIsLoadingFirstDrawData, setFirstDrawRecord]);
 
   // Demo data for the charts
   const mock = Array.from({ length: 10 }).map((_, i) => ({
