@@ -5,8 +5,11 @@ import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import ChartCard from "../_app-components/_static/chart-card/ChartCard";
 import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDrawCard";
+import { useDashboardStore } from "../_app-stores/dashboard.store";
 
 export default function DashboardPage() {
+  const { lastDrawRecord } = useDashboardStore() as any;
+
   // Demo data for the charts
   const mock = Array.from({ length: 10 }).map((_, i) => ({
     name: `KW ${i + 1}`,
@@ -55,6 +58,7 @@ export default function DashboardPage() {
             labelStake={
               APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelStake
             }
+            draw={lastDrawRecord}
           />
           {tiles.map((tile, idx) => {
             if (tile.type === "last-draw") {

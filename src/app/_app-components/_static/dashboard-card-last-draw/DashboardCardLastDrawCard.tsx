@@ -17,6 +17,7 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
+import { DrawRecord } from "src/app/_app-types/record.types";
 
 type Item = { name: string; value: number };
 
@@ -26,15 +27,16 @@ export default function DashboardCardLastDraw({
   labelWinningNumbers,
   labelEuroNumbers,
   labelStake,
-  data = [],
+  draw,
 }: {
   title: string;
   labelDate: string;
   labelWinningNumbers: string;
   labelEuroNumbers: string;
   labelStake: string;
-  data?: Item[];
+  draw: DrawRecord;
 }) {
+  console.log("draw", draw);
   return (
     <Card className="card" elevation={4}>
       <CardContent>
