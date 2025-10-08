@@ -28,6 +28,14 @@ export const APP_TYPO_CONST = {
           labelStake: "Spieleinsatz",
           labelDay: "Wochentag",
         },
+        firstDraw: {
+          title: "Erste Ziehung",
+          labelDate: "Datum",
+          labelWinningNumbers: "Gewinnzahlen",
+          labelEuroNumbers: "Eurozahlen",
+          labelStake: "Spieleinsatz",
+          labelDay: "Wochentag",
+        },
       },
     },
     archive: {
