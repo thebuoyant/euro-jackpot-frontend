@@ -341,9 +341,6 @@ export default function ArchivePage() {
         <ArchiveToolbar
           value={dateRange}
           onChange={setDateRange}
-          onApply={() => {
-            /* optional: Filter ist bereits reaktiv */
-          }}
           onClear={() => setDateRange({ from: null, to: null })}
         />
       </div>
@@ -354,7 +351,7 @@ export default function ArchivePage() {
           <Box sx={{ height: 634, width: "100%" }}>
             <DataGrid
               className="archive-table"
-              rows={records}
+              rows={filteredRecords}
               columns={columns}
               getRowId={getRowId}
               density="compact"
