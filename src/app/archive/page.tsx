@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Box, Tooltip, Typography } from "@mui/material";
 import {
   DataGrid,
@@ -10,7 +10,6 @@ import {
 } from "@mui/x-data-grid";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
-
 import "./Archive.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
@@ -22,29 +21,50 @@ import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCirc
 import { useDrawDetailsStore } from "../_app-stores/draw-details.store";
 import ArchiveToolbar, { type ArchiveDateRange } from "./ArchiveToolbar";
 
+/** Optional typing for a single record; adjust if API changes */
+type ArchiveRecord = {
+  id?: string;
+  datum: string; // e.g. "03.05.2024"
+  nummer1: number;
+  nummer2: number;
+  nummer3: number;
+  nummer4: number;
+  nummer5: number;
+  zz1: number;
+  zz2: number;
+  spielEinsatz: number;
+  tag: string;
+  anzahlKlasse1: number;
+  quoteKlasse1: number;
+};
+
 export default function ArchivePage() {
+  // Global archive state (Zustand)
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
+  // Drawer for draw details (Zustand)
   const { setIsOpen: setDrawDetailsIsOpen, setDrawRecord } =
     useDrawDetailsStore() as any;
 
+  // Local pagination state for DataGrid
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 15,
   });
 
-  // Date-Range-Filter (gesteuert von ArchiveToolbar)
+  // Date range state controlled by ArchiveToolbar
   const [dateRange, setDateRange] = useState<ArchiveDateRange>({
     from: null,
     to: null,
   });
 
   /**
-   * Robust: akzeptiert "dd.MM.yyyy", "dd.MM.yy", "yyyy-MM-dd" (ISO)
-   * Gibt einen **UTC-mittags**-Zeitpunkt zurück, um TZ-Side-Effects zu vermeiden.
+   * Parse a date string into a comparable UTC timestamp set to 12:00,
+   * which avoids time zone edge cases when comparing only calendar days.
+   * Supports "yyyy-MM-dd", "dd.MM.yyyy", and "dd.MM.yy" (assumed 20yy).
    */
-  const parseToComparableDate = (raw: string): number | null => {
+  const parseToComparableDate = useCallback((raw: string): number | null => {
     if (!raw) return null;
 
     // ISO yyyy-MM-dd
@@ -61,7 +81,7 @@ export default function ArchivePage() {
       return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
     }
 
-    // dd.MM.yy  -> 20yy (Fallback)
+    // dd.MM.yy -> 20yy
     const deshort = raw.match(/^(\d{2})\.(\d{2})\.(\d{2})$/);
     if (deshort) {
       const [, d, m, yy] = deshort;
@@ -70,26 +90,30 @@ export default function ArchivePage() {
     }
 
     return null;
-  };
+  }, []);
 
-  /** Records -> gefiltert nach dateRange (inklusive 'Bis'-Tag) */
+  /**
+   * Filter records by selected date range.
+   * - If both from/to are empty -> return original array (no extra work).
+   * - End date is included by extending the comparable end to ~end-of-day.
+   */
   const filteredRecords = useMemo(() => {
     if (!Array.isArray(records)) return [];
+    const hasFrom = !!dateRange.from;
+    const hasTo = !!dateRange.to;
+    if (!hasFrom && !hasTo) return records as ArchiveRecord[]; // fast path when no filter is set
 
-    const fromTs = dateRange.from
-      ? parseToComparableDate(dateRange.from)
-      : null;
-    const toTsEndOfDay = dateRange.to
-      ? ((): number | null => {
-          const base = parseToComparableDate(dateRange.to);
+    const fromTs = hasFrom ? parseToComparableDate(dateRange.from!) : null;
+    const toTsEndOfDay = hasTo
+      ? (() => {
+          const base = parseToComparableDate(dateRange.to!);
           if (base == null) return null;
-          // End-of-day, aber weiterhin TZ-neutral: +11h (von 12:00 auf 23:00 UTC ~ Ende)
+          // Move from 12:00 to ~23:00 to include the end day safely (TZ-neutral)
           return base + 11 * 60 * 60 * 1000;
         })()
       : null;
 
-    return records.filter((row: any) => {
-      // Erwartetes Feld aus API: row.datum z.B. "03.05.2024"
+    return (records as ArchiveRecord[]).filter((row) => {
       const ts =
         typeof row?.datum === "string"
           ? parseToComparableDate(row.datum)
@@ -99,21 +123,28 @@ export default function ArchivePage() {
       if (toTsEndOfDay != null && ts > toTsEndOfDay) return false;
       return true;
     });
-  }, [records, dateRange]);
+  }, [records, dateRange, parseToComparableDate]);
 
+  /**
+   * Fetch records when `numberOfResults` changes.
+   * Uses an "alive" flag to avoid updating unmounted state.
+   */
   useEffect(() => {
     let alive = true;
 
     (async () => {
       try {
         setIsLoading(true);
+
         const res = await fetch(
           `${API_ROUTE_CONST.archive}?numberOfResults=${numberOfResults}`
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
-        if (alive) setRecords(data.records ?? []);
+        if (alive) setRecords((data?.records ?? []) as ArchiveRecord[]);
       } catch (err) {
+        // Log only outside production to keep prod console clean
         if (process.env.NODE_ENV !== "production") console.error(err);
         if (alive) setRecords([]);
       } finally {
@@ -126,7 +157,11 @@ export default function ArchivePage() {
     };
   }, [numberOfResults, setIsLoading, setRecords]);
 
-  const columns: GridColDef[] = useMemo(
+  /**
+   * Stable columns configuration.
+   * Inline renderers are kept lightweight; factor out heavy logic if needed.
+   */
+  const columns: GridColDef<ArchiveRecord>[] = useMemo(
     () => [
       {
         field: "datum",
@@ -326,17 +361,24 @@ export default function ArchivePage() {
     [setDrawDetailsIsOpen, setDrawRecord]
   );
 
-  const getRowId = (row: any) =>
-    row.id ??
-    `${row.datum}-${row.nummer1}-${row.nummer2}-${row.nummer3}-${row.nummer4}-${row.nummer5}-${row.zz1}-${row.zz2}`;
+  /** Stable row id fallback when no explicit `id` is present. */
+  const getRowId = useCallback(
+    (row: ArchiveRecord) =>
+      row.id ??
+      `${row.datum}-${row.nummer1}-${row.nummer2}-${row.nummer3}-${row.nummer4}-${row.nummer5}-${row.zz1}-${row.zz2}`,
+    []
+  );
 
   return (
     <div className="archive-page">
+      {/* Page header */}
       <div className="archive-page-header page-header">
         <Typography variant="h6">
           {APP_TYPO_CONST.pages.archive.headerTitle}
         </Typography>
       </div>
+
+      {/* Toolbar: date range filter */}
       <div className="archive-toolbar">
         <ArchiveToolbar
           value={dateRange}
@@ -344,6 +386,8 @@ export default function ArchivePage() {
           onClear={() => setDateRange({ from: null, to: null })}
         />
       </div>
+
+      {/* Page content */}
       <div className="archive-page-content page-content">
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />

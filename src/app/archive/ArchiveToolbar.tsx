@@ -6,7 +6,7 @@ import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 export type ArchiveDateRange = {
   from: string | null; // yyyy-MM-dd (native date input)
-  to: string | null; // yyyy-MM-dd
+  to: string | null; // yyyy-MM-dd (native date input)
 };
 
 type Props = {
@@ -22,8 +22,6 @@ export default function ArchiveToolbar({
   onApply, // not used here but kept for extensibility
   onClear,
 }: Props) {
-  // --- Helpers ---------------------------------------------------------------
-
   /** Normalize empty strings to null for consistent state shape. */
   const orNull = (s: string) => (s?.trim() ? s : null);
 
@@ -42,8 +40,6 @@ export default function ArchiveToolbar({
     return { from, to };
   };
 
-  // --- Handlers --------------------------------------------------------------
-
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const nextFrom = orNull(e.target.value);
     onChange(clampRange(nextFrom, value.to));
@@ -53,8 +49,6 @@ export default function ArchiveToolbar({
     const nextTo = orNull(e.target.value);
     onChange(clampRange(value.from, nextTo));
   };
-
-  // --- Render ----------------------------------------------------------------
 
   return (
     <Box
@@ -73,10 +67,8 @@ export default function ArchiveToolbar({
         onChange={handleFromChange}
         size="small"
         sx={{ width: "170px" }}
-        // Use slotProps instead of deprecated InputLabelProps
         slotProps={{
           inputLabel: { shrink: true },
-          // Pass native input attributes to the input slot
           input: {
             inputProps: {
               max: value.to ?? undefined,
