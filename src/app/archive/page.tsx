@@ -2,52 +2,29 @@
 "use client";
 
 import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { Box, Tooltip, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import {
   DataGrid,
   type GridColDef,
   type GridPaginationModel,
 } from "@mui/x-data-grid";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import StarIcon from "@mui/icons-material/Star";
+
 import "./Archive.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
-import { APP_CONST } from "../_app-constants/app.const";
 import { useArchiveStore } from "../_app-stores/archive.store";
-import { formatNumberToString } from "../_app-utils/record.util";
 import { SkeletonTable } from "../_app-components/_static/skeleton-table/SkeletonTable";
-import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
 import { useDrawDetailsStore } from "../_app-stores/draw-details.store";
 import ArchiveToolbar, { type ArchiveDateRange } from "./ArchiveToolbar";
-
-/** Optional typing for a single record; adjust if API changes */
-type ArchiveRecord = {
-  id?: string;
-  datum: string; // e.g. "03.05.2024"
-  nummer1: number;
-  nummer2: number;
-  nummer3: number;
-  nummer4: number;
-  nummer5: number;
-  zz1: number;
-  zz2: number;
-  spielEinsatz: number;
-  tag: string;
-  anzahlKlasse1: number;
-  quoteKlasse1: number;
-};
+import { getArchiveColumns, type ArchiveRecord } from "./_archiveColumns";
 
 export default function ArchivePage() {
-  // Global archive state (Zustand)
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
-  // Drawer for draw details (Zustand)
   const { setIsOpen: setDrawDetailsIsOpen, setDrawRecord } =
     useDrawDetailsStore() as any;
 
-  // Local pagination state for DataGrid
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 15,
@@ -60,8 +37,8 @@ export default function ArchivePage() {
   });
 
   /**
-   * Parse a date string into a comparable UTC timestamp set to 12:00,
-   * which avoids time zone edge cases when comparing only calendar days.
+   * Parse a date string into a comparable UTC timestamp (set to 12:00)
+   * to avoid time zone edge cases when comparing only calendar days.
    * Supports "yyyy-MM-dd", "dd.MM.yyyy", and "dd.MM.yy" (assumed 20yy).
    */
   const parseToComparableDate = useCallback((raw: string): number | null => {
@@ -94,14 +71,14 @@ export default function ArchivePage() {
 
   /**
    * Filter records by selected date range.
-   * - If both from/to are empty -> return original array (no extra work).
+   * - If both from/to are empty -> return original array (fast path).
    * - End date is included by extending the comparable end to ~end-of-day.
    */
-  const filteredRecords = useMemo(() => {
+  const filteredRecords: ArchiveRecord[] = useMemo(() => {
     if (!Array.isArray(records)) return [];
     const hasFrom = !!dateRange.from;
     const hasTo = !!dateRange.to;
-    if (!hasFrom && !hasTo) return records as ArchiveRecord[]; // fast path when no filter is set
+    if (!hasFrom && !hasTo) return records as ArchiveRecord[];
 
     const fromTs = hasFrom ? parseToComparableDate(dateRange.from!) : null;
     const toTsEndOfDay = hasTo
@@ -158,207 +135,21 @@ export default function ArchivePage() {
   }, [numberOfResults, setIsLoading, setRecords]);
 
   /**
-   * Stable columns configuration.
-   * Inline renderers are kept lightweight; factor out heavy logic if needed.
+   * Stable handler injected into the column factory to open the details drawer.
+   * Keeping this as a memoized callback avoids unnecessary column re-creation.
    */
-  const columns: GridColDef<ArchiveRecord>[] = useMemo(
-    () => [
-      {
-        field: "datum",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDate,
-        width: 100,
-        align: "center",
-        headerAlign: "center",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "nummer1",
-        headerName:
-          APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber1,
-        width: 125,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "nummer2",
-        headerName:
-          APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber2,
-        width: 125,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "nummer3",
-        headerName:
-          APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber3,
-        width: 125,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "nummer4",
-        headerName:
-          APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber4,
-        width: 125,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "nummer5",
-        headerName:
-          APP_TYPO_CONST.pages.archive.table.headerLabelWinningNumber5,
-        width: 125,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "zz1",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelEuroNumber1,
-        width: 105,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "zz2",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelEuroNumber2,
-        width: 105,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "spielEinsatz",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelStake,
-        width: 150,
-        align: "right",
-        headerAlign: "right",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-        renderCell: (params) => (
-          <>{formatNumberToString(params.row.spielEinsatz, 2)}</>
-        ),
-      },
-      {
-        field: "tag",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelDay,
-        width: 50,
-        align: "center",
-        headerAlign: "center",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-      },
-      {
-        field: "anzahlKlasse1",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelClass1,
-        width: 90,
-        align: "center",
-        headerAlign: "center",
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-        renderCell: (params) => {
-          const countClass = params.row.anzahlKlasse1;
-          const countQuoteKlasse1 = params.row.quoteKlasse1;
-          if (countClass > 0) {
-            if (countQuoteKlasse1 === APP_CONST.maxJackpotValue) {
-              return (
-                <Tooltip
-                  title={APP_TYPO_CONST.pages.archive.table.tooltip.classMax}
-                >
-                  <StarIcon className="star-icon" style={{ height: "100%" }} />
-                </Tooltip>
-              );
-            }
-            return (
-              <Tooltip
-                title={APP_TYPO_CONST.pages.archive.table.tooltip.classOne}
-              >
-                <StarBorderIcon
-                  className="star-icon"
-                  style={{ height: "100%" }}
-                />
-              </Tooltip>
-            );
-          }
-          return <></>;
-        },
-      },
-      {
-        field: "1",
-        headerName: APP_TYPO_CONST.pages.archive.table.headerLabelActions,
-        sortable: false,
-        filterable: false,
-        hideable: false,
-        resizable: false,
-        renderCell: (params) => {
-          const handleDrawDetailsClick = () => {
-            setDrawRecord(params.row);
-            setDrawDetailsIsOpen(true);
-          };
+  const handleOpenDetails = useCallback(
+    (row: ArchiveRecord) => {
+      setDrawRecord(row);
+      setDrawDetailsIsOpen(true);
+    },
+    [setDrawRecord, setDrawDetailsIsOpen]
+  );
 
-          return (
-            <div
-              className="actions-wrapper"
-              style={{ height: "100%", display: "flex", alignItems: "center" }}
-            >
-              <Tooltip
-                title={
-                  APP_TYPO_CONST.pages.archive.table.tooltip.actionDrawDetails
-                }
-              >
-                <span onClick={handleDrawDetailsClick}>
-                  <PlaylistAddCheckCircleIcon
-                    className="star-icon"
-                    style={{
-                      height: "100%",
-                      cursor: "pointer",
-                      position: "relative",
-                      top: "6px",
-                    }}
-                  />
-                </span>
-              </Tooltip>
-            </div>
-          );
-        },
-      },
-    ],
-    [setDrawDetailsIsOpen, setDrawRecord]
+  /** Stable column model provided by the factory (extracted for readability). */
+  const columns: GridColDef<ArchiveRecord>[] = useMemo(
+    () => getArchiveColumns({ onOpenDetails: handleOpenDetails }),
+    [handleOpenDetails]
   );
 
   /** Stable row id fallback when no explicit `id` is present. */
@@ -371,14 +162,11 @@ export default function ArchivePage() {
 
   return (
     <div className="archive-page">
-      {/* Page header */}
       <div className="archive-page-header page-header">
         <Typography variant="h6">
           {APP_TYPO_CONST.pages.archive.headerTitle}
         </Typography>
       </div>
-
-      {/* Toolbar: date range filter */}
       <div className="archive-toolbar">
         <ArchiveToolbar
           value={dateRange}
@@ -386,8 +174,6 @@ export default function ArchivePage() {
           onClear={() => setDateRange({ from: null, to: null })}
         />
       </div>
-
-      {/* Page content */}
       <div className="archive-page-content page-content">
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />
