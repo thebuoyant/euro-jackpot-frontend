@@ -20,17 +20,18 @@ import ArchiveToolbar, {
   type DayFilter,
 } from "./ArchiveToolbar";
 import { getArchiveColumns, type ArchiveRecord } from "./_archiveColumns";
+import {
+  toComparableUtcNoon,
+  toEndOfDayComparable,
+} from "../_app-utils/date.util";
 
 export default function ArchivePage() {
-  // Global archive state (Zustand)
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
     useArchiveStore() as any;
 
-  // Drawer for draw details (Zustand)
   const { setIsOpen: setDrawDetailsIsOpen, setDrawRecord } =
     useDrawDetailsStore() as any;
 
-  // Local pagination state for DataGrid
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     page: 0,
     pageSize: 15,
@@ -46,43 +47,11 @@ export default function ArchivePage() {
   const [dayFilter, setDayFilter] = useState<DayFilter>("both");
 
   /**
-   * Parse a date string into a comparable UTC timestamp (set to 12:00)
-   * to avoid time zone edge cases when comparing only calendar days.
-   * Supports "yyyy-MM-dd", "dd.MM.yyyy", and "dd.MM.yy" (assumed 20yy).
-   */
-  const parseToComparableDate = useCallback((raw: string): number | null => {
-    if (!raw) return null;
-
-    // ISO yyyy-MM-dd
-    const iso = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (iso) {
-      const [, y, m, d] = iso;
-      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
-    }
-
-    // dd.MM.yyyy
-    const de = raw.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
-    if (de) {
-      const [, d, m, y] = de;
-      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
-    }
-
-    // dd.MM.yy -> 20yy
-    const deshort = raw.match(/^(\d{2})\.(\d{2})\.(\d{2})$/);
-    if (deshort) {
-      const [, d, m, yy] = deshort;
-      const y = 2000 + Number(yy);
-      return Date.UTC(Number(y), Number(m) - 1, Number(d), 12, 0, 0, 0);
-    }
-
-    return null;
-  }, []);
-
-  /**
    * Filter records by selected date range and weekday.
-   * - If both from/to are empty and dayFilter is "both" -> return original array (fast path).
-   * - End date is included by extending the comparable end to ~end-of-day.
-   * - Weekday uses `row.tag` with values "Di" (Tuesday) or "Fr" (Friday).
+   * - Fast path: if no date range and dayFilter === "both", return original array.
+   * - Date comparison uses UTC-noon timestamps to avoid TZ/DST issues.
+   * - End date is made inclusive via toEndOfDayComparable.
+   * - Weekday uses row.tag with values "Di" (Tuesday) or "Fr" (Friday).
    */
   const filteredRecords: ArchiveRecord[] = useMemo(() => {
     if (!Array.isArray(records)) return [];
@@ -92,18 +61,14 @@ export default function ArchivePage() {
     const isBoth = dayFilter === "both";
 
     if (!hasFrom && !hasTo && isBoth) {
-      return records as ArchiveRecord[]; // nothing to filter
+      // Nothing to filter - return original array (avoids extra work)
+      return records as ArchiveRecord[];
     }
 
-    // Date range boundary timestamps
-    const fromTs = hasFrom ? parseToComparableDate(dateRange.from!) : null;
+    // Date range boundaries (comparable UTC-noon timestamps)
+    const fromTs = hasFrom ? toComparableUtcNoon(dateRange.from!) : null;
     const toTsEndOfDay = hasTo
-      ? (() => {
-          const base = parseToComparableDate(dateRange.to!);
-          if (base == null) return null;
-          // Move from 12:00 to ~23:00 to include the end day safely (TZ-neutral)
-          return base + 11 * 60 * 60 * 1000;
-        })()
+      ? toEndOfDayComparable(toComparableUtcNoon(dateRange.to!))
       : null;
 
     // Weekday predicate: "Di" = Tue, "Fr" = Fri
@@ -115,21 +80,18 @@ export default function ArchivePage() {
     };
 
     return (records as ArchiveRecord[]).filter((row) => {
-      // First: weekday check (cheap bailout)
+      // 1) Weekday check (cheap bailout)
       if (!matchesDay(row)) return false;
 
-      // Then: date range check (if any)
-      const ts =
-        typeof row?.datum === "string"
-          ? parseToComparableDate(row.datum)
-          : null;
+      // 2) Date range check (if present)
+      const ts = toComparableUtcNoon(row?.datum);
       if (ts == null) return false;
       if (fromTs != null && ts < fromTs) return false;
       if (toTsEndOfDay != null && ts > toTsEndOfDay) return false;
 
       return true;
     });
-  }, [records, dateRange, dayFilter, parseToComparableDate]);
+  }, [records, dateRange, dayFilter]);
 
   /**
    * Fetch records when `numberOfResults` changes.
@@ -191,14 +153,11 @@ export default function ArchivePage() {
 
   return (
     <div className="archive-page">
-      {/* Page header */}
       <div className="archive-page-header page-header">
         <Typography variant="h6">
           {APP_TYPO_CONST.pages.archive.headerTitle}
         </Typography>
       </div>
-
-      {/* Toolbar: date + weekday filter */}
       <div className="archive-toolbar">
         <ArchiveToolbar
           value={dateRange}
@@ -211,8 +170,6 @@ export default function ArchivePage() {
           }}
         />
       </div>
-
-      {/* Page content */}
       <div className="archive-page-content page-content">
         {isLoading ? (
           <SkeletonTable columns={10} rows={15} rowHeight={3} />
