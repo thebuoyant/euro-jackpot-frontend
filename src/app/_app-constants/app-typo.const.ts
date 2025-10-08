@@ -28,6 +28,7 @@ export const APP_TYPO_CONST = {
           labelWinningNumbers: "Gewinnzahlen",
           labelEuroNumbers: "Eurozahlen",
           labelStake: "Spieleinsatz",
+          labelDay: "Wochentag",
         },
       },
     },

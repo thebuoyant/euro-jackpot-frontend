@@ -18,6 +18,10 @@ import {
   CartesianGrid,
 } from "recharts";
 import { DrawRecord } from "src/app/_app-types/record.types";
+import {
+  formatNumberToString,
+  resolveDay,
+} from "src/app/_app-utils/record.util";
 
 type Item = { name: string; value: number };
 
@@ -27,6 +31,7 @@ export default function DashboardCardLastDraw({
   labelWinningNumbers,
   labelEuroNumbers,
   labelStake,
+  labelDay,
   draw,
 }: {
   title: string;
@@ -34,9 +39,15 @@ export default function DashboardCardLastDraw({
   labelWinningNumbers: string;
   labelEuroNumbers: string;
   labelStake: string;
+  labelDay: string;
   draw: DrawRecord;
 }) {
   console.log("draw", draw);
+
+  if (!draw) {
+    return null;
+  }
+
   return (
     <Card className="card" elevation={4}>
       <CardContent>
@@ -49,19 +60,26 @@ export default function DashboardCardLastDraw({
         <ul className="card-list">
           <li>
             <span className="label">{`${labelDate}:`}</span>
-            <span className="value">—</span>
+            <span className="value">{draw.datum}</span>
           </li>
           <li>
             <span className="label">{`${labelWinningNumbers}:`}</span>
-            <span className="value">—</span>
+            <span className="value">{`${draw.nummer1} | ${draw.nummer2} | ${draw.nummer3} | ${draw.nummer4} | ${draw.nummer5}`}</span>
           </li>
           <li>
             <span className="label">{`${labelEuroNumbers}:`}</span>
-            <span className="value">—</span>
+            <span className="value">{`${draw.zz1} | ${draw.zz2}`}</span>
           </li>
           <li>
             <span className="label">{`${labelStake}:`}</span>
-            <span className="value">—</span>
+            <span className="value">{`${formatNumberToString(
+              draw.spielEinsatz,
+              2
+            )} €`}</span>
+          </li>
+          <li>
+            <span className="label">{`${labelDay}:`}</span>
+            <span className="value">{`${resolveDay(draw.tag)}`}</span>
           </li>
         </ul>
       </CardContent>

@@ -6,9 +6,44 @@ import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import ChartCard from "../_app-components/_static/chart-card/ChartCard";
 import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDrawCard";
 import { useDashboardStore } from "../_app-stores/dashboard.store";
+import { useEffect } from "react";
+import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
+import { DrawRecord } from "../_app-types/record.types";
 
 export default function DashboardPage() {
-  const { lastDrawRecord } = useDashboardStore() as any;
+  const { lastDrawRecord, setIsLoadingLastDrawData, setLastDrawRecord } =
+    useDashboardStore() as any;
+
+  // last draw data
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        setIsLoadingLastDrawData(true);
+
+        const res = await fetch(`${API_ROUTE_CONST.lastDraw}`);
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const data = await res.json();
+
+        setLastDrawRecord(data.lastDrawRecord);
+        if (alive)
+          setLastDrawRecord((data?.lastDrawRecord ?? {}) as DrawRecord);
+      } catch (err) {
+        // Log only outside production to keep prod console clean
+        if (process.env.NODE_ENV !== "production") console.error(err);
+        if (alive) setLastDrawRecord(null);
+      } finally {
+        if (alive) setIsLoadingLastDrawData(false);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // Demo data for the charts
   const mock = Array.from({ length: 10 }).map((_, i) => ({
@@ -58,6 +93,7 @@ export default function DashboardPage() {
             labelStake={
               APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelStake
             }
+            labelDay={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelDay}
             draw={lastDrawRecord}
           />
           {tiles.map((tile, idx) => {

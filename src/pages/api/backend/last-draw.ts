@@ -7,7 +7,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const records = handleGetLastDrawData();
+  const lastDrawRecord = handleGetLastDrawData();
 
-  return res.status(200).json({ records });
+  return res.status(200).json({ lastDrawRecord });
 }
