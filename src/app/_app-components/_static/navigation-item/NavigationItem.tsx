@@ -7,12 +7,13 @@ import "./NavigationItem.css";
 import clsx from "clsx";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import BarChartIcon from "@mui/icons-material/BarChart";
 
 type NavigationItemProps = {
   height?: number;
   backgoundColor?: string;
   iconColor?: string;
-  iconType?: "dashboard" | "archive";
+  iconType?: "dashboard" | "archive" | "winning-numbers";
   isActive?: boolean;
   title?: string;
   titleColor?: string;
@@ -46,6 +47,13 @@ export default function NavigationItem({
       case "archive":
         return (
           <InventoryIcon
+            fontSize="medium"
+            sx={{ color: isActive ? "#123456" : iconColor }}
+          />
+        );
+      case "winning-numbers":
+        return (
+          <BarChartIcon
             fontSize="medium"
             sx={{ color: isActive ? "#123456" : iconColor }}
           />

@@ -1,18 +1,20 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React from "react";
 import { Typography } from "@mui/material";
 
-import "./Archive.css";
+import "./WinningNumbers.css";
 
 import WinningNumbersToolbar from "./WinningNumbersToolbar";
+import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 export default function WinningNumbersPage() {
   return (
     <div className="winning-numbers-page">
       <div className="winning-numbers-page-header page-header">
-        <Typography variant="h6">title</Typography>
+        <Typography variant="h6">
+          {APP_TYPO_CONST.pages.winningNumbers.headerTitle}
+        </Typography>
       </div>
       <div className="winning-numbers-toolbar">
         <WinningNumbersToolbar />

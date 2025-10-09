@@ -7,6 +7,7 @@ export const APP_TYPO_CONST = {
   sidebar: {
     navItemDashboard: "Dashboard",
     navItemArchive: "Archiv",
+    navItemWinningNumbers: "Gewinnzahlen",
   },
   components: {
     drawDetailsModal: {
@@ -71,6 +72,9 @@ export const APP_TYPO_CONST = {
         buttonLabelFriday: "Freitag",
         buttonLabelBoth: "Beides",
       },
+    },
+    winningNumbers: {
+      headerTitle: "Gewinnzahlen",
     },
   },
 };
