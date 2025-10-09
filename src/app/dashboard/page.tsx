@@ -10,7 +10,7 @@ import { useEffect } from "react";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { DrawRecord } from "../_app-types/record.types";
 import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDraw";
-import DashboardCardStake from "../_app-components/_static/dashboard-card-stake/DashboardCardStake";
+import DashboardCardStake from "../_app-components/_dynamic/dashboard-card-stake/DashboardCardStake";
 
 export default function DashboardPage() {
   const {
@@ -21,37 +21,6 @@ export default function DashboardPage() {
     setIsLoadingFirstDrawData,
     setFirstDrawRecord,
   } = useDashboardStore() as any;
-
-  // last draw data
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        setIsLoadingLastDrawData(true);
-
-        const res = await fetch(`${API_ROUTE_CONST.lastDraw}`);
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-
-        setLastDrawRecord(data.lastDrawRecord);
-        if (alive)
-          setLastDrawRecord((data?.lastDrawRecord ?? {}) as DrawRecord);
-      } catch (err) {
-        // Log only outside production to keep prod console clean
-        if (process.env.NODE_ENV !== "production") console.error(err);
-        if (alive) setLastDrawRecord(null);
-      } finally {
-        if (alive) setIsLoadingLastDrawData(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [setIsLoadingLastDrawData, setLastDrawRecord]);
 
   // first draw data
   useEffect(() => {
@@ -114,7 +83,6 @@ export default function DashboardPage() {
               APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelStake
             }
             labelDay={APP_TYPO_CONST.pages.dashboard.cards.lastDraw.labelDay}
-            draw={lastDrawRecord}
           />
           <DashboardCardFirstDraw
             title={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.title}
