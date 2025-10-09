@@ -1,61 +1,15 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Typography } from "@mui/material";
 import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDraw";
-import { useDashboardStore } from "../_app-stores/dashboard.store";
-import { useEffect } from "react";
-import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
-import { DrawRecord } from "../_app-types/record.types";
 import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDraw";
 import DashboardCardStake from "../_app-components/_dynamic/dashboard-card-stake/DashboardCardStake";
 
 export default function DashboardPage() {
-  const {
-    lastDrawRecord,
-    setIsLoadingLastDrawData,
-    setLastDrawRecord,
-    firstDrawRecord,
-    setIsLoadingFirstDrawData,
-    setFirstDrawRecord,
-  } = useDashboardStore() as any;
-
-  // first draw data
-  useEffect(() => {
-    let alive = true;
-
-    (async () => {
-      try {
-        setIsLoadingFirstDrawData(true);
-
-        const res = await fetch(`${API_ROUTE_CONST.firstDraw}`);
-
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const data = await res.json();
-
-        setFirstDrawRecord(data.firstDrawRecord);
-        if (alive)
-          setFirstDrawRecord((data?.firstDrawRecord ?? {}) as DrawRecord);
-      } catch (err) {
-        // Log only outside production to keep prod console clean
-        if (process.env.NODE_ENV !== "production") console.error(err);
-        if (alive) setFirstDrawRecord(null);
-      } finally {
-        if (alive) setIsLoadingFirstDrawData(false);
-      }
-    })();
-
-    return () => {
-      alive = false;
-    };
-  }, [setIsLoadingFirstDrawData, setFirstDrawRecord]);
-
   return (
     <div className="dashboard-page">
-      {/* Header */}
       <div className="dashboard-page-header page-header">
         <Typography variant="h6" component="h1">
           {APP_TYPO_CONST.pages.dashboard.headerTitle}
@@ -97,7 +51,6 @@ export default function DashboardPage() {
               APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelStake
             }
             labelDay={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelDay}
-            draw={firstDrawRecord}
           />
           <DashboardCardStake
             title={APP_TYPO_CONST.pages.dashboard.cards.stake.title}
