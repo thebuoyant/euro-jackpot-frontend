@@ -136,6 +136,7 @@ export default function DashboardPage() {
           />
           <DashboardCardStake
             title={APP_TYPO_CONST.pages.dashboard.cards.stake.title}
+            numberOfRecords={36}
           />
         </div>
       </div>

@@ -22,12 +22,15 @@ import {
 } from "src/app/_app-utils/date.util";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
 
-type Props = { title: string };
+type Props = { title: string; numberOfRecords?: number };
 
 const COLOR_TUE = APP_COLOR_CONST.dashboard.cards.stake.colorTuesday;
 const COLOR_FRI = APP_COLOR_CONST.dashboard.cards.stake.colorFriday;
 
-export default function DashboardCardStake({ title }: Props) {
+export default function DashboardCardStake({
+  title,
+  numberOfRecords = 24,
+}: Props) {
   const {
     setIsLoadingStakeData,
     records = [],
@@ -87,7 +90,7 @@ export default function DashboardCardStake({ title }: Props) {
     rows.sort((a, b) => b.ts! - a.ts!);
 
     // With DESC, just take the first N most recent items
-    const take = 24;
+    const take = numberOfRecords;
     const recent = rows.slice(0, take);
 
     // (Optional) keep DESC so newest stays left; if you prefer newest left and older to the right,
