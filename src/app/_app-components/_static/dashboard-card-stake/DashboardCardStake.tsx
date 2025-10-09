@@ -20,11 +20,12 @@ import {
   parseGermanDateMaybe,
   toComparableUtcNoon,
 } from "src/app/_app-utils/date.util";
+import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
 
 type Props = { title: string };
 
-const COLOR_TUE = "#1976d2"; // Dienstag
-const COLOR_FRI = "#2e7d32"; // Freitag
+const COLOR_TUE = APP_COLOR_CONST.dashboard.cards.stake.colorTuesday;
+const COLOR_FRI = APP_COLOR_CONST.dashboard.cards.stake.colorFriday;
 
 export default function DashboardCardStake({ title }: Props) {
   const {
