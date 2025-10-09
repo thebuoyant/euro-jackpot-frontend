@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useMemo } from "react";
@@ -100,7 +101,7 @@ export default function DashboardCardStake({
       fill: d.day === "Di" ? COLOR_TUE : COLOR_FRI,
       dayLabel: d.day === "Di" ? "Dienstag" : "Freitag",
     }));
-  }, [records]);
+  }, [records, numberOfRecords]);
 
   const hasData = chartData.length > 0;
 

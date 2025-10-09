@@ -11,7 +11,6 @@ import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { DrawRecord } from "../_app-types/record.types";
 import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDraw";
 import DashboardCardStake from "../_app-components/_static/dashboard-card-stake/DashboardCardStake";
-import { useArchiveStore } from "../_app-stores/archive.store";
 
 export default function DashboardPage() {
   const {
@@ -22,8 +21,6 @@ export default function DashboardPage() {
     setIsLoadingFirstDrawData,
     setFirstDrawRecord,
   } = useDashboardStore() as any;
-
-  const { records } = useArchiveStore() as any;
 
   // last draw data
   useEffect(() => {
