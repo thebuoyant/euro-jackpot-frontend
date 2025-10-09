@@ -3,8 +3,8 @@
 import { Typography } from "@mui/material";
 import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
-import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDraw";
-import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDraw";
+import DashboardCardLastDraw from "../_app-components/_dynamic/dashboard-card-last-draw/DashboardCardLastDraw";
+import DashboardCardFirstDraw from "../_app-components/_dynamic/dashboard-card-first-draw/DashboardCardFirstDraw";
 import DashboardCardStake from "../_app-components/_dynamic/dashboard-card-stake/DashboardCardStake";
 
 export default function DashboardPage() {
