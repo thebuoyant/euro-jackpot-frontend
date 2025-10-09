@@ -38,3 +38,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # euro-jackpot-frontend
 
 /Users/thomasschlender/Development-Nextjs/next-ejb
+
+# Vercel
+
+https://euro-jackpot-frontend.vercel.app/
