@@ -1,0 +1,7 @@
+.winning-numbers-page {
+  height: 100%;
+
+  .winning-numbers-toolbar {
+    height: 60px;
+  }
+}
