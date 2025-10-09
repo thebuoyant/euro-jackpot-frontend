@@ -4,12 +4,14 @@
 import { Typography } from "@mui/material";
 import "./Dashboard.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
-import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDrawCard";
+import DashboardCardLastDraw from "../_app-components/_static/dashboard-card-last-draw/DashboardCardLastDraw";
 import { useDashboardStore } from "../_app-stores/dashboard.store";
 import { useEffect } from "react";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 import { DrawRecord } from "../_app-types/record.types";
-import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDrawCard";
+import DashboardCardFirstDraw from "../_app-components/_static/dashboard-card-first-draw/DashboardCardFirstDraw";
+import DashboardCardStake from "../_app-components/_static/dashboard-card-stake/DashboardCardStake";
+import { useArchiveStore } from "../_app-stores/archive.store";
 
 export default function DashboardPage() {
   const {
@@ -20,6 +22,8 @@ export default function DashboardPage() {
     setIsLoadingFirstDrawData,
     setFirstDrawRecord,
   } = useDashboardStore() as any;
+
+  const { records } = useArchiveStore() as any;
 
   // last draw data
   useEffect(() => {
@@ -130,64 +134,7 @@ export default function DashboardPage() {
             labelDay={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelDay}
             draw={firstDrawRecord}
           />
-          {/* {tiles.map((tile, idx) => {
-            if (tile.type === "last-draw") {
-              return (
-                <Card key={idx} className="card" elevation={4}>
-                  <CardContent>
-                    <Typography variant="h6" gutterBottom>
-                      {tile.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Demo-Daten
-                    </Typography>
-
-                    <Divider sx={{ my: 2 }} />
-
-                    <ul className="card-list">
-                      <li>
-                        <span className="label">Datum:</span>
-                        <span className="value">—</span>
-                      </li>
-                      <li>
-                        <span className="label">Zahlen:</span>
-                        <span className="value">—</span>
-                      </li>
-                      <li>
-                        <span className="label">Eurozahlen:</span>
-                        <span className="value">—</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-              );
-            }
-
-            if (tile.type === "chart") {
-              return (
-                <Card key={idx} className="card" elevation={4}>
-                  <CardContent>
-                    <ChartCard title={tile.title} data={tile.data!} />
-                  </CardContent>
-                </Card>
-              );
-            }
-
-            // Fallback: simple text/info card
-            return (
-              <Card key={idx} className="card" elevation={4}>
-                <CardContent>
-                  <Typography variant="subtitle1" gutterBottom>
-                    {tile.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Hinweis: Demo-UI. Datenanbindung an eure{" "}
-                    <code>euro-jackpot-api</code> kann später erfolgen.
-                  </Typography>
-                </CardContent>
-              </Card>
-            );
-          })} */}
+          <DashboardCardStake title="title" />
         </div>
       </div>
     </div>

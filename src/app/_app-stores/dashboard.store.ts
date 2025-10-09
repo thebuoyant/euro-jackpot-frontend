@@ -17,4 +17,12 @@ export const useDashboardStore = create((set) => ({
   firstDrawRecord: null as DrawRecord | null,
   setFirstDrawRecord: (receivedValue: DrawRecord | null) =>
     set(() => ({ firstDrawRecord: receivedValue })),
+
+  records: [] as DrawRecord[],
+  setRecords: (receivedValue: DrawRecord[]) =>
+    set(() => ({ records: receivedValue })),
+
+  isLoadingStakeData: false as boolean,
+  setIsLoadingStakeData: (receivedValue: boolean) =>
+    set(() => ({ isLoadingStakeData: receivedValue })),
 }));

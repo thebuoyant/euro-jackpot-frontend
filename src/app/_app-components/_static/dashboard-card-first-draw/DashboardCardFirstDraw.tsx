@@ -38,7 +38,7 @@ export default function DashboardCardFirstDraw({
 
         <Divider sx={{ my: 2 }} />
 
-        <ul className="card-list">
+        <ul className="card-list" style={{ height: "100%" }}>
           <li>
             <span className="label">{`${labelDate}:`}</span>
             <span className="value">{draw.datum}</span>
