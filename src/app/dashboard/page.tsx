@@ -134,7 +134,9 @@ export default function DashboardPage() {
             labelDay={APP_TYPO_CONST.pages.dashboard.cards.firstDraw.labelDay}
             draw={firstDrawRecord}
           />
-          <DashboardCardStake title="title" />
+          <DashboardCardStake
+            title={APP_TYPO_CONST.pages.dashboard.cards.stake.title}
+          />
         </div>
       </div>
     </div>

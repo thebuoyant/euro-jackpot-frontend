@@ -47,3 +47,12 @@ body {
     font-weight: 600;
   }
 }
+
+.recharts-default-legend {
+  .recharts-legend-item {
+    .recharts-surface {
+      position: relative;
+      top: -1.5px;
+    }
+  }
+}

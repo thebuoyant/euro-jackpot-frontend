@@ -36,6 +36,9 @@ export const APP_TYPO_CONST = {
           labelStake: "Spieleinsatz",
           labelDay: "Wochentag",
         },
+        stake: {
+          title: "Entwicklung der Spieleinsätze",
+        },
       },
     },
     archive: {

@@ -66,18 +66,18 @@ export default function DashboardCardStake({ title }: Props) {
 
   const chartData = useMemo(() => {
     const rows = (records as DrawRecord[])
-      .map((r) => {
-        const value = toStakeNumber((r as any).spielEinsatz);
+      .map((record) => {
+        const value = toStakeNumber((record as any).spielEinsatz);
         const ts =
-          toComparableUtcNoon?.(r.datum) ??
+          toComparableUtcNoon?.(record.datum) ??
           (parseGermanDateMaybe
-            ? parseGermanDateMaybe(r.datum)?.getTime() ?? null
+            ? parseGermanDateMaybe(record.datum)?.getTime() ?? null
             : null);
 
         return {
-          key: r.datum,
+          key: record.datum,
           value,
-          day: r.tag, // "Di" | "Fr"
+          day: record.tag, // "Di" | "Fr"
           ts,
         };
       })
@@ -121,7 +121,7 @@ export default function DashboardCardStake({ title }: Props) {
     return (
       <Paper sx={{ p: 1 }}>
         <Typography variant="body2">Datum: {label}</Typography>
-        <Typography variant="body2">Value: {formatted} €</Typography>
+        <Typography variant="body2">Einsatz: {formatted} €</Typography>
         {dayLabel && <Typography variant="body2">Tag: {dayLabel}</Typography>}
       </Paper>
     );
