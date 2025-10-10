@@ -6,6 +6,7 @@ import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import DashboardCardLastDraw from "../_app-components/_dynamic/dashboard-card-last-draw/DashboardCardLastDraw";
 import DashboardCardFirstDraw from "../_app-components/_dynamic/dashboard-card-first-draw/DashboardCardFirstDraw";
 import DashboardCardStake from "../_app-components/_dynamic/dashboard-card-stake/DashboardCardStake";
+import DashboardCardTopWinningNumbers from "../_app-components/_dynamic/dashboard-card-top-winning-numbers/DashboardCardTopWinningNumbers";
 
 export default function DashboardPage() {
   return (
@@ -55,6 +56,9 @@ export default function DashboardPage() {
           <DashboardCardStake
             title={APP_TYPO_CONST.pages.dashboard.cards.stake.title}
             numberOfRecords={36}
+          />
+          <DashboardCardTopWinningNumbers
+            title={APP_TYPO_CONST.pages.dashboard.cards.topWinningNumbers.title}
           />
         </div>
       </div>
