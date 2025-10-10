@@ -3,4 +3,5 @@ export const API_ROUTE_CONST = {
   lastDraw: "/api/backend/last-draw",
   firstDraw: "/api/backend/first-draw",
   winningNumbers: "/api/backend/winning-numbers",
+  euroNumbers: "/api/backend/euro-numbers",
 };

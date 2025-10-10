@@ -81,3 +81,8 @@ export type TWinningNumbersCountsResponse = {
   key: number;
   value: number;
 };
+
+export type TEuroNumbersCountsResponse = {
+  key: number;
+  value: number;
+};

@@ -1,5 +1,8 @@
 import { create } from "zustand";
-import { TWinningNumbersCountsResponse } from "../_app-types/record.types";
+import {
+  TEuroNumbersCountsResponse,
+  TWinningNumbersCountsResponse,
+} from "../_app-types/record.types";
 
 export type WinningNumbersItem = { number: number; count: number };
 
@@ -14,6 +17,9 @@ type State = {
 
   showSortedValues: boolean;
   setShowSortedValues: (receivedValue: boolean) => void;
+
+  euroNumbersCounts: TEuroNumbersCountsResponse[];
+  setEuroNumbersCounts: (receivedValue: TEuroNumbersCountsResponse[]) => void;
 };
 
 export const useWinningNumbersStore = create<State>((set) => ({
@@ -28,4 +34,8 @@ export const useWinningNumbersStore = create<State>((set) => ({
   showSortedValues: false,
   setShowSortedValues: (receivedValue) =>
     set({ showSortedValues: receivedValue }),
+
+  euroNumbersCounts: [],
+  setEuroNumbersCounts: (receivedValue) =>
+    set({ euroNumbersCounts: receivedValue }),
 }));
