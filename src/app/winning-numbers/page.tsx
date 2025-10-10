@@ -147,6 +147,44 @@ export default function WinningNumbersPage() {
             </BarChart>
           </ResponsiveContainer>
         </div>
+
+        <div className="euro-numbers-wrapper">
+          <Typography variant="body1" gutterBottom>
+            {APP_TYPO_CONST.pages.winningNumbers.titleEuroNumbers}
+          </Typography>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={euroNumbersCounts} // [{ key, value }]
+              margin={{ top: 8, right: 12, left: 0, bottom: 28 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis
+                dataKey="key"
+                tick={{ fontSize: 10 }} // kleinere Tick-Labels
+                interval={0} // alle Ticks anzeigen (optional)
+                height={32} // etwas Platz unten
+              >
+                <Label value="" position="insideBottom" offset={-16} />
+              </XAxis>
+
+              <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
+                />
+                {winningNumbersCounts.map((_: any, idx: number) => (
+                  <Cell
+                    key={`cell-${idx}`}
+                    fill={APP_COLOR_CONST.colorPrimary}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
