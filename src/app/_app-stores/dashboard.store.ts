@@ -1,5 +1,8 @@
 import { create } from "zustand";
-import { DrawRecord } from "../_app-types/record.types";
+import {
+  DrawRecord,
+  TWinningNumbersCountsResponse,
+} from "../_app-types/record.types";
 
 export const useDashboardStore = create((set) => ({
   isLoadingLastDrawData: false as boolean,
@@ -25,4 +28,8 @@ export const useDashboardStore = create((set) => ({
   isLoadingStakeData: false as boolean,
   setIsLoadingStakeData: (receivedValue: boolean) =>
     set(() => ({ isLoadingStakeData: receivedValue })),
+
+  winningNumbersCounts: [] as TWinningNumbersCountsResponse[],
+  setWinningNumbersCounts: (receivedValue: TWinningNumbersCountsResponse[]) =>
+    set({ winningNumbersCounts: receivedValue }),
 }));
