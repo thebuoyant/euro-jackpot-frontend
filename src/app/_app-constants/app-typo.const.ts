@@ -7,7 +7,7 @@ export const APP_TYPO_CONST = {
   sidebar: {
     navItemDashboard: "Dashboard",
     navItemArchive: "Archiv",
-    navItemWinningNumbers: "Zahlenübersicht",
+    navItemWinningNumbers: "Gewinnzahlen",
   },
   components: {
     drawDetailsModal: {
@@ -74,9 +74,7 @@ export const APP_TYPO_CONST = {
       },
     },
     winningNumbers: {
-      headerTitle: "Übersicht der Gewinn- und Eurozahlen",
-      titleWinningNumbers: "Gewinnzahlen",
-      titleEuroNumbers: "Eurozahlen",
+      headerTitle: "Gewinnzahlen",
       toolbar: {
         labelSortingStart: "Zeige sortierte Werte",
         labelSortingOn: "an",

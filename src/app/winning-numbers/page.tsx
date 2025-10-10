@@ -23,7 +23,6 @@ import {
 import { APP_COLOR_CONST } from "../_app-constants/app-color.const";
 
 type WinningNumbersItem = { key: number; value: number };
-type EuroNumbersItem = { key: number; value: number };
 
 export default function WinningNumbersPage() {
   const {
@@ -31,8 +30,6 @@ export default function WinningNumbersPage() {
     setWinningNumbersCounts,
     winningNumbersCounts,
     showSortedValues,
-    setEuroNumbersCounts,
-    euroNumbersCounts,
   } = useWinningNumbersStore() as any;
 
   useEffect(() => {
@@ -65,43 +62,6 @@ export default function WinningNumbersPage() {
     return () => ac.abort();
   }, [setIsLoadingWinningNumbers, setWinningNumbersCounts, showSortedValues]);
 
-  useEffect(() => {
-    const ac = new AbortController();
-
-    (async () => {
-      try {
-        setIsLoadingWinningNumbers(true);
-
-        const res = await fetch(
-          `${API_ROUTE_CONST.euroNumbers}?sortedValues=${showSortedValues}`,
-          { signal: ac.signal }
-        );
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-        const json = await res.json();
-        const data = (json?.data ?? []) as EuroNumbersItem[];
-
-        setEuroNumbersCounts(Array.isArray(data) ? data : []);
-      } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          if (process.env.NODE_ENV !== "production") console.error(err);
-          setEuroNumbersCounts([]);
-        }
-      } finally {
-        setIsLoadingWinningNumbers(false);
-      }
-    })();
-
-    return () => ac.abort();
-  }, [
-    setIsLoadingWinningNumbers,
-    setWinningNumbersCounts,
-    showSortedValues,
-    setEuroNumbersCounts,
-  ]);
-
-  console.log("euroNumbersCounts", euroNumbersCounts);
-
   return (
     <div className="winning-numbers-page">
       <div className="winning-numbers-page-header page-header">
@@ -116,11 +76,7 @@ export default function WinningNumbersPage() {
 
       <div className="winning-numbers-page-content page-content">
         <div className="wining-numbers-wrapper">
-          <Typography variant="body1" gutterBottom>
-            {APP_TYPO_CONST.pages.winningNumbers.titleWinningNumbers}
-          </Typography>
-
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={600}>
             <BarChart
               data={winningNumbersCounts} // [{ key, value }]
               margin={{ top: 8, right: 12, left: 0, bottom: 28 }}
@@ -146,44 +102,6 @@ export default function WinningNumbersPage() {
                   <Cell
                     key={`cell-${idx}`}
                     fill={APP_COLOR_CONST.colorPrimary}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="euro-numbers-wrapper">
-          <Typography variant="body1" gutterBottom>
-            {APP_TYPO_CONST.pages.winningNumbers.titleEuroNumbers}
-          </Typography>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart
-              data={euroNumbersCounts} // [{ key, value }]
-              margin={{ top: 8, right: 12, left: 0, bottom: 28 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-
-              <XAxis
-                dataKey="key"
-                tick={{ fontSize: 10 }} // kleinere Tick-Labels
-                interval={0} // alle Ticks anzeigen (optional)
-                height={32} // etwas Platz unten
-              >
-                <Label value="" position="insideBottom" offset={-16} />
-              </XAxis>
-
-              <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
-                <LabelList
-                  dataKey="value"
-                  position="top"
-                  style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
-                />
-                {euroNumbersCounts.map((_: any, idx: number) => (
-                  <Cell
-                    key={`cell-${idx}`}
-                    fill={APP_COLOR_CONST.colorSuccess}
                   />
                 ))}
               </Bar>
