@@ -22,10 +22,10 @@ export const useWinningNumbersStore = create<State>((set) => ({
     set({ isLoadingWinningNumbers: receivedValue }),
 
   winningNumbersCounts: [],
-  setWinningNumbersCounts: (receivedValues) =>
-    set({ winningNumbersCounts: receivedValues }),
+  setWinningNumbersCounts: (receivedValue) =>
+    set({ winningNumbersCounts: receivedValue }),
 
   showSortedValues: false,
-  setShowSortedValues: (receivedValues) =>
-    set({ showSortedValues: receivedValues }),
+  setShowSortedValues: (receivedValue) =>
+    set({ showSortedValues: receivedValue }),
 }));

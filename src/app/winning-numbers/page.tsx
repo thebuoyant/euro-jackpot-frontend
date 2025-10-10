@@ -29,11 +29,8 @@ export default function WinningNumbersPage() {
     setIsLoadingWinningNumbers,
     setWinningNumbersCounts,
     winningNumbersCounts,
-  } = useWinningNumbersStore() as {
-    setIsLoadingWinningNumbers: (b: boolean) => void;
-    setWinningNumbersCounts: (rows: WinningNumbersItem[]) => void;
-    winningNumbersCounts: WinningNumbersItem[];
-  };
+    showSortedValues,
+  } = useWinningNumbersStore() as any;
 
   useEffect(() => {
     const ac = new AbortController();
@@ -43,7 +40,7 @@ export default function WinningNumbersPage() {
         setIsLoadingWinningNumbers(true);
 
         const res = await fetch(
-          `${API_ROUTE_CONST.winningNumbers}?sortedValues=${false}`,
+          `${API_ROUTE_CONST.winningNumbers}?sortedValues=${showSortedValues}`,
           { signal: ac.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -63,7 +60,7 @@ export default function WinningNumbersPage() {
     })();
 
     return () => ac.abort();
-  }, [setIsLoadingWinningNumbers, setWinningNumbersCounts]);
+  }, [setIsLoadingWinningNumbers, setWinningNumbersCounts, showSortedValues]);
 
   return (
     <div className="winning-numbers-page">
@@ -99,13 +96,13 @@ export default function WinningNumbersPage() {
                 <Label value="" position="insideBottom" offset={-16} />
               </XAxis>
 
-              <Bar dataKey="value" name="Einsatz">
+              <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
                 <LabelList
                   dataKey="value"
                   position="top"
                   style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
                 />
-                {winningNumbersCounts.map((_, idx) => (
+                {winningNumbersCounts.map((_: any, idx: number) => (
                   <Cell
                     key={`cell-${idx}`}
                     fill={APP_COLOR_CONST.colorPrimary}

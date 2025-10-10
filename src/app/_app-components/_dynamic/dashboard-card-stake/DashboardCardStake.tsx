@@ -187,7 +187,7 @@ export default function DashboardCardStake({
                 payload={legendPayload}
                 wrapperStyle={{ paddingBottom: 8 }}
               />
-              <Bar dataKey="value" name="Einsatz">
+              <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
                 {chartData.map((entry, idx) => (
                   <Cell key={`cell-${idx}`} fill={entry.fill} />
                 ))}

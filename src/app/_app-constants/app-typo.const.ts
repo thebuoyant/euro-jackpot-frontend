@@ -77,6 +77,11 @@ export const APP_TYPO_CONST = {
       headerTitle: "Übersicht der Gewinn- und Eurozahlen",
       titleWinningNumbers: "Gewinnzahlen",
       titleEuroNumbers: "Eurozahlen",
+      toolbar: {
+        labelSortingStart: "Zeige sortierte Werte",
+        labelSortingOn: "an",
+        labelSortingOff: "aus",
+      },
     },
   },
 };
