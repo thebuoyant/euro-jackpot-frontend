@@ -29,7 +29,8 @@ export const useDashboardStore = create((set) => ({
   setIsLoadingStakeData: (receivedValue: boolean) =>
     set(() => ({ isLoadingStakeData: receivedValue })),
 
-  winningNumbersCounts: [] as TWinningNumbersCountsResponse[],
-  setWinningNumbersCounts: (receivedValue: TWinningNumbersCountsResponse[]) =>
-    set({ winningNumbersCounts: receivedValue }),
+  topWinningNumbersCounts: [] as TWinningNumbersCountsResponse[],
+  setTopWinningNumbersCounts: (
+    receivedValue: TWinningNumbersCountsResponse[]
+  ) => set({ topWinningNumbersCounts: receivedValue }),
 }));
