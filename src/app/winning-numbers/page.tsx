@@ -93,7 +93,12 @@ export default function WinningNumbersPage() {
     })();
 
     return () => ac.abort();
-  }, [setIsLoadingWinningNumbers, setWinningNumbersCounts, showSortedValues]);
+  }, [
+    setIsLoadingWinningNumbers,
+    setWinningNumbersCounts,
+    showSortedValues,
+    setEuroNumbersCounts,
+  ]);
 
   console.log("euroNumbersCounts", euroNumbersCounts);
 
@@ -175,10 +180,10 @@ export default function WinningNumbersPage() {
                   position="top"
                   style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
                 />
-                {winningNumbersCounts.map((_: any, idx: number) => (
+                {euroNumbersCounts.map((_: any, idx: number) => (
                   <Cell
                     key={`cell-${idx}`}
-                    fill={APP_COLOR_CONST.colorPrimary}
+                    fill={APP_COLOR_CONST.colorSuccess}
                   />
                 ))}
               </Bar>
