@@ -40,6 +40,9 @@ export const APP_TYPO_CONST = {
         stake: {
           title: "Entwicklung der Spieleinsätze",
         },
+        topWinningNumbers: {
+          title: "Top Gewinnzahlen",
+        },
       },
     },
     archive: {
