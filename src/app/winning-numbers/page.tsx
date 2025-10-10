@@ -1,3 +1,4 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect } from "react";
@@ -8,51 +9,62 @@ import "./WinningNumbers.css";
 import WinningNumbersToolbar from "./WinningNumbersToolbar";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
-import { WinningNumbersCount } from "../_app-handlers/handleCountWinningNumbers";
 import { useWinningNumbersStore } from "../_app-stores/winning-numbers.store";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Label,
+  LabelList,
+  ResponsiveContainer,
+  XAxis,
+} from "recharts";
+import { APP_COLOR_CONST } from "../_app-constants/app-color.const";
+
+type WinningNumbersItem = { key: number; value: number };
 
 export default function WinningNumbersPage() {
   const {
     setIsLoadingWinningNumbers,
     setWinningNumbersCounts,
     winningNumbersCounts,
-  } = useWinningNumbersStore() as any;
+  } = useWinningNumbersStore() as {
+    setIsLoadingWinningNumbers: (b: boolean) => void;
+    setWinningNumbersCounts: (rows: WinningNumbersItem[]) => void;
+    winningNumbersCounts: WinningNumbersItem[];
+  };
 
   useEffect(() => {
-    let alive = true;
+    const ac = new AbortController();
 
     (async () => {
       try {
         setIsLoadingWinningNumbers(true);
 
         const res = await fetch(
-          `${API_ROUTE_CONST.winningNumbers}?sortedValues=${false}`
+          `${API_ROUTE_CONST.winningNumbers}?sortedValues=${false}`,
+          { signal: ac.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-        const response = await res.json();
-        const winningNumbersCounts = response.data;
+        const json = await res.json();
+        const data = (json?.data ?? []) as WinningNumbersItem[];
 
-        setWinningNumbersCounts(winningNumbersCounts);
-
-        if (alive)
-          setIsLoadingWinningNumbers(
-            (response?.records ?? []) as WinningNumbersCount[]
-          );
-      } catch (err) {
-        // Log only outside production to keep prod console clean
-        if (process.env.NODE_ENV !== "production") console.error(err);
-        if (alive) setWinningNumbersCounts([]);
+        setWinningNumbersCounts(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          if (process.env.NODE_ENV !== "production") console.error(err);
+          setWinningNumbersCounts([]);
+        }
       } finally {
-        if (alive) setIsLoadingWinningNumbers(false);
+        setIsLoadingWinningNumbers(false);
       }
     })();
 
-    return () => {
-      alive = false;
-    };
+    return () => ac.abort();
   }, [setIsLoadingWinningNumbers, setWinningNumbersCounts]);
-  console.log("winningNumbersCounts", winningNumbersCounts);
+
   return (
     <div className="winning-numbers-page">
       <div className="winning-numbers-page-header page-header">
@@ -60,13 +72,49 @@ export default function WinningNumbersPage() {
           {APP_TYPO_CONST.pages.winningNumbers.headerTitle}
         </Typography>
       </div>
+
       <div className="winning-numbers-toolbar">
         <WinningNumbersToolbar />
       </div>
+
       <div className="winning-numbers-page-content page-content">
-        <Typography variant="body1" gutterBottom>
-          {APP_TYPO_CONST.pages.winningNumbers.titleWinningNumbers}
-        </Typography>
+        <div className="wining-numbers-wrapper">
+          <Typography variant="body1" gutterBottom>
+            {APP_TYPO_CONST.pages.winningNumbers.titleWinningNumbers}
+          </Typography>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={winningNumbersCounts} // [{ key, value }]
+              margin={{ top: 8, right: 12, left: 0, bottom: 28 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis
+                dataKey="key"
+                tick={{ fontSize: 10 }} // kleinere Tick-Labels
+                interval={0} // alle Ticks anzeigen (optional)
+                height={32} // etwas Platz unten
+              >
+                <Label value="" position="insideBottom" offset={-16} />
+              </XAxis>
+
+              <Bar dataKey="value" name="Einsatz">
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
+                />
+                {winningNumbersCounts.map((_, idx) => (
+                  <Cell
+                    key={`cell-${idx}`}
+                    fill={APP_COLOR_CONST.colorPrimary}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );

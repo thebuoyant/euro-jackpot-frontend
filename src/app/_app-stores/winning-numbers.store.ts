@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { WinningNumbersCount } from "../_app-handlers/handleCountWinningNumbers";
 import { TWinningNumbersCountsResponse } from "../_app-types/record.types";
 
 export type WinningNumbersItem = { number: number; count: number };
