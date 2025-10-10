@@ -64,7 +64,9 @@ export default function WinningNumbersPage() {
         <WinningNumbersToolbar />
       </div>
       <div className="winning-numbers-page-content page-content">
-        page content
+        <Typography variant="body1" gutterBottom>
+          {APP_TYPO_CONST.pages.winningNumbers.titleWinningNumbers}
+        </Typography>
       </div>
     </div>
   );

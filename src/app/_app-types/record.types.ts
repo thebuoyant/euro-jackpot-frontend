@@ -76,3 +76,8 @@ export interface DrawRecord {
 }
 
 export type TRecord = DrawRecord;
+
+export type TWinningNumbersCountsResponse = {
+  key: number;
+  value: number;
+};
