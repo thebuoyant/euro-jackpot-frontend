@@ -4,4 +4,5 @@ export const API_ROUTE_CONST = {
   firstDraw: "/api/backend/first-draw",
   winningNumbers: "/api/backend/winning-numbers",
   euroNumbers: "/api/backend/euro-numbers",
+  winningNumbersTop: "/api/backend/winning-numbers-top",
 };
