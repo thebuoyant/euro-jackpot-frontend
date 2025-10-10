@@ -23,6 +23,7 @@ import {
 import { APP_COLOR_CONST } from "../_app-constants/app-color.const";
 
 type WinningNumbersItem = { key: number; value: number };
+type EuroNumbersItem = { key: number; value: number };
 
 export default function WinningNumbersPage() {
   const {
@@ -30,6 +31,8 @@ export default function WinningNumbersPage() {
     setWinningNumbersCounts,
     winningNumbersCounts,
     showSortedValues,
+    setEuroNumbersCounts,
+    euroNumbersCounts,
   } = useWinningNumbersStore() as any;
 
   useEffect(() => {
@@ -61,6 +64,38 @@ export default function WinningNumbersPage() {
 
     return () => ac.abort();
   }, [setIsLoadingWinningNumbers, setWinningNumbersCounts, showSortedValues]);
+
+  useEffect(() => {
+    const ac = new AbortController();
+
+    (async () => {
+      try {
+        setIsLoadingWinningNumbers(true);
+
+        const res = await fetch(
+          `${API_ROUTE_CONST.euroNumbers}?sortedValues=${showSortedValues}`,
+          { signal: ac.signal }
+        );
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const json = await res.json();
+        const data = (json?.data ?? []) as EuroNumbersItem[];
+
+        setEuroNumbersCounts(Array.isArray(data) ? data : []);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          if (process.env.NODE_ENV !== "production") console.error(err);
+          setEuroNumbersCounts([]);
+        }
+      } finally {
+        setIsLoadingWinningNumbers(false);
+      }
+    })();
+
+    return () => ac.abort();
+  }, [setIsLoadingWinningNumbers, setWinningNumbersCounts, showSortedValues]);
+
+  console.log("euroNumbersCounts", euroNumbersCounts);
 
   return (
     <div className="winning-numbers-page">
