@@ -53,7 +53,6 @@ export default function DashboardCardSpecialData({ title }: Props) {
     return () => ac.abort();
   }, [setIsLoadingSpecialData, setSpecialData]);
 
-  // Dekaden-Daten für Recharts vorbereiten
   const decadesData = useMemo(() => {
     const d = specialData?.decades ?? {
       decade1: 0,
@@ -71,7 +70,6 @@ export default function DashboardCardSpecialData({ title }: Props) {
     ];
   }, [specialData]);
 
-  // High/Low-Daten für Recharts vorbereiten
   const highLowData = useMemo(() => {
     const h = specialData?.highLow ?? { high: 0, low: 0 };
     return [
@@ -88,7 +86,6 @@ export default function DashboardCardSpecialData({ title }: Props) {
         </Typography>
         <Divider sx={{ my: 2 }} />
 
-        {/* Zwei Charts nebeneinander */}
         <div
           style={{
             display: "flex",

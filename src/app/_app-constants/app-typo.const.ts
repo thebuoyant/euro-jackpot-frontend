@@ -47,6 +47,9 @@ export const APP_TYPO_CONST = {
         topWinningNumbers123: {
           title: "Top Gewinnzahlen (Klasse 1, 2 und 3)",
         },
+        specialData: {
+          title: "Zahlenbereiche",
+        },
       },
     },
     archive: {

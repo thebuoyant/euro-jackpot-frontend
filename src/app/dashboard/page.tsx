@@ -68,9 +68,7 @@ export default function DashboardPage() {
             }
           />
           <DashboardCardSpecialData
-            title={
-              APP_TYPO_CONST.pages.dashboard.cards.topWinningNumbers123.title
-            }
+            title={APP_TYPO_CONST.pages.dashboard.cards.specialData.title}
           />
         </div>
       </div>
