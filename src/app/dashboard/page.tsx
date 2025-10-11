@@ -8,6 +8,7 @@ import DashboardCardFirstDraw from "../_app-components/_dynamic/dashboard-card-f
 import DashboardCardStake from "../_app-components/_dynamic/dashboard-card-stake/DashboardCardStake";
 import DashboardCardTopWinningNumbers from "../_app-components/_dynamic/dashboard-card-top-winning-numbers/DashboardCardTopWinningNumbers";
 import DashboardCardTopWinningNumbers123 from "../_app-components/_dynamic/dashboard-card-top-winning-numbers-123/DashboardCardTopWinningNumbers123";
+import DashboardCardSpecialData from "../_app-components/_dynamic/dashboard-card-special-data/DashboardCardSpecialData";
 
 export default function DashboardPage() {
   return (
@@ -62,6 +63,11 @@ export default function DashboardPage() {
             title={APP_TYPO_CONST.pages.dashboard.cards.topWinningNumbers.title}
           />
           <DashboardCardTopWinningNumbers123
+            title={
+              APP_TYPO_CONST.pages.dashboard.cards.topWinningNumbers123.title
+            }
+          />
+          <DashboardCardSpecialData
             title={
               APP_TYPO_CONST.pages.dashboard.cards.topWinningNumbers123.title
             }
