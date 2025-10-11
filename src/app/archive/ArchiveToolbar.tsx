@@ -18,14 +18,22 @@ export type ArchiveDateRange = {
 /** Weekday filter: 'tue' (Dienstag), 'fri' (Freitag), or 'both' (both days). */
 export type DayFilter = "tue" | "fri" | "both";
 
+/** Klassen-Filter: Mehrfachauswahl ("k1", "k123"). Leeres Array = kein Klassen-Filter. */
+export type ClassFilter = Array<"k1" | "k123">;
+
 type Props = {
   value: ArchiveDateRange;
   onChange: (next: ArchiveDateRange) => void;
   onApply?: () => void; // optional (filter is already reactive)
   onClear?: () => void;
+
   /** Controlled weekday filter (lives in page.tsx) */
   day: DayFilter;
   onDayChange: (next: DayFilter) => void;
+
+  /** Controlled classes filter (lives in page.tsx) */
+  classes: ClassFilter;
+  onClassesChange: (next: ClassFilter) => void;
 };
 
 export default function ArchiveToolbar({
@@ -34,6 +42,8 @@ export default function ArchiveToolbar({
   onClear,
   day,
   onDayChange,
+  classes,
+  onClassesChange,
 }: Props) {
   /** Normalize empty strings to null for consistent state shape. */
   const orNull = (s: string) => (s?.trim() ? s : null);
@@ -69,6 +79,14 @@ export default function ArchiveToolbar({
   ) => {
     // Guard: ToggleButtonGroup with exclusive selection may pass null if the active one is clicked again.
     if (next) onDayChange(next);
+  };
+
+  const handleClassesChange = (
+    _e: React.MouseEvent<HTMLElement>,
+    next: ClassFilter | null
+  ) => {
+    // Bei MUI kann next null sein → als [] behandeln (beide aus)
+    onClassesChange(next ?? []);
   };
 
   return (
@@ -125,6 +143,8 @@ export default function ArchiveToolbar({
         {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelReset ??
           "Zurücksetzen"}
       </Button>
+
+      {/* Weekday filter (exclusive) */}
       <ToggleButtonGroup
         exclusive
         value={day}
@@ -152,6 +172,27 @@ export default function ArchiveToolbar({
           sx={{ textTransform: "none", width: "150px" }}
         >
           {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelBoth ?? "Beides"}
+        </ToggleButton>
+      </ToggleButtonGroup>
+
+      {/* Klassen-Filter (Mehrfachauswahl) */}
+      <ToggleButtonGroup
+        value={classes}
+        onChange={handleClassesChange}
+        size="small"
+        aria-label="klassen filter"
+        sx={{ ml: 2 }}
+      >
+        <ToggleButton value="k1" sx={{ textTransform: "none", width: "150px" }}>
+          {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelClass1 ??
+            "Klasse 1"}
+        </ToggleButton>
+        <ToggleButton
+          value="k123"
+          sx={{ textTransform: "none", width: "170px" }}
+        >
+          {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelClass123 ??
+            "Klassen 1-2-3"}
         </ToggleButton>
       </ToggleButtonGroup>
     </Box>

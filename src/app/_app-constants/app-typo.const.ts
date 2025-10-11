@@ -78,6 +78,8 @@ export const APP_TYPO_CONST = {
         buttonLabelTuesday: "Dienstag",
         buttonLabelFriday: "Freitag",
         buttonLabelBoth: "Beides",
+        buttonLabelClass1: "Klasse 1",
+        buttonLabelClass123: "Klassen 1-2-3",
       },
     },
     winningNumbers: {

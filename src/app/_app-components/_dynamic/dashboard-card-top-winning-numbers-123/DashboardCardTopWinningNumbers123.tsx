@@ -79,7 +79,7 @@ export default function DashboardCardTopWinningNumbers123({ title }: Props) {
               dataKey="key"
               tick={{ fontSize: 10 }}
               interval={0}
-              height={32}
+              height={28}
             >
               <Label value="" position="insideBottom" offset={-16} />
             </XAxis>
