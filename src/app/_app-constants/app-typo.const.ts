@@ -8,6 +8,7 @@ export const APP_TYPO_CONST = {
     navItemDashboard: "Dashboard",
     navItemArchive: "Archiv",
     navItemWinningNumbers: "Gewinnzahlen",
+    navItemWinningNumbers123: "Gewinnzahlen 1-2-3",
   },
   components: {
     drawDetailsModal: {
@@ -78,6 +79,14 @@ export const APP_TYPO_CONST = {
     },
     winningNumbers: {
       headerTitle: "Gewinnzahlen",
+      toolbar: {
+        labelSortingStart: "Zeige sortierte Werte",
+        labelSortingOn: "an",
+        labelSortingOff: "aus",
+      },
+    },
+    winningNumbers123: {
+      headerTitle: "Gewinnzahlen der Klassen 1, 2 und 3",
       toolbar: {
         labelSortingStart: "Zeige sortierte Werte",
         labelSortingOn: "an",

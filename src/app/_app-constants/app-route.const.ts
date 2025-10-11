@@ -3,4 +3,5 @@ export const APP_ROUTE_CONST = {
   dashboard: "/dashboard",
   archive: "/archive",
   winningNumbers: "/winning-numbers",
+  winningNumbers123: "/winning-numbers-123",
 };
