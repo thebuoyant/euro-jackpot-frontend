@@ -3,6 +3,7 @@ import {
   DrawRecord,
   TWinningNumbersCountsResponse,
 } from "../_app-types/record.types";
+import { TSpecialData } from "../_app-types/special.types";
 
 export const useDashboardStore = create((set) => ({
   isLoadingLastDrawData: false as boolean,
@@ -38,4 +39,12 @@ export const useDashboardStore = create((set) => ({
   setTopWinningNumbersCounts123: (
     receivedValue: TWinningNumbersCountsResponse[]
   ) => set({ topWinningNumbersCounts123: receivedValue }),
+
+  isLoadingSpecialData: false as boolean,
+  setIsLoadingSpecialData: (receivedValue: boolean) =>
+    set(() => ({ isLoadingSpecialData: receivedValue })),
+
+  specialData: null as TSpecialData | null,
+  setSpecialData: (receivedValue: TSpecialData | null) =>
+    set(() => ({ specialData: receivedValue })),
 }));
