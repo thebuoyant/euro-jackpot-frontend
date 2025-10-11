@@ -41,7 +41,7 @@ export const APP_TYPO_CONST = {
           title: "Entwicklung der Spieleinsätze",
         },
         topWinningNumbers: {
-          title: "Top Gewinnzahlen",
+          title: "Top Gewinnzahlen (total)",
         },
       },
     },

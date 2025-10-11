@@ -11,12 +11,12 @@ import {
   BarChart,
   Bar,
   XAxis,
-  YAxis,
-  Tooltip,
   CartesianGrid,
-  Legend,
   Cell,
+  Label,
+  LabelList,
 } from "recharts";
+import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
 
 type Props = { title: string; numberOfRecords?: number };
 
@@ -49,8 +49,8 @@ export default function DashboardCardTopWinningNumbers({ title }: Props) {
 
     return () => ac.abort();
   }, [setTopWinningNumbersCounts]);
-  const topWinningNumbers = topWinningNumbersCounts.slice(0, 5);
-  console.log("topWinningNumbers", topWinningNumbers);
+  const topWinningNumbers = topWinningNumbersCounts.slice(0, 10);
+
   return (
     <Card className="card" elevation={4}>
       <CardContent>
@@ -60,15 +60,28 @@ export default function DashboardCardTopWinningNumbers({ title }: Props) {
         <Divider sx={{ my: 2 }} />
         <ResponsiveContainer width="100%" height={205}>
           <BarChart
-            data={topWinningNumbersCounts}
+            data={topWinningNumbers}
             margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
             <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
-              {topWinningNumbersCounts.map((entry: any, idx: number) => (
-                <Cell key={`cell-${idx}`} fill={entry.fill} />
+              <LabelList
+                dataKey="value"
+                position="top"
+                style={{ fontSize: 10 }} // kleinere Font für Bar-Labels
+              />
+              {topWinningNumbers.map((entry: any, idx: number) => (
+                <Cell key={`cell-${idx}`} fill={APP_COLOR_CONST.colorPrimary} />
               ))}
             </Bar>
+            <XAxis
+              dataKey="key"
+              tick={{ fontSize: 10 }}
+              interval={0}
+              height={32}
+            >
+              <Label value="" position="insideBottom" offset={-16} />
+            </XAxis>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>

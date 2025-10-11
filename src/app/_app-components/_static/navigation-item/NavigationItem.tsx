@@ -6,8 +6,8 @@ import { Typography } from "@mui/material";
 import "./NavigationItem.css";
 import clsx from "clsx";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import InventoryIcon from "@mui/icons-material/Inventory";
 import BarChartIcon from "@mui/icons-material/BarChart";
+import TableRowsIcon from "@mui/icons-material/TableRows";
 
 type NavigationItemProps = {
   height?: number;
@@ -46,7 +46,7 @@ export default function NavigationItem({
         );
       case "archive":
         return (
-          <InventoryIcon
+          <TableRowsIcon
             fontSize="medium"
             sx={{ color: isActive ? "#123456" : iconColor }}
           />
