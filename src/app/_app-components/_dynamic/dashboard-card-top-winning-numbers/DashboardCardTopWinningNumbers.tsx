@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { Card, CardContent, Divider, Typography } from "@mui/material";
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
@@ -11,6 +11,7 @@ import {
   BarChart,
   Bar,
   XAxis,
+  YAxis,
   CartesianGrid,
   Cell,
   Label,
@@ -49,7 +50,17 @@ export default function DashboardCardTopWinningNumbers({ title }: Props) {
 
     return () => ac.abort();
   }, [setTopWinningNumbersCounts]);
+
   const topWinningNumbers = topWinningNumbersCounts.slice(0, 10);
+
+  // Headroom für Labels innerhalb des Grids (kein Overflow nach oben)
+  const yDomain = useMemo<[number, number]>(() => {
+    const max = topWinningNumbers.reduce(
+      (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
+      0
+    );
+    return [0, Math.max(3, Math.ceil(max * 1.1))]; // +10% oder min. 3
+  }, [topWinningNumbers]);
 
   return (
     <Card className="card" elevation={4}>
@@ -64,6 +75,7 @@ export default function DashboardCardTopWinningNumbers({ title }: Props) {
             margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
+            <YAxis domain={yDomain} hide allowDecimals={false} /> {/* ⟵ NEU */}
             <Bar dataKey="value" name="Einsatz" isAnimationActive={false}>
               <LabelList
                 dataKey="value"

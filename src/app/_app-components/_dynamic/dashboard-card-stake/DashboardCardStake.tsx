@@ -87,21 +87,24 @@ export default function DashboardCardStake({
       })
       .filter((d) => d.ts != null);
 
-    // NEW: sort DESC so newest is first (leftmost in Recharts)
+    // DESC: neueste zuerst
     rows.sort((a, b) => b.ts! - a.ts!);
 
-    // With DESC, just take the first N most recent items
     const take = numberOfRecords;
     const recent = rows.slice(0, take);
 
-    // (Optional) keep DESC so newest stays left; if you prefer newest left and older to the right,
-    // keep as-is. Recharts renders in array order.
     return recent.map((d) => ({
       ...d,
       fill: d.day === "Di" ? COLOR_TUE : COLOR_FRI,
       dayLabel: d.day === "Di" ? "Dienstag" : "Freitag",
     }));
   }, [records, numberOfRecords]);
+
+  // Headroom auf der Y-Achse, damit Labels/Spitzenwerte im Grid bleiben
+  const yDomain = useMemo<[number, number]>(() => {
+    const max = chartData.reduce((m, r) => Math.max(m, r?.value ?? 0), 0);
+    return [0, Math.max(3, Math.ceil(max * 1.1))]; // +10% oder min. 3
+  }, [chartData]);
 
   const hasData = chartData.length > 0;
 
@@ -171,6 +174,8 @@ export default function DashboardCardStake({
                 minTickGap={10}
               />
               <YAxis
+                domain={yDomain} // ⟵ Headroom
+                allowDecimals={false}
                 tick={{ fontSize: 11 }}
                 width={70}
                 tickFormatter={(v: number) =>

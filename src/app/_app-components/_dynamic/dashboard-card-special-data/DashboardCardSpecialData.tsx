@@ -10,9 +10,9 @@ import {
   BarChart,
   Bar,
   XAxis,
+  YAxis,
   CartesianGrid,
   Cell,
-  Label,
   LabelList,
 } from "recharts";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
@@ -36,7 +36,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const json = await res.json();
-        // API liefert: { specialData: { decades: {...}, highLow: {...} } }
+        // API: { specialData: { decades: {...}, highLow: {...} } }
         const data = json?.specialData ?? null;
 
         setSpecialData(data);
@@ -78,6 +78,17 @@ export default function DashboardCardSpecialData({ title }: Props) {
     ];
   }, [specialData]);
 
+  // Headroom auf der Y-Achse, damit Labels/Spitzenwerte im Grid bleiben
+  const decadesDomain = useMemo<[number, number]>(() => {
+    const max = decadesData.reduce((m, r) => Math.max(m, r?.value ?? 0), 0);
+    return [0, Math.max(3, Math.ceil(max * 1.1))]; // +10% oder min. 3
+  }, [decadesData]);
+
+  const highLowDomain = useMemo<[number, number]>(() => {
+    const max = highLowData.reduce((m, r) => Math.max(m, r?.value ?? 0), 0);
+    return [0, Math.max(3, Math.ceil(max * 1.1))];
+  }, [highLowData]);
+
   return (
     <Card className="card" elevation={4}>
       <CardContent>
@@ -102,6 +113,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                 margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
+                <YAxis domain={decadesDomain} hide allowDecimals={false} />
                 <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
                   <LabelList
                     dataKey="value"
@@ -120,7 +132,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                   tick={{ fontSize: 10 }}
                   interval={0}
                   height={28}
-                ></XAxis>
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -133,6 +145,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                 margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
+                <YAxis domain={highLowDomain} hide allowDecimals={false} />
                 <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
                   <LabelList
                     dataKey="value"
@@ -151,7 +164,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                   tick={{ fontSize: 10 }}
                   interval={0}
                   height={28}
-                ></XAxis>
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
