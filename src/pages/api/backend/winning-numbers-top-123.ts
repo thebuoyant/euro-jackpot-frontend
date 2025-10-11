@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { handleCountWinningNumbers } from "src/app/_app-handlers/handleCountWinningNumbers";
+import { handleCountWinningNumbersTop123 } from "src/app/_app-handlers/handleCountWinningNumbersTop123";
 
 export type WinningNumbersCount = Map<number, number>;
 export type WinningNumbersItem = { key: number; value: number };
@@ -11,7 +11,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const records: WinningNumbersCount = handleCountWinningNumbers(false);
+    const records: WinningNumbersCount = handleCountWinningNumbersTop123(false);
 
     // Map -> Array<{ key, value }>
     const data: WinningNumbersItem[] = Array.from(records, ([key, value]) => ({
