@@ -73,8 +73,8 @@ export default function DashboardCardSpecialData({ title }: Props) {
   const highLowData = useMemo(() => {
     const h = specialData?.highLow ?? { high: 0, low: 0 };
     return [
-      { key: "Low (1–25)", value: h.low },
-      { key: "High (26–50)", value: h.high },
+      { key: "1–25", value: h.low },
+      { key: "26–50", value: h.high },
     ];
   }, [specialData]);
 
@@ -120,9 +120,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                   tick={{ fontSize: 10 }}
                   interval={0}
                   height={28}
-                >
-                  <Label value="Dekaden" position="insideBottom" offset={-16} />
-                </XAxis>
+                ></XAxis>
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -153,13 +151,7 @@ export default function DashboardCardSpecialData({ title }: Props) {
                   tick={{ fontSize: 10 }}
                   interval={0}
                   height={28}
-                >
-                  <Label
-                    value="High / Low"
-                    position="insideBottom"
-                    offset={-16}
-                  />
-                </XAxis>
+                ></XAxis>
               </BarChart>
             </ResponsiveContainer>
           </div>
