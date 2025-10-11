@@ -30,25 +30,25 @@ export default function AppSidebar() {
         <NavigationItem
           title={APP_TYPO_CONST.sidebar.navItemDashboard}
           iconType="dashboard"
-          isActive={pathname?.includes("dashboard")}
+          isActive={pathname === APP_ROUTE_CONST.dashboard}
           onClick={handleNavigationToDashboard}
         />
         <NavigationItem
           title={APP_TYPO_CONST.sidebar.navItemArchive}
           iconType="archive"
-          isActive={pathname?.includes("archive")}
+          isActive={pathname === APP_ROUTE_CONST.archive}
           onClick={handleNavigationToArchive}
         />
         <NavigationItem
           title={APP_TYPO_CONST.sidebar.navItemWinningNumbers}
           iconType="winning-numbers"
-          isActive={pathname?.includes("winning-numbers")}
+          isActive={pathname === APP_ROUTE_CONST.winningNumbers}
           onClick={handleNavigationToWinningNumbers}
         />
         <NavigationItem
           title={APP_TYPO_CONST.sidebar.navItemWinningNumbers123}
           iconType="winning-numbers"
-          isActive={pathname?.includes("winning-numbers-123")}
+          isActive={pathname === APP_ROUTE_CONST.winningNumbers123}
           onClick={handleNavigationToWinningNumbers123}
         />
       </div>

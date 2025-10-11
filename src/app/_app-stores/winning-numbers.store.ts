@@ -15,6 +15,9 @@ type State = {
   showSortedValues: boolean;
   setShowSortedValues: (receivedValue: boolean) => void;
 
+  isLoadingWinningNumbers123: boolean;
+  setIsLoadingWinningNumbers123: (receivedValue: boolean) => void;
+
   winningNumbersCounts123: TWinningNumbersCountsResponse[];
   setWinningNumbersCounts123: (
     receivedValue: TWinningNumbersCountsResponse[]
@@ -36,6 +39,10 @@ export const useWinningNumbersStore = create<State>((set) => ({
   showSortedValues: false,
   setShowSortedValues: (receivedValue) =>
     set({ showSortedValues: receivedValue }),
+
+  isLoadingWinningNumbers123: false,
+  setIsLoadingWinningNumbers123: (receivedValue) =>
+    set({ isLoadingWinningNumbers123: receivedValue }),
 
   winningNumbersCounts123: [],
   setWinningNumbersCounts123: (receivedValue) =>

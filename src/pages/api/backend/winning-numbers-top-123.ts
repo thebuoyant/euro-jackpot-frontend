@@ -11,7 +11,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   try {
-    const records: WinningNumbersCount = handleCountWinningNumbersTop123(false);
+    const raw = req.query["sortedValues"];
+    const sorted =
+      typeof raw === "string"
+        ? ["true", "1", "yes", "on"].includes(raw.toLowerCase())
+        : false;
+
+    const records: WinningNumbersCount =
+      handleCountWinningNumbersTop123(sorted);
 
     // Map -> Array<{ key, value }>
     const data: WinningNumbersItem[] = Array.from(records, ([key, value]) => ({
