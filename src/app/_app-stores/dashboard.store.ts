@@ -33,4 +33,9 @@ export const useDashboardStore = create((set) => ({
   setTopWinningNumbersCounts: (
     receivedValue: TWinningNumbersCountsResponse[]
   ) => set({ topWinningNumbersCounts: receivedValue }),
+
+  topWinningNumbersCounts123: [] as TWinningNumbersCountsResponse[],
+  setTopWinningNumbersCounts123: (
+    receivedValue: TWinningNumbersCountsResponse[]
+  ) => set({ topWinningNumbersCounts123: receivedValue }),
 }));

@@ -30,7 +30,7 @@ export default function DashboardCardTopWinningNumbers123({ title }: Props) {
     (async () => {
       try {
         const res = await fetch(
-          `${API_ROUTE_CONST.winningNumbers}?sortedValues=${true}`,
+          `${API_ROUTE_CONST.winningNumbersTop123}?sortedValues=${true}`,
           { signal: ac.signal }
         );
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -49,6 +49,7 @@ export default function DashboardCardTopWinningNumbers123({ title }: Props) {
 
     return () => ac.abort();
   }, [setTopWinningNumbersCounts123]);
+  console.log("topWinningNumbersCounts123", topWinningNumbersCounts123);
   const topWinningNumbers = topWinningNumbersCounts123.slice(0, 10);
 
   return (
