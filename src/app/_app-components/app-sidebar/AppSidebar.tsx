@@ -20,6 +20,10 @@ export default function AppSidebar() {
     router.push(APP_ROUTE_CONST.winningNumbers, { scroll: true });
   };
 
+  const handleNavigationToWinningNumbers123 = () => {
+    router.push(APP_ROUTE_CONST.winningNumbers123, { scroll: true });
+  };
+
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-content">
@@ -40,6 +44,12 @@ export default function AppSidebar() {
           iconType="winning-numbers"
           isActive={pathname?.includes("winning-numbers")}
           onClick={handleNavigationToWinningNumbers}
+        />
+        <NavigationItem
+          title={APP_TYPO_CONST.sidebar.navItemWinningNumbers123}
+          iconType="winning-numbers"
+          isActive={pathname?.includes("winning-numbers-123")}
+          onClick={handleNavigationToWinningNumbers123}
         />
       </div>
     </div>
