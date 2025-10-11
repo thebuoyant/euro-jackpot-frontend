@@ -151,7 +151,7 @@ export default function ArchiveToolbar({
         onChange={handleDayGroupChange}
         size="small"
         aria-label="weekday filter"
-        sx={{ ml: 8 }}
+        sx={{ ml: "auto" }}
       >
         <ToggleButton
           value="tue"
@@ -175,25 +175,24 @@ export default function ArchiveToolbar({
         </ToggleButton>
       </ToggleButtonGroup>
 
-      {/* Klassen-Filter (Mehrfachauswahl) */}
       <ToggleButtonGroup
         value={classes}
         onChange={handleClassesChange}
         size="small"
         aria-label="klassen filter"
-        sx={{ ml: 2 }}
+        sx={{ ml: "auto" }}
       >
         <ToggleButton value="k1" sx={{ textTransform: "none", width: "150px" }}>
           {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelClass1 ??
             "Klasse 1"}
         </ToggleButton>
-        <ToggleButton
+        {/* <ToggleButton
           value="k123"
           sx={{ textTransform: "none", width: "170px" }}
         >
           {APP_TYPO_CONST?.pages?.archive?.toolbar?.buttonLabelClass123 ??
             "Klassen 1-2-3"}
-        </ToggleButton>
+        </ToggleButton> */}
       </ToggleButtonGroup>
     </Box>
   );
