@@ -161,13 +161,11 @@ export default function ClassQuotaPage() {
   );
   const yScale = useMemo(() => makeNiceScale(currentMax, 6), [currentMax]);
 
-  // Neueste links
   const getDisplayData = (k: number) => {
     const rows = k === quotaClass ? data : cache[k] ?? [];
     return rows.length ? [...rows].reverse() : rows;
   };
 
-  // Mehr Platz rechts für das externe Ø-Label
   const RIGHT_MARGIN = 84;
 
   return (
@@ -200,14 +198,8 @@ export default function ClassQuotaPage() {
           </Tabs>
         </Box>
 
-        <Divider sx={{ my: 2 }} />
-
         {tabItems.map((k, idx) => (
           <TabPanel key={k} value={value} index={idx}>
-            <Typography variant="subtitle1" gutterBottom>
-              {`Ausgewählte Klasse: ${k}`}
-            </Typography>
-
             {errMsg ? (
               <Typography variant="body2" color="error" sx={{ mt: 1 }}>
                 {errMsg}
@@ -220,7 +212,7 @@ export default function ClassQuotaPage() {
               </Typography>
             ) : null}
 
-            <Box sx={{ mt: 2, height: 260, overflow: "visible" }}>
+            <Box sx={{ mt: 2, height: 570, overflow: "visible" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={getDisplayData(k)}
@@ -258,7 +250,7 @@ export default function ClassQuotaPage() {
                     stroke={LINE_COLOR}
                     strokeWidth={2}
                     fill={LINE_COLOR}
-                    fillOpacity={0.18}
+                    fillOpacity={0.9}
                     dot={false}
                     activeDot={{ r: 3, stroke: LINE_COLOR, fill: LINE_COLOR }}
                   />
@@ -283,8 +275,8 @@ export default function ClassQuotaPage() {
                         strokeWidth={2}
                         label={{
                           value: `Ø ${fmtEuro0(mean)}`,
-                          position: "right", // außerhalb des Plots
-                          offset: 4, // ⟵ 4px Luft nach links
+                          position: "right",
+                          offset: 8,
                           fill: MEAN_COLOR,
                           fontSize: 11,
                           style: {
