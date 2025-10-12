@@ -28,6 +28,10 @@ export default function AppSidebar() {
     router.push(APP_ROUTE_CONST.classQuota, { scroll: true });
   };
 
+  const handleNavigationToClassNumbers = () => {
+    router.push(APP_ROUTE_CONST.classNumbers, { scroll: true });
+  };
+
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-content">
@@ -60,6 +64,12 @@ export default function AppSidebar() {
           iconType="quota"
           isActive={pathname === APP_ROUTE_CONST.classQuota}
           onClick={handleNavigationToClassQuota}
+        />
+        <NavigationItem
+          title={APP_TYPO_CONST.sidebar.navItemClassNumbers}
+          iconType="quota"
+          isActive={pathname === APP_ROUTE_CONST.classNumbers}
+          onClick={handleNavigationToClassNumbers}
         />
       </div>
     </div>

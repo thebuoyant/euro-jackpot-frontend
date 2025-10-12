@@ -10,6 +10,7 @@ export const APP_TYPO_CONST = {
     navItemWinningNumbers: "Gewinnzahlen",
     navItemWinningNumbers123: "Gewinnzahlen 1-2-3",
     navItemClassQuota: "Quoten der Klassen",
+    navItemClassNumbers: "Zahlen der Klassen",
   },
   components: {
     drawDetailsModal: {
@@ -103,7 +104,10 @@ export const APP_TYPO_CONST = {
       },
     },
     classQuota: {
-      headerTitle: "Quoten der Gewinnklassen",
+      headerTitle: "Quoten der Ziehungen für die Gewinnklassen",
+    },
+    classNumbers: {
+      headerTitle: "Anzahl der Ziehungen für die Gewinnklassen",
     },
   },
 };
