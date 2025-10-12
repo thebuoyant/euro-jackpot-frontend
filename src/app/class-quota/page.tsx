@@ -11,6 +11,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
 } from "recharts";
 
 import "./ClassQuota.css";
@@ -72,38 +73,32 @@ function QuotaTooltip({
   );
 }
 
-/**
- * 1–2–5 “nice” Scale:
- * Liefert runde Obergrenze + Ticks (0..niceMax), damit Grid logisch wirkt und nichts abgeschnitten wird.
- */
+/** 1–2–5 “nice” Scale */
 function makeNiceScale(
   maxValue: number,
   approxTicks = 6
 ): { domain: [number, number]; ticks: number[] } {
   const safeMax = Math.max(0, Number(maxValue) || 0);
-  if (safeMax === 0) {
-    return { domain: [0, 3], ticks: [0, 1, 2, 3] };
-  }
+  if (safeMax === 0) return { domain: [0, 3], ticks: [0, 1, 2, 3] };
 
-  // grobe Schrittweite
   const rawStep = safeMax / Math.max(2, approxTicks - 1);
   const pow10 = Math.pow(10, Math.floor(Math.log10(rawStep)));
   const stepCandidates = [1, 2, 5, 10].map((m) => m * pow10);
-
-  // nächstgrößere "schöne" Schrittweite
   const step =
     stepCandidates.find((s) => s >= rawStep) ??
     stepCandidates[stepCandidates.length - 1];
-
-  // niceMax = nächstes Vielfaches der Schrittweite oberhalb des Max-Wertes
   const niceMax = Math.ceil(safeMax / step) * step;
-
-  // Ticks generieren
   const tickCount = Math.round(niceMax / step) + 1;
   const ticks = Array.from({ length: tickCount }, (_, i) => i * step);
-
   return { domain: [0, niceMax], ticks };
 }
+
+const fmtEuro0 = (n: number) =>
+  `${Math.round(n).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €`;
+
+// Farben
+const MEAN_COLOR = "#bad012"; // Ø-Linie
+const LINE_COLOR = "#123456"; // Datenlinie/Füllung
 
 export default function ClassQuotaPage() {
   const [value, setValue] = useState(0);
@@ -156,7 +151,6 @@ export default function ClassQuotaPage() {
     return () => ac.abort();
   }, [quotaClass, cache]);
 
-  // Max bestimmen & "nice" Scale berechnen
   const currentMax = useMemo(
     () =>
       (data ?? []).reduce(
@@ -167,11 +161,14 @@ export default function ClassQuotaPage() {
   );
   const yScale = useMemo(() => makeNiceScale(currentMax, 6), [currentMax]);
 
-  // Neueste links: Reihenfolge beim Rendern umkehren
+  // Neueste links
   const getDisplayData = (k: number) => {
     const rows = k === quotaClass ? data : cache[k] ?? [];
     return rows.length ? [...rows].reverse() : rows;
   };
+
+  // Mehr Platz rechts für das externe Ø-Label
+  const RIGHT_MARGIN = 84;
 
   return (
     <div className="class-quota-page">
@@ -191,7 +188,7 @@ export default function ClassQuotaPage() {
             allowScrollButtonsMobile
             aria-label="Klassen-Tabs"
           >
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((k, idx) => (
+            {tabItems.map((k, idx) => (
               <Tab
                 key={k}
                 label={`Klasse ${k}`}
@@ -203,8 +200,14 @@ export default function ClassQuotaPage() {
           </Tabs>
         </Box>
 
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((k, idx) => (
+        <Divider sx={{ my: 2 }} />
+
+        {tabItems.map((k, idx) => (
           <TabPanel key={k} value={value} index={idx}>
+            <Typography variant="subtitle1" gutterBottom>
+              {`Ausgewählte Klasse: ${k}`}
+            </Typography>
+
             {errMsg ? (
               <Typography variant="body2" color="error" sx={{ mt: 1 }}>
                 {errMsg}
@@ -217,11 +220,11 @@ export default function ClassQuotaPage() {
               </Typography>
             ) : null}
 
-            <Box sx={{ mt: 2, height: 570, overflow: "visible" }}>
+            <Box sx={{ mt: 2, height: 260, overflow: "visible" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={getDisplayData(k)}
-                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+                  margin={{ top: 8, right: RIGHT_MARGIN, left: 10, bottom: 8 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
@@ -235,7 +238,7 @@ export default function ClassQuotaPage() {
                     ticks={yScale.ticks}
                     allowDecimals={false}
                     tick={{ fontSize: 11 }}
-                    width={88}
+                    width={92}
                     tickMargin={6}
                     tickFormatter={(v: number) =>
                       `${Math.round(Number(v)).toLocaleString("de-DE", {
@@ -244,22 +247,55 @@ export default function ClassQuotaPage() {
                       })} €`
                     }
                   />
-                  <Tooltip
-                    content={<QuotaTooltip />}
-                    wrapperStyle={{ outline: "none" }}
-                  />
+                  <Tooltip content={<QuotaTooltip />} />
+
+                  {/* Datenfläche */}
                   <Area
                     type="monotone"
                     dataKey="valueAsNumber"
                     name="Quote (€)"
                     isAnimationActive={false}
-                    stroke="#123456"
+                    stroke={LINE_COLOR}
                     strokeWidth={2}
-                    fill="#123456"
-                    fillOpacity={0.9}
+                    fill={LINE_COLOR}
+                    fillOpacity={0.18}
                     dot={false}
-                    activeDot={{ r: 3, stroke: "#123456", fill: "#123456" }}
+                    activeDot={{ r: 3, stroke: LINE_COLOR, fill: LINE_COLOR }}
                   />
+
+                  {/* Ø-Durchschnittslinie – Label außerhalb rechts (im Margin-Bereich) */}
+                  {(() => {
+                    const rows = getDisplayData(k);
+                    const mean =
+                      rows.length > 0
+                        ? rows.reduce(
+                            (s, r) => s + (r?.valueAsNumber ?? 0),
+                            0
+                          ) / rows.length
+                        : 0;
+
+                    return (
+                      <ReferenceLine
+                        y={mean}
+                        stroke={MEAN_COLOR}
+                        strokeOpacity={1}
+                        strokeDasharray="6 6"
+                        strokeWidth={2}
+                        label={{
+                          value: `Ø ${fmtEuro0(mean)}`,
+                          position: "right", // außerhalb des Plots
+                          offset: 4, // ⟵ 4px Luft nach links
+                          fill: MEAN_COLOR,
+                          fontSize: 11,
+                          style: {
+                            paintOrder: "stroke",
+                            stroke: "#ffffff",
+                            strokeWidth: 3,
+                          },
+                        }}
+                      />
+                    );
+                  })()}
                 </AreaChart>
               </ResponsiveContainer>
             </Box>
