@@ -177,8 +177,6 @@ export default function ClassQuotaPage() {
           </Tabs>
         </Box>
 
-        <Divider sx={{ my: 2 }} />
-
         {/* Panels */}
         {tabItems.map((k, idx) => (
           <TabPanel key={k} value={value} index={idx}>
@@ -201,8 +199,8 @@ export default function ClassQuotaPage() {
             <Box
               sx={{
                 mt: 2,
-                height: 260,
-                overflow: "visible", // 👈 verhindert unnötige Scrollbar am rechten Rand
+                height: 530,
+                overflow: "visible",
               }}
             >
               <ResponsiveContainer width="100%" height="100%">
@@ -210,26 +208,6 @@ export default function ClassQuotaPage() {
                   data={getDisplayData(k)}
                   margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
                 >
-                  <defs>
-                    <linearGradient
-                      id="quotaGradient"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
-                      <stop
-                        offset="0%"
-                        stopColor="rgba(33,150,243,1)"
-                        stopOpacity={0.85}
-                      />
-                      <stop
-                        offset="100%"
-                        stopColor="rgba(33,150,243,1)"
-                        stopOpacity={0.15}
-                      />
-                    </linearGradient>
-                  </defs>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="datum"
@@ -256,11 +234,12 @@ export default function ClassQuotaPage() {
                     dataKey="valueAsNumber"
                     name="Quote (€)"
                     isAnimationActive={false}
-                    stroke="rgba(33,150,243,1)"
-                    fill="url(#quotaGradient)"
-                    strokeWidth={2}
+                    stroke="#123456"
+                    strokeWidth={1}
+                    fill="#123456"
+                    fillOpacity={0.9}
                     dot={false}
-                    activeDot={{ r: 3 }}
+                    activeDot={{ r: 3, stroke: "#123456", fill: "#123456" }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
