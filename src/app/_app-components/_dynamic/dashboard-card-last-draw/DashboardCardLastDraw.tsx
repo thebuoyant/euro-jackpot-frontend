@@ -18,7 +18,6 @@ export default function DashboardCardLastDraw({
   labelEuroNumbers,
   labelStake,
   labelDay,
-  isFirstClassDraw = false,
 }: {
   title: string;
   labelDate: string;
@@ -26,7 +25,6 @@ export default function DashboardCardLastDraw({
   labelEuroNumbers: string;
   labelStake: string;
   labelDay: string;
-  isFirstClassDraw?: boolean;
 }) {
   const { lastDrawRecord, setIsLoadingLastDrawData, setLastDrawRecord } =
     useDashboardStore() as any;
@@ -62,6 +60,8 @@ export default function DashboardCardLastDraw({
   if (!lastDrawRecord) {
     return null;
   }
+
+  const isFirstClassDraw = lastDrawRecord.anzahlKlasse1 > 0;
 
   /**
    * Intensives, „richtiges“ Gold:
