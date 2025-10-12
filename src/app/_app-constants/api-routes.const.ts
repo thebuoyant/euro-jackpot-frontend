@@ -8,4 +8,5 @@ export const API_ROUTE_CONST = {
   winningNumbersTop123: "/api/backend/winning-numbers-top-123",
   specialDataCounts: "/api/backend/special-data-counts",
   classQuota: "/api/backend/class-quota",
+  classNumbers: "/api/backend/class-numbers",
 };
