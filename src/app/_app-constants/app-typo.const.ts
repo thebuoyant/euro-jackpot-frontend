@@ -101,5 +101,8 @@ export const APP_TYPO_CONST = {
         labelSortingOff: "aus",
       },
     },
+    classQuota: {
+      headerTitle: "Quoten der Gewinnklassen",
+    },
   },
 };
