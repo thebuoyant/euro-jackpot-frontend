@@ -1,8 +1,9 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
+/* eslint-disable  react-hooks/exhaustive-deps */
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Tabs, Tab, Typography, Divider, Paper } from "@mui/material";
+import { Box, Tabs, Tab, Typography, Paper } from "@mui/material";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -15,6 +16,7 @@ import {
 } from "recharts";
 
 import "./ClassQuota.css";
+
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
 
@@ -96,9 +98,8 @@ function makeNiceScale(
 const fmtEuro0 = (n: number) =>
   `${Math.round(n).toLocaleString("de-DE", { maximumFractionDigits: 0 })} €`;
 
-// Farben
-const MEAN_COLOR = "#bad012"; // Ø-Linie
-const LINE_COLOR = "#123456"; // Datenlinie/Füllung
+const MEAN_COLOR = "#708599"; // Average Line
+const LINE_COLOR = "#123456"; // Filling
 
 export default function ClassQuotaPage() {
   const [value, setValue] = useState(0);
@@ -241,21 +242,20 @@ export default function ClassQuotaPage() {
                   />
                   <Tooltip content={<QuotaTooltip />} />
 
-                  {/* Datenfläche */}
                   <Area
                     type="monotone"
                     dataKey="valueAsNumber"
                     name="Quote (€)"
                     isAnimationActive={false}
                     stroke={LINE_COLOR}
-                    strokeWidth={2}
+                    strokeWidth={1}
                     fill={LINE_COLOR}
                     fillOpacity={0.9}
                     dot={false}
                     activeDot={{ r: 3, stroke: LINE_COLOR, fill: LINE_COLOR }}
                   />
 
-                  {/* Ø-Durchschnittslinie – Label außerhalb rechts (im Margin-Bereich) */}
+                  {/* Ø-Average Line */}
                   {(() => {
                     const rows = getDisplayData(k);
                     const mean =
@@ -272,7 +272,7 @@ export default function ClassQuotaPage() {
                         stroke={MEAN_COLOR}
                         strokeOpacity={1}
                         strokeDasharray="6 6"
-                        strokeWidth={2}
+                        strokeWidth={1}
                         label={{
                           value: `Ø ${fmtEuro0(mean)}`,
                           position: "right",
