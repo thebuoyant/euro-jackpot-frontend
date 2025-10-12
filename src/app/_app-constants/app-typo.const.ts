@@ -10,7 +10,7 @@ export const APP_TYPO_CONST = {
     navItemWinningNumbers: "Gewinnzahlen",
     navItemWinningNumbers123: "Gewinnzahlen 1-2-3",
     navItemClassQuota: "Quoten der Klassen",
-    navItemClassNumbers: "Zahlen der Klassen",
+    navItemClassNumbers: "Anzahl der Klassen",
   },
   components: {
     drawDetailsModal: {

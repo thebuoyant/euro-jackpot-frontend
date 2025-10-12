@@ -17,6 +17,7 @@ import {
 
 import "./ClassNumbers.css";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
+import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 type TClassNumbersPoint = {
   datum: string;
@@ -161,7 +162,9 @@ export default function ClassNumbersPage() {
   return (
     <div className="class-numbers-page">
       <div className="class-numbers-page-header page-header">
-        <Typography variant="h6">Klassen-Anzahlen</Typography>
+        <Typography variant="h6">
+          {APP_TYPO_CONST.pages.classNumbers.headerTitle}
+        </Typography>
       </div>
 
       <div className="class-numbers-page-content page-content">
