@@ -1,3 +1,5 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+
 import { TRecord } from "../_app-types/record.types";
 import { handleReadJsonData } from "./handleReadJsonData";
 

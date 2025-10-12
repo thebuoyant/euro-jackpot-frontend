@@ -7,4 +7,5 @@ export const API_ROUTE_CONST = {
   winningNumbersTop: "/api/backend/winning-numbers-top",
   winningNumbersTop123: "/api/backend/winning-numbers-top-123",
   specialDataCounts: "/api/backend/special-data-counts",
+  classQuota: "/api/backend/class-quota",
 };
