@@ -23,7 +23,6 @@ type TClassQuotaPoint = {
   valueAsString: string;
 };
 
-/** a11y-Helper wie in der MUI-Doku */
 function a11yProps(index: number) {
   return {
     id: `class-tab-${index}`,
@@ -46,14 +45,12 @@ function TabPanel({
       hidden={value !== index}
       id={`class-tabpanel-${index}`}
       aria-labelledby={`class-tab-${index}`}
-      // 👇 kein height: "100%" mehr → verhindert unnötige Scrollbars
     >
       {value === index && <Box sx={{ pt: 2 }}>{children}</Box>}
     </div>
   );
 }
 
-/** Tooltip im gleichen Stil wie deine Cards */
 function QuotaTooltip({
   active,
   label,
@@ -75,11 +72,41 @@ function QuotaTooltip({
   );
 }
 
-export default function ClassQuotaPage() {
-  // Aktive Klasse (0-basiert für Tabs; tatsächliche Klasse = value+1)
-  const [value, setValue] = useState(0);
+/**
+ * 1–2–5 “nice” Scale:
+ * Liefert runde Obergrenze + Ticks (0..niceMax), damit Grid logisch wirkt und nichts abgeschnitten wird.
+ */
+function makeNiceScale(
+  maxValue: number,
+  approxTicks = 6
+): { domain: [number, number]; ticks: number[] } {
+  const safeMax = Math.max(0, Number(maxValue) || 0);
+  if (safeMax === 0) {
+    return { domain: [0, 3], ticks: [0, 1, 2, 3] };
+  }
 
-  // Cache: Klasse -> Daten
+  // grobe Schrittweite
+  const rawStep = safeMax / Math.max(2, approxTicks - 1);
+  const pow10 = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const stepCandidates = [1, 2, 5, 10].map((m) => m * pow10);
+
+  // nächstgrößere "schöne" Schrittweite
+  const step =
+    stepCandidates.find((s) => s >= rawStep) ??
+    stepCandidates[stepCandidates.length - 1];
+
+  // niceMax = nächstes Vielfaches der Schrittweite oberhalb des Max-Wertes
+  const niceMax = Math.ceil(safeMax / step) * step;
+
+  // Ticks generieren
+  const tickCount = Math.round(niceMax / step) + 1;
+  const ticks = Array.from({ length: tickCount }, (_, i) => i * step);
+
+  return { domain: [0, niceMax], ticks };
+}
+
+export default function ClassQuotaPage() {
+  const [value, setValue] = useState(0);
   const [cache, setCache] = useState<Record<number, TClassQuotaPoint[]>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errMsg, setErrMsg] = useState<string | null>(null);
@@ -93,7 +120,6 @@ export default function ClassQuotaPage() {
     setValue(next);
   };
 
-  // Daten laden, wenn Tab wechselt (und noch nicht im Cache)
   useEffect(() => {
     if (cache[quotaClass]?.length) return;
 
@@ -112,7 +138,6 @@ export default function ClassQuotaPage() {
 
         const json = await res.json();
         const rows = (json?.data ?? []) as TClassQuotaPoint[];
-
         setCache((prev) => ({
           ...prev,
           [quotaClass]: Array.isArray(rows) ? rows : [],
@@ -131,19 +156,21 @@ export default function ClassQuotaPage() {
     return () => ac.abort();
   }, [quotaClass, cache]);
 
-  // Headroom auf der Y-Achse wie in deinen Charts
-  const yDomain = useMemo<[number, number]>(() => {
-    const max = (data ?? []).reduce(
-      (m, r) => Math.max(m, Number(r?.valueAsNumber ?? 0)),
-      0
-    );
-    return [0, Math.max(3, Math.ceil(max * 1.1))]; // +10% oder min. 3
-  }, [data]);
+  // Max bestimmen & "nice" Scale berechnen
+  const currentMax = useMemo(
+    () =>
+      (data ?? []).reduce(
+        (m, r) => Math.max(m, Number(r?.valueAsNumber ?? 0)),
+        0
+      ),
+    [data]
+  );
+  const yScale = useMemo(() => makeNiceScale(currentMax, 6), [currentMax]);
 
-  // 👇 Neueste links: wir drehen die Reihenfolge beim Rendern um
+  // Neueste links: Reihenfolge beim Rendern umkehren
   const getDisplayData = (k: number) => {
     const rows = k === quotaClass ? data : cache[k] ?? [];
-    return rows.length ? [...rows].reverse() : rows; // reverse → neueste links
+    return rows.length ? [...rows].reverse() : rows;
   };
 
   return (
@@ -155,7 +182,6 @@ export default function ClassQuotaPage() {
       </div>
 
       <div className="class-quota-page-content page-content">
-        {/* Tabs */}
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
           <Tabs
             value={value}
@@ -165,7 +191,7 @@ export default function ClassQuotaPage() {
             allowScrollButtonsMobile
             aria-label="Klassen-Tabs"
           >
-            {tabItems.map((k, idx) => (
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((k, idx) => (
               <Tab
                 key={k}
                 label={`Klasse ${k}`}
@@ -177,13 +203,8 @@ export default function ClassQuotaPage() {
           </Tabs>
         </Box>
 
-        {/* Panels */}
-        {tabItems.map((k, idx) => (
+        {Array.from({ length: 12 }, (_, i) => i + 1).map((k, idx) => (
           <TabPanel key={k} value={value} index={idx}>
-            <Typography variant="subtitle1" gutterBottom>
-              {`Ausgewählte Klasse: ${k}`}
-            </Typography>
-
             {errMsg ? (
               <Typography variant="body2" color="error" sx={{ mt: 1 }}>
                 {errMsg}
@@ -196,13 +217,7 @@ export default function ClassQuotaPage() {
               </Typography>
             ) : null}
 
-            <Box
-              sx={{
-                mt: 2,
-                height: 530,
-                overflow: "visible",
-              }}
-            >
+            <Box sx={{ mt: 2, height: 570, overflow: "visible" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={getDisplayData(k)}
@@ -216,11 +231,12 @@ export default function ClassQuotaPage() {
                     minTickGap={10}
                   />
                   <YAxis
-                    domain={yDomain}
+                    domain={yScale.domain}
+                    ticks={yScale.ticks}
                     allowDecimals={false}
                     tick={{ fontSize: 11 }}
-                    width={78} // optional: etwas breiter wegen " €"
-                    tickMargin={6} // optional: etwas Luft
+                    width={88}
+                    tickMargin={6}
                     tickFormatter={(v: number) =>
                       `${Math.round(Number(v)).toLocaleString("de-DE", {
                         minimumFractionDigits: 0,
@@ -228,14 +244,17 @@ export default function ClassQuotaPage() {
                       })} €`
                     }
                   />
-                  <Tooltip content={<QuotaTooltip />} />
+                  <Tooltip
+                    content={<QuotaTooltip />}
+                    wrapperStyle={{ outline: "none" }}
+                  />
                   <Area
                     type="monotone"
                     dataKey="valueAsNumber"
                     name="Quote (€)"
                     isAnimationActive={false}
                     stroke="#123456"
-                    strokeWidth={1}
+                    strokeWidth={2}
                     fill="#123456"
                     fillOpacity={0.9}
                     dot={false}
