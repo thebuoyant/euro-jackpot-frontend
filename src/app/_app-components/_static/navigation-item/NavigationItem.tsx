@@ -8,12 +8,13 @@ import clsx from "clsx";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import TableRowsIcon from "@mui/icons-material/TableRows";
+import AreaChartIcon from "@mui/icons-material/AreaChart";
 
 type NavigationItemProps = {
   height?: number;
   backgoundColor?: string;
   iconColor?: string;
-  iconType?: "dashboard" | "archive" | "winning-numbers";
+  iconType?: "dashboard" | "archive" | "winning-numbers" | "quota";
   isActive?: boolean;
   title?: string;
   titleColor?: string;
@@ -54,6 +55,13 @@ export default function NavigationItem({
       case "winning-numbers":
         return (
           <BarChartIcon
+            fontSize="medium"
+            sx={{ color: isActive ? "#123456" : iconColor }}
+          />
+        );
+      case "quota":
+        return (
+          <AreaChartIcon
             fontSize="medium"
             sx={{ color: isActive ? "#123456" : iconColor }}
           />
