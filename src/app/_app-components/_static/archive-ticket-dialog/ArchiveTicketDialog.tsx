@@ -6,12 +6,12 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
-  Button,
+  IconButton,
   Typography,
   Box,
   Divider,
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import type { ArchiveRecord } from "src/app/archive/_archiveColumns";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
 
@@ -41,32 +41,30 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
   const isNumChecked = (n: number) => nums.includes(n);
   const isEuroChecked = (n: number) => euros.includes(n);
 
+  /** Dezentes Kreuz als dünne, halbtransparente Linien unter der Zahl */
   const CrossOverlay = ({ color }: { color: string }) => (
-    <>
-      {/* dezente, dünne Linien – unter der Zahl (zIndex 1) */}
-      <Box
-        sx={{
+    <Box
+      sx={{
+        position: "absolute",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 1,
+        "&::before, &::after": {
+          content: '""',
           position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          zIndex: 1,
-          "&::before, &::after": {
-            content: '""',
-            position: "absolute",
-            left: "8%",
-            right: "8%",
-            top: "50%",
-            height: "2px",
-            transformOrigin: "50% 50%",
-            backgroundColor: color,
-            opacity: 0.35,
-            borderRadius: 2,
-          },
-          "&::before": { transform: "rotate(45deg)" },
-          "&::after": { transform: "rotate(-45deg)" },
-        }}
-      />
-    </>
+          left: "10%",
+          right: "10%",
+          top: "50%",
+          height: "2px",
+          transformOrigin: "50% 50%",
+          backgroundColor: color,
+          opacity: 0.35,
+          borderRadius: 2,
+        },
+        "&::before": { transform: "rotate(45deg)" },
+        "&::after": { transform: "rotate(-45deg)" },
+      }}
+    />
   );
 
   const renderMainGrid = () => {
@@ -82,8 +80,8 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
         sx={{
           display: "grid",
           gridTemplateColumns: `repeat(${cols}, ${CELL_SIZE}px)`,
-          gap: 0.75,
-          p: 1,
+          gap: 0.75, // ~6px
+          p: 1, // 8px
           borderRadius: 2,
           border: "1px solid",
           borderColor: "divider",
@@ -109,10 +107,9 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                // Zahl IMMER gut lesbar (oberste Ebene)
                 "& .cell-number": {
                   position: "relative",
-                  zIndex: 2,
+                  zIndex: 2, // Zahl über dem Kreuz
                   fontSize: 13,
                   fontWeight: 700,
                   color: checked ? selText : "text.primary",
@@ -190,14 +187,43 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
     <Dialog
       open={open}
       onClose={onClose}
-      maxWidth="sm"
-      fullWidth
-      aria-labelledby="ticket-title"
+      // 👉 Papier orientiert sich am Inhalt; keine unnötige Breite/Höhe
+      fullWidth={false}
+      maxWidth={false}
+      scroll="paper"
+      PaperProps={{
+        sx: {
+          m: 1.5,
+          width: "fit-content",
+          maxWidth: "calc(100vw - 24px)",
+          maxHeight: "calc(100vh - 24px)",
+        },
+      }}
     >
-      <DialogTitle id="ticket-title">
-        Spielschein – {row?.datum ?? ""}
+      {/* Header mit Close-Icon (kein Footer) */}
+      <DialogTitle
+        sx={{
+          pr: 6, // Platz fürs Icon
+          display: "flex",
+          alignItems: "center",
+          gap: 1,
+        }}
+      >
+        <Typography variant="h6" component="div" sx={{ flex: 1 }}>
+          {`Spielschein – ${row?.datum ?? ""}`}
+        </Typography>
+        <IconButton
+          aria-label="Dialog schließen"
+          onClick={onClose}
+          edge="end"
+          sx={{ ml: 1 }}
+          size="small"
+        >
+          <CloseIcon />
+        </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
+
+      <DialogContent dividers sx={{ pt: 1.5 }}>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
           Gewinnzahlen (5 aus 50)
         </Typography>
@@ -210,9 +236,6 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
         </Typography>
         {renderEuroGrid()}
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Schließen</Button>
-      </DialogActions>
     </Dialog>
   );
 }
