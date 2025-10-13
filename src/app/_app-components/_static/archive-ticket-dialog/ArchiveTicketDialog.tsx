@@ -13,6 +13,7 @@ import {
   Divider,
 } from "@mui/material";
 import type { ArchiveRecord } from "src/app/archive/_archiveColumns";
+import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
 
 type Props = {
   open: boolean;
@@ -40,11 +41,42 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
   const isNumChecked = (n: number) => nums.includes(n);
   const isEuroChecked = (n: number) => euros.includes(n);
 
+  const CrossOverlay = ({ color }: { color: string }) => (
+    <>
+      {/* dezente, dünne Linien – unter der Zahl (zIndex 1) */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          zIndex: 1,
+          "&::before, &::after": {
+            content: '""',
+            position: "absolute",
+            left: "8%",
+            right: "8%",
+            top: "50%",
+            height: "2px",
+            transformOrigin: "50% 50%",
+            backgroundColor: color,
+            opacity: 0.35,
+            borderRadius: 2,
+          },
+          "&::before": { transform: "rotate(45deg)" },
+          "&::after": { transform: "rotate(-45deg)" },
+        }}
+      />
+    </>
+  );
+
   const renderMainGrid = () => {
     // 1..50 → 10 Spalten × 5 Reihen
     const cols = 10;
     const total = 50;
     const items = Array.from({ length: total }, (_, i) => i + 1);
+    const selBg = APP_COLOR_CONST.colorPrimary; // #123456
+    const selText = APP_COLOR_CONST.colorWhite; // #ffffff
+
     return (
       <Box
         sx={{
@@ -70,39 +102,25 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                 height: CELL_SIZE,
                 borderRadius: 1,
                 border: "1px solid",
-                borderColor: checked ? "primary.main" : "divider",
+                borderColor: checked ? selBg : "divider",
+                position: "relative",
+                userSelect: "none",
+                backgroundColor: checked ? selBg : "background.paper",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 13,
-                fontWeight: 600,
-                color: checked ? "primary.contrastText" : "text.primary",
-                backgroundColor: checked ? "primary.main" : "background.paper",
-                boxShadow: checked
-                  ? "inset 0 0 0 1px rgba(255,255,255,0.8)"
-                  : "none",
-                position: "relative",
-                userSelect: "none",
+                // Zahl IMMER gut lesbar (oberste Ebene)
+                "& .cell-number": {
+                  position: "relative",
+                  zIndex: 2,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: checked ? selText : "text.primary",
+                },
               }}
             >
-              {n}
-              {checked && (
-                <Box
-                  component="span"
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(255,255,255,0.95)",
-                    fontSize: 18,
-                    fontWeight: 700,
-                  }}
-                >
-                  ✕
-                </Box>
-              )}
+              {checked && <CrossOverlay color={selText} />}
+              <span className="cell-number">{n}</span>
             </Box>
           );
         })}
@@ -115,6 +133,9 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
     const cols = 6;
     const total = 12;
     const items = Array.from({ length: total }, (_, i) => i + 1);
+    const selBg = APP_COLOR_CONST.colorSuccess; // #388e3c
+    const selText = APP_COLOR_CONST.colorWhite; // #ffffff
+
     return (
       <Box
         sx={{
@@ -140,39 +161,24 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                 height: CELL_SIZE,
                 borderRadius: "50%",
                 border: "1px solid",
-                borderColor: checked ? "warning.dark" : "divider",
+                borderColor: checked ? selBg : "divider",
+                position: "relative",
+                userSelect: "none",
+                backgroundColor: checked ? selBg : "background.paper",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                fontSize: 13,
-                fontWeight: 700,
-                color: checked ? "warning.contrastText" : "text.primary",
-                backgroundColor: checked ? "warning.main" : "background.paper",
-                boxShadow: checked
-                  ? "inset 0 0 0 1px rgba(255,255,255,0.9)"
-                  : "none",
-                position: "relative",
-                userSelect: "none",
+                "& .cell-number": {
+                  position: "relative",
+                  zIndex: 2,
+                  fontSize: 13,
+                  fontWeight: 800,
+                  color: checked ? selText : "text.primary",
+                },
               }}
             >
-              {n}
-              {checked && (
-                <Box
-                  component="span"
-                  sx={{
-                    position: "absolute",
-                    inset: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "rgba(255,255,255,0.95)",
-                    fontSize: 18,
-                    fontWeight: 700,
-                  }}
-                >
-                  ✕
-                </Box>
-              )}
+              {checked && <CrossOverlay color={selText} />}
+              <span className="cell-number">{n}</span>
             </Box>
           );
         })}
