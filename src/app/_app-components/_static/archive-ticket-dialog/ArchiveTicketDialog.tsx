@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useMemo } from "react";
@@ -64,12 +63,11 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
             "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9))",
         }}
       >
-        {items.map((n) => {
-          const checked = isNumChecked(n);
+        {items.map((number) => {
+          const checked = isNumChecked(number);
           return (
             <Box
-              key={`n-${n}`}
-              aria-label={`zahl-${n}${checked ? "-markiert" : ""}`}
+              key={`n-${number}`}
               sx={{
                 width: CELL_SIZE,
                 height: CELL_SIZE,
@@ -91,7 +89,7 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                   color: checked ? selText : "text.primary",
                 }}
               >
-                {n}
+                {number}
               </Typography>
             </Box>
           );
@@ -120,14 +118,14 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
           borderColor: "divider",
           background:
             "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9))",
+          marginBottom: "8px",
         }}
       >
-        {items.map((n) => {
-          const checked = isEuroChecked(n);
+        {items.map((number) => {
+          const checked = isEuroChecked(number);
           return (
             <Box
-              key={`e-${n}`}
-              aria-label={`eurozahl-${n}${checked ? "-markiert" : ""}`}
+              key={`e-${number}`}
               sx={{
                 width: CELL_SIZE,
                 height: CELL_SIZE,
@@ -149,7 +147,7 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                   color: checked ? selText : "text.primary",
                 }}
               >
-                {n}
+                {number}
               </Typography>
             </Box>
           );
@@ -162,7 +160,6 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
     <Dialog
       open={open}
       onClose={onClose}
-      // kompakt: Breite/Höhe am Inhalt ausrichten
       fullWidth={false}
       maxWidth={false}
       scroll="paper"
@@ -175,10 +172,9 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
         },
       }}
     >
-      {/* Header mit Close-Icon (kein Footer) */}
       <DialogTitle
         sx={{
-          pr: 6, // Platz fürs Icon
+          pr: 6,
           display: "flex",
           alignItems: "center",
           gap: 1,
@@ -190,7 +186,6 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
           }`}
         </Typography>
         <IconButton
-          aria-label="Dialog schließen"
           onClick={onClose}
           edge="end"
           sx={{ ml: 1, position: "relative", left: "28px" }}
@@ -202,14 +197,14 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
 
       <DialogContent dividers sx={{ pt: 1.5 }}>
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Gewinnzahlen (5 aus 50)
+          {APP_TYPO_CONST.components.archiveTicketModal.winningNumbers}
         </Typography>
         {renderMainGrid()}
 
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="subtitle2" sx={{ mb: 1 }}>
-          Eurozahlen (2 aus 12)
+          {APP_TYPO_CONST.components.archiveTicketModal.euroNumbers}
         </Typography>
         {renderEuroGrid()}
       </DialogContent>

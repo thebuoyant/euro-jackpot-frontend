@@ -14,10 +14,12 @@ export const APP_TYPO_CONST = {
   },
   components: {
     drawDetailsModal: {
-      title: "Ziehung vom",
+      title: "Ziehung",
     },
     archiveTicketModal: {
-      title: "Ziehung vom",
+      title: "Ziehung",
+      winningNumbers: "Gewinnzahlen (5 aus 50)",
+      euroNumbers: "Eurozahlen (2 aus 12)",
     },
   },
   pages: {
