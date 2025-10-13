@@ -16,6 +16,9 @@ export const APP_TYPO_CONST = {
     drawDetailsModal: {
       title: "Ziehung vom",
     },
+    archiveTicketModal: {
+      title: "Ziehung vom",
+    },
   },
   pages: {
     home: {

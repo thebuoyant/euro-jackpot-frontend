@@ -14,6 +14,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import type { ArchiveRecord } from "src/app/archive/_archiveColumns";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
+import { APP_TYPO_CONST } from "src/app/_app-constants/app-typo.const";
 
 type Props = {
   open: boolean;
@@ -184,13 +185,15 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
         }}
       >
         <Typography variant="h6" component="div" sx={{ flex: 1 }}>
-          {`Spielschein – ${row?.datum ?? ""}`}
+          {`${APP_TYPO_CONST.components.archiveTicketModal.title}: ${
+            row?.datum ?? ""
+          }`}
         </Typography>
         <IconButton
           aria-label="Dialog schließen"
           onClick={onClose}
           edge="end"
-          sx={{ ml: 1 }}
+          sx={{ ml: 1, position: "relative", left: "28px" }}
           size="small"
         >
           <CloseIcon />
