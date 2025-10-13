@@ -5,17 +5,11 @@ import React from "react";
 import { Box, Skeleton } from "@mui/material";
 
 type Props = {
-  /** Anzahl der Zeilen (Key/Value-Paare) */
   rows?: number;
-  /** Breite der Label-Spalte (z. B. 120, "30%") */
   labelWidth?: number | string;
-  /** max. Breite der Value-Skelette (pro Zeile leicht variierend) */
   valueMaxWidth?: number | string;
-  /** Höhe der Skeleton-Balken (px), simuliert die Texthöhe in deinen echten Rows */
   lineHeight?: number;
-  /** Grid-Gap in px (zwischen Label/Value) – standard 8 */
   gap?: number;
-  /** Vertikales Padding je li (px) – standard 6 (entspricht deiner echten Row) */
   rowPaddingY?: number;
 };
 
@@ -23,15 +17,14 @@ export default function SkeletonKeyValueList({
   rows = 5,
   labelWidth = 120,
   valueMaxWidth = "70%",
-  lineHeight = 20, // kompakt wie eine Textzeile
-  gap = 8, // exakt wie deine echte Row
-  rowPaddingY = 6, // exakt wie deine echte Row
+  lineHeight = 20,
+  gap = 8,
+  rowPaddingY = 6,
 }: Props) {
   const items = Array.from({ length: rows });
   const labelCol =
     typeof labelWidth === "number" ? `${labelWidth}px` : labelWidth;
 
-  // dezente Variation, damit's „natürlich“ wirkt – capped durch valueMaxWidth
   const widths = ["70%", "60%", "80%", "50%", "65%", "75%", "55%"];
 
   return (
@@ -63,6 +56,7 @@ export default function SkeletonKeyValueList({
               height: `${lineHeight}px`,
               width: labelCol,
               borderRadius: "4px",
+              marginTop: "2px",
             }}
           />
 
