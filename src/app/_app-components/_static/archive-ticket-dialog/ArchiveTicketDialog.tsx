@@ -41,32 +41,6 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
   const isNumChecked = (n: number) => nums.includes(n);
   const isEuroChecked = (n: number) => euros.includes(n);
 
-  /** Dezentes Kreuz als dünne, halbtransparente Linien unter der Zahl */
-  const CrossOverlay = ({ color }: { color: string }) => (
-    <Box
-      sx={{
-        position: "absolute",
-        inset: 0,
-        pointerEvents: "none",
-        zIndex: 1,
-        "&::before, &::after": {
-          content: '""',
-          position: "absolute",
-          left: "10%",
-          right: "10%",
-          top: "50%",
-          height: "2px",
-          transformOrigin: "50% 50%",
-          backgroundColor: color,
-          opacity: 0.35,
-          borderRadius: 2,
-        },
-        "&::before": { transform: "rotate(45deg)" },
-        "&::after": { transform: "rotate(-45deg)" },
-      }}
-    />
-  );
-
   const renderMainGrid = () => {
     // 1..50 → 10 Spalten × 5 Reihen
     const cols = 10;
@@ -101,23 +75,23 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                 borderRadius: 1,
                 border: "1px solid",
                 borderColor: checked ? selBg : "divider",
-                position: "relative",
-                userSelect: "none",
                 backgroundColor: checked ? selBg : "background.paper",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                "& .cell-number": {
-                  position: "relative",
-                  zIndex: 2, // Zahl über dem Kreuz
+                userSelect: "none",
+              }}
+            >
+              <Typography
+                component="span"
+                sx={{
                   fontSize: 13,
                   fontWeight: 700,
                   color: checked ? selText : "text.primary",
-                },
-              }}
-            >
-              {checked && <CrossOverlay color={selText} />}
-              <span className="cell-number">{n}</span>
+                }}
+              >
+                {n}
+              </Typography>
             </Box>
           );
         })}
@@ -159,23 +133,23 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
                 borderRadius: "50%",
                 border: "1px solid",
                 borderColor: checked ? selBg : "divider",
-                position: "relative",
-                userSelect: "none",
                 backgroundColor: checked ? selBg : "background.paper",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                "& .cell-number": {
-                  position: "relative",
-                  zIndex: 2,
+                userSelect: "none",
+              }}
+            >
+              <Typography
+                component="span"
+                sx={{
                   fontSize: 13,
                   fontWeight: 800,
                   color: checked ? selText : "text.primary",
-                },
-              }}
-            >
-              {checked && <CrossOverlay color={selText} />}
-              <span className="cell-number">{n}</span>
+                }}
+              >
+                {n}
+              </Typography>
             </Box>
           );
         })}
@@ -187,7 +161,7 @@ export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
     <Dialog
       open={open}
       onClose={onClose}
-      // 👉 Papier orientiert sich am Inhalt; keine unnötige Breite/Höhe
+      // kompakt: Breite/Höhe am Inhalt ausrichten
       fullWidth={false}
       maxWidth={false}
       scroll="paper"
