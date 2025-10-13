@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, Divider, Paper, Typography } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -22,6 +22,7 @@ import {
   toComparableUtcNoon,
 } from "src/app/_app-utils/date.util";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
+import SkeletonBarChart from "src/app/_app-components/_static/skeleton-bar-chart/SkeletonBarChart";
 
 type Props = { title: string; numberOfRecords?: number };
 
@@ -34,9 +35,13 @@ export default function DashboardCardStake({
 }: Props) {
   const {
     setIsLoadingStakeData,
+    isLoadingStakeData,
     records = [],
     setRecords,
   } = useDashboardStore() as any;
+
+  // Merkt, ob der erste Fetch bereits abgeschlossen ist
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     let alive = true;
@@ -51,7 +56,10 @@ export default function DashboardCardStake({
         if (process.env.NODE_ENV !== "production") console.error(err);
         if (alive) setRecords([]);
       } finally {
-        if (alive) setIsLoadingStakeData(false);
+        if (alive) {
+          setIsLoadingStakeData(false);
+          hasFetchedRef.current = true; // erster Request fertig
+        }
       }
     })();
     return () => {
@@ -107,6 +115,7 @@ export default function DashboardCardStake({
   }, [chartData]);
 
   const hasData = chartData.length > 0;
+  const showSkeleton = !hasFetchedRef.current || isLoadingStakeData;
 
   function StakeTooltip({
     active,
@@ -156,7 +165,17 @@ export default function DashboardCardStake({
           {title}
         </Typography>
         <Divider sx={{ my: 2 }} />
-        {!hasData ? (
+
+        {showSkeleton ? (
+          <SkeletonBarChart
+            height={205}
+            bars={numberOfRecords > 0 ? Math.min(24, numberOfRecords) : 10}
+            margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+            barGap={8}
+            maxBarHeight={140}
+            showXAxisLine
+          />
+        ) : !hasData ? (
           <Typography variant="body2" color="text.secondary">
             Keine Daten vorhanden.
           </Typography>

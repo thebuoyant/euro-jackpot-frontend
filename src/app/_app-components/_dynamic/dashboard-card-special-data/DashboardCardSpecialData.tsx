@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Card, CardContent, Divider, Typography } from "@mui/material";
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
@@ -16,12 +16,20 @@ import {
   LabelList,
 } from "recharts";
 import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
+import SkeletonBarChart from "src/app/_app-components/_static/skeleton-bar-chart/SkeletonBarChart";
 
 type Props = { title: string; numberOfRecords?: number };
 
 export default function DashboardCardSpecialData({ title }: Props) {
-  const { setIsLoadingSpecialData, setSpecialData, specialData } =
-    useDashboardStore() as any;
+  const {
+    setIsLoadingSpecialData,
+    setSpecialData,
+    specialData,
+    isLoadingSpecialData,
+  } = useDashboardStore() as any;
+
+  // zeigt beim ersten Mount IMMER Skeleton, bis der erste Request durch ist
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     const ac = new AbortController();
@@ -46,7 +54,10 @@ export default function DashboardCardSpecialData({ title }: Props) {
           setSpecialData(null);
         }
       } finally {
-        setIsLoadingSpecialData(false);
+        if (!ac.signal.aborted) {
+          setIsLoadingSpecialData(false);
+          hasFetchedRef.current = true; // erster Request abgeschlossen
+        }
       }
     })();
 
@@ -89,6 +100,8 @@ export default function DashboardCardSpecialData({ title }: Props) {
     return [0, Math.max(3, Math.ceil(max * 1.1))];
   }, [highLowData]);
 
+  const showSkeleton = !hasFetchedRef.current || isLoadingSpecialData;
+
   return (
     <Card className="card" elevation={4}>
       <CardContent>
@@ -107,66 +120,88 @@ export default function DashboardCardSpecialData({ title }: Props) {
         >
           {/* Linker Chart: Dekaden */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <ResponsiveContainer width="100%" height={205}>
-              <BarChart
-                data={decadesData}
+            {showSkeleton ? (
+              <SkeletonBarChart
+                height={205}
+                bars={5} // 5 Dekaden
                 margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <YAxis domain={decadesDomain} hide allowDecimals={false} />
-                <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    style={{ fontSize: 10 }}
-                  />
-                  {decadesData.map((_, idx: number) => (
-                    <Cell
-                      key={`decade-cell-${idx}`}
-                      fill={APP_COLOR_CONST.colorPrimary}
+                barGap={8}
+                maxBarHeight={140}
+                showXAxisLine
+              />
+            ) : (
+              <ResponsiveContainer width="100%" height={205}>
+                <BarChart
+                  data={decadesData}
+                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <YAxis domain={decadesDomain} hide allowDecimals={false} />
+                  <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      style={{ fontSize: 10 }}
                     />
-                  ))}
-                </Bar>
-                <XAxis
-                  dataKey="key"
-                  tick={{ fontSize: 10 }}
-                  interval={0}
-                  height={28}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                    {decadesData.map((_, idx: number) => (
+                      <Cell
+                        key={`decade-cell-${idx}`}
+                        fill={APP_COLOR_CONST.colorPrimary}
+                      />
+                    ))}
+                  </Bar>
+                  <XAxis
+                    dataKey="key"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    height={28}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           {/* Rechter Chart: High vs Low */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <ResponsiveContainer width="100%" height={205}>
-              <BarChart
-                data={highLowData}
+            {showSkeleton ? (
+              <SkeletonBarChart
+                height={205}
+                bars={2} // low & high
                 margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <YAxis domain={highLowDomain} hide allowDecimals={false} />
-                <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    style={{ fontSize: 10 }}
-                  />
-                  {highLowData.map((_, idx: number) => (
-                    <Cell
-                      key={`hl-cell-${idx}`}
-                      fill={APP_COLOR_CONST.colorPrimary}
+                barGap={20}
+                maxBarHeight={140}
+                showXAxisLine
+              />
+            ) : (
+              <ResponsiveContainer width="100%" height={205}>
+                <BarChart
+                  data={highLowData}
+                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <YAxis domain={highLowDomain} hide allowDecimals={false} />
+                  <Bar dataKey="value" name="Anzahl" isAnimationActive={false}>
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      style={{ fontSize: 10 }}
                     />
-                  ))}
-                </Bar>
-                <XAxis
-                  dataKey="key"
-                  tick={{ fontSize: 10 }}
-                  interval={0}
-                  height={28}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+                    {highLowData.map((_, idx: number) => (
+                      <Cell
+                        key={`hl-cell-${idx}`}
+                        fill={APP_COLOR_CONST.colorPrimary}
+                      />
+                    ))}
+                  </Bar>
+                  <XAxis
+                    dataKey="key"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    height={28}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </CardContent>
