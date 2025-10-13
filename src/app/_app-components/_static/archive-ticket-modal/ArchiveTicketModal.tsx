@@ -23,7 +23,7 @@ type Props = {
 
 const CELL_SIZE = 32; // px
 
-export default function ArchiveTicketDialog({ open, row, onClose }: Props) {
+export default function ArchiveTicketModal({ open, row, onClose }: Props) {
   const nums = useMemo<number[]>(
     () =>
       row

@@ -25,7 +25,7 @@ import {
   toComparableUtcNoon,
   toEndOfDayComparable,
 } from "../_app-utils/date.util";
-import ArchiveTicketDialog from "../_app-components/_static/archive-ticket-dialog/ArchiveTicketDialog";
+import ArchiveTicketModal from "../_app-components/_static/archive-ticket-modal/ArchiveTicketModal";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
@@ -237,7 +237,7 @@ export default function ArchivePage() {
       </div>
 
       {/* Spielschein-Dialog */}
-      <ArchiveTicketDialog
+      <ArchiveTicketModal
         open={ticketOpen}
         row={ticketRow}
         onClose={handleCloseTicket}
