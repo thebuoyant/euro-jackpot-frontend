@@ -6,6 +6,7 @@ import { type GridColDef, type GridRenderCellParams } from "@mui/x-data-grid";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import StarIcon from "@mui/icons-material/Star";
 import PlaylistAddCheckCircleIcon from "@mui/icons-material/PlaylistAddCheckCircle";
+import GridOnIcon from "@mui/icons-material/GridOn";
 
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 import { APP_CONST } from "../_app-constants/app.const";
@@ -27,22 +28,16 @@ export type ArchiveRecord = {
   quoteKlasse1: number;
 };
 
-/** Props needed from the page to keep columns self-contained and reusable. */
 export type GetArchiveColumnsArgs = {
   onOpenDetails: (row: ArchiveRecord) => void;
+  onOpenTicket: (row: ArchiveRecord) => void; // ⟵ NEU
 };
 
-/**
- * Factory function that returns stable column definitions.
- * - It takes only the "onOpenDetails" callback from the page.
- * - All other dependencies (labels, utils) are imported internally.
- */
 export function getArchiveColumns(
   args: GetArchiveColumnsArgs
 ): GridColDef<ArchiveRecord>[] {
-  const { onOpenDetails } = args;
+  const { onOpenDetails, onOpenTicket } = args;
 
-  // Small helpers to keep renderers tiny and readable
   const renderStake = (
     params: GridRenderCellParams<ArchiveRecord, unknown>
   ) => <>{formatNumberToString(params.row.spielEinsatz, 2)}</>;
@@ -73,17 +68,43 @@ export function getArchiveColumns(
   const renderActions = (
     params: GridRenderCellParams<ArchiveRecord, unknown>
   ) => {
-    const handleClick = () => onOpenDetails(params.row);
+    const handleOpenDetails = () => onOpenDetails(params.row);
+    const handleOpenTicket = () => onOpenTicket(params.row);
+
+    const labelDetails =
+      APP_TYPO_CONST?.pages?.archive?.table?.tooltip?.actionDrawDetails ??
+      "Details der Ziehung";
+    const labelTicket =
+      APP_TYPO_CONST?.pages?.archive?.table?.tooltip?.actionShowTicket ??
+      "Spielschein anzeigen";
+
     return (
       <div
         className="actions-wrapper"
-        style={{ height: "100%", display: "flex", alignItems: "center" }}
+        style={{
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+        }}
       >
-        <Tooltip
-          title={APP_TYPO_CONST.pages.archive.table.tooltip.actionDrawDetails}
-        >
-          <span onClick={handleClick}>
+        <Tooltip title={labelDetails}>
+          <span onClick={handleOpenDetails}>
             <PlaylistAddCheckCircleIcon
+              className="star-icon"
+              style={{
+                height: "100%",
+                cursor: "pointer",
+                position: "relative",
+                top: "6px",
+              }}
+            />
+          </span>
+        </Tooltip>
+
+        <Tooltip title={labelTicket}>
+          <span onClick={handleOpenTicket}>
+            <GridOnIcon
               className="star-icon"
               style={{
                 height: "100%",
@@ -98,7 +119,6 @@ export function getArchiveColumns(
     );
   };
 
-  // Actual column model
   return [
     {
       field: "datum",

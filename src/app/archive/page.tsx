@@ -25,6 +25,7 @@ import {
   toComparableUtcNoon,
   toEndOfDayComparable,
 } from "../_app-utils/date.util";
+import ArchiveTicketDialog from "../_app-components/_static/archive-ticket-dialog/ArchiveTicketDialog";
 
 export default function ArchivePage() {
   const { setIsLoading, setRecords, records, numberOfResults, isLoading } =
@@ -50,6 +51,20 @@ export default function ArchivePage() {
   // Klassen-Filter (Mehrfachauswahl; [] = beide aus => keine Klassen-Filterung)
   const [classFilter, setClassFilter] = useState<ClassFilter>([]);
 
+  // Ticket-Dialog
+  const [ticketOpen, setTicketOpen] = useState(false);
+  const [ticketRow, setTicketRow] = useState<ArchiveRecord | null>(null);
+
+  const handleOpenTicket = useCallback((row: ArchiveRecord) => {
+    setTicketRow(row);
+    setTicketOpen(true);
+  }, []);
+
+  const handleCloseTicket = useCallback(() => {
+    setTicketOpen(false);
+    setTicketRow(null);
+  }, []);
+
   /**
    * Filter records by selected date range, weekday and classes.
    * - Fast path: if no date range, dayFilter === "both" and classes empty, return original array.
@@ -68,17 +83,14 @@ export default function ArchivePage() {
     const hasClassSelection = classFilter.length > 0;
 
     if (!hasFrom && !hasTo && isBoth && !hasClassSelection) {
-      // Nothing to filter - return original array (avoids extra work)
       return records as ArchiveRecord[];
     }
 
-    // Date range boundaries (comparable UTC-noon timestamps)
     const fromTs = hasFrom ? toComparableUtcNoon(dateRange.from!) : null;
     const toTsEndOfDay = hasTo
       ? toEndOfDayComparable(toComparableUtcNoon(dateRange.to!))
       : null;
 
-    // Weekday predicate: "Di" = Tue, "Fr" = Fri
     const matchesDay = (row: ArchiveRecord) => {
       if (isBoth) return true;
       if (dayFilter === "tue") return row.tag === "Di";
@@ -86,7 +98,6 @@ export default function ArchivePage() {
       return true;
     };
 
-    // Klassen-Predicate
     const matchesClasses = (row: ArchiveRecord) => {
       if (!hasClassSelection) return true;
 
@@ -108,13 +119,9 @@ export default function ArchivePage() {
     };
 
     return (records as ArchiveRecord[]).filter((row) => {
-      // 1) Weekday check (cheap bailout)
       if (!matchesDay(row)) return false;
-
-      // 2) Klassen-Check
       if (!matchesClasses(row)) return false;
 
-      // 3) Date range check (if present)
       const ts = toComparableUtcNoon((row as any)?.datum);
       if (ts == null) return false;
       if (fromTs != null && ts < fromTs) return false;
@@ -124,10 +131,7 @@ export default function ArchivePage() {
     });
   }, [records, dateRange, dayFilter, classFilter]);
 
-  /**
-   * Fetch records when `numberOfResults` changes.
-   * Uses an "alive" flag to avoid updating unmounted state.
-   */
+  /** Fetch records when `numberOfResults` changes. */
   useEffect(() => {
     let alive = true;
 
@@ -155,10 +159,7 @@ export default function ArchivePage() {
     };
   }, [numberOfResults, setIsLoading, setRecords]);
 
-  /**
-   * Stable handler injected into the column factory to open the details drawer.
-   * Keeping this as a memoized callback avoids unnecessary column re-creation.
-   */
+  /** Details-Drawer öffnen */
   const handleOpenDetails = useCallback(
     (row: ArchiveRecord) => {
       setDrawRecord(row);
@@ -167,13 +168,17 @@ export default function ArchivePage() {
     [setDrawRecord, setDrawDetailsIsOpen]
   );
 
-  /** Stable column model provided by the factory (extracted for readability). */
+  /** Spalten */
   const columns: GridColDef<ArchiveRecord>[] = useMemo(
-    () => getArchiveColumns({ onOpenDetails: handleOpenDetails }),
-    [handleOpenDetails]
+    () =>
+      getArchiveColumns({
+        onOpenDetails: handleOpenDetails,
+        onOpenTicket: handleOpenTicket, // ⟵ NEU
+      }),
+    [handleOpenDetails, handleOpenTicket]
   );
 
-  /** Stable row id fallback when no explicit `id` is present. */
+  /** Row-ID */
   const getRowId = useCallback(
     (row: ArchiveRecord) =>
       (row as any).id ??
@@ -203,7 +208,7 @@ export default function ArchivePage() {
           onClear={() => {
             setDateRange({ from: null, to: null });
             setDayFilter("both");
-            setClassFilter([]); // Klassen-Filter zurücksetzen
+            setClassFilter([]);
           }}
         />
       </div>
@@ -230,6 +235,13 @@ export default function ArchivePage() {
           </Box>
         )}
       </div>
+
+      {/* Spielschein-Dialog */}
+      <ArchiveTicketDialog
+        open={ticketOpen}
+        row={ticketRow}
+        onClose={handleCloseTicket}
+      />
     </div>
   );
 }
