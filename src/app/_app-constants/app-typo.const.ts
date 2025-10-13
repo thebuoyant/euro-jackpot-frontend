@@ -52,6 +52,9 @@ export const APP_TYPO_CONST = {
         specialData: {
           title: "Zahlenbereiche",
         },
+        numberGaps: {
+          title: "Überfällige Zahlen",
+        },
       },
     },
     archive: {
