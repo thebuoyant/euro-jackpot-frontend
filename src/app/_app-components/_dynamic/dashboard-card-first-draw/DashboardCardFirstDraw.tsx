@@ -1,8 +1,8 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect } from "react";
-import { Card, CardContent, Divider, Typography } from "@mui/material";
+import React, { useEffect, useRef } from "react";
+import { Card, CardContent, Divider, Typography, Box } from "@mui/material";
 import { DrawRecord } from "src/app/_app-types/record.types";
 import {
   formatNumberToString,
@@ -10,6 +10,7 @@ import {
 } from "src/app/_app-utils/record.util";
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
+import SkeletonKeyValueList from "src/app/_app-components/_static/skeleton-key-value-list/SkeletonKeyValueList";
 
 export default function DashboardCardFirstDraw({
   title,
@@ -26,8 +27,15 @@ export default function DashboardCardFirstDraw({
   labelStake: string;
   labelDay: string;
 }) {
-  const { firstDrawRecord, setIsLoadingFirstDrawData, setFirstDrawRecord } =
-    useDashboardStore() as any;
+  const {
+    firstDrawRecord,
+    setIsLoadingFirstDrawData,
+    setFirstDrawRecord,
+    isLoadingFirstDrawData,
+  } = useDashboardStore() as any;
+
+  // ⬇️ Merkt, ob der allererste Fetch bereits einmal durchgelaufen ist
+  const hasFetchedRef = useRef(false);
 
   useEffect(() => {
     let alive = true;
@@ -35,22 +43,21 @@ export default function DashboardCardFirstDraw({
     (async () => {
       try {
         setIsLoadingFirstDrawData(true);
-
         const res = await fetch(`${API_ROUTE_CONST.firstDraw}`);
-
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
         const data = await res.json();
-
-        setFirstDrawRecord(data.firstDrawRecord);
         if (alive)
-          setFirstDrawRecord((data?.firstDrawRecord ?? {}) as DrawRecord);
+          setFirstDrawRecord(
+            (data?.firstDrawRecord ?? null) as DrawRecord | null
+          );
       } catch (err) {
-        // Log only outside production to keep prod console clean
         if (process.env.NODE_ENV !== "production") console.error(err);
         if (alive) setFirstDrawRecord(null);
       } finally {
-        if (alive) setIsLoadingFirstDrawData(false);
+        if (alive) {
+          setIsLoadingFirstDrawData(false);
+          hasFetchedRef.current = true; // ⬅️ jetzt wissen wir: erster Fetch ist durch
+        }
       }
     })();
 
@@ -59,9 +66,10 @@ export default function DashboardCardFirstDraw({
     };
   }, [setIsLoadingFirstDrawData, setFirstDrawRecord]);
 
-  if (!firstDrawRecord) {
-    return null;
-  }
+  // 🔑 Anzeige-Logik:
+  // - Solange wir noch nie gefetched haben ODER loading=true ⇒ Skeleton
+  // - Danach: wenn kein Record ⇒ "Keine Daten"
+  const showSkeleton = !hasFetchedRef.current || isLoadingFirstDrawData;
 
   return (
     <Card className="card" elevation={4}>
@@ -72,33 +80,47 @@ export default function DashboardCardFirstDraw({
 
         <Divider sx={{ my: 2 }} />
 
-        <ul className="card-list" style={{ height: "100%" }}>
-          <li>
-            <span className="label">{`${labelDate}:`}</span>
-            <span className="value">{firstDrawRecord.datum}</span>
-          </li>
-          <li>
-            <span className="label">{`${labelWinningNumbers}:`}</span>
-            <span className="value">{`${firstDrawRecord.nummer1} | ${firstDrawRecord.nummer2} | ${firstDrawRecord.nummer3} | ${firstDrawRecord.nummer4} | ${firstDrawRecord.nummer5}`}</span>
-          </li>
-          <li>
-            <span className="label">{`${labelEuroNumbers}:`}</span>
-            <span className="value">{`${firstDrawRecord.zz1} | ${firstDrawRecord.zz2}`}</span>
-          </li>
-          <li>
-            <span className="label">{`${labelStake}:`}</span>
-            <span className="value">{`${formatNumberToString(
-              firstDrawRecord.spielEinsatz,
-              2
-            )} €`}</span>
-          </li>
-          <li>
-            <span className="label">{`${labelDay}:`}</span>
-            <span className="value">{`${resolveDay(
-              firstDrawRecord.tag
-            )}`}</span>
-          </li>
-        </ul>
+        {showSkeleton ? (
+          <Box>
+            <SkeletonKeyValueList
+              rows={5}
+              labelWidth={120}
+              valueMaxWidth="70%"
+              lineHeight={22}
+              gap={10}
+            />
+          </Box>
+        ) : !firstDrawRecord ? (
+          <Typography variant="body2" color="text.secondary">
+            Keine Daten vorhanden.
+          </Typography>
+        ) : (
+          <ul className="card-list" style={{ height: "100%" }}>
+            <li>
+              <span className="label">{`${labelDate}:`}</span>
+              <span className="value">{firstDrawRecord.datum}</span>
+            </li>
+            <li>
+              <span className="label">{`${labelWinningNumbers}:`}</span>
+              <span className="value">{`${firstDrawRecord.nummer1} | ${firstDrawRecord.nummer2} | ${firstDrawRecord.nummer3} | ${firstDrawRecord.nummer4} | ${firstDrawRecord.nummer5}`}</span>
+            </li>
+            <li>
+              <span className="label">{`${labelEuroNumbers}:`}</span>
+              <span className="value">{`${firstDrawRecord.zz1} | ${firstDrawRecord.zz2}`}</span>
+            </li>
+            <li>
+              <span className="label">{`${labelStake}:`}</span>
+              <span className="value">{`${formatNumberToString(
+                firstDrawRecord.spielEinsatz,
+                2
+              )} €`}</span>
+            </li>
+            <li>
+              <span className="label">{`${labelDay}:`}</span>
+              <span className="value">{resolveDay(firstDrawRecord.tag)}</span>
+            </li>
+          </ul>
+        )}
       </CardContent>
     </Card>
   );
