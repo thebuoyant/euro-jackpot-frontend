@@ -4,6 +4,7 @@ import {
   TWinningNumbersCountsResponse,
 } from "../_app-types/record.types";
 import { TSpecialData } from "../_app-types/special.types";
+import { TNumberGap } from "../_app-handlers/handleGetNumberGaps";
 
 export const useDashboardStore = create((set) => ({
   isLoadingLastDrawData: false as boolean,
@@ -47,4 +48,12 @@ export const useDashboardStore = create((set) => ({
   specialData: null as TSpecialData | null,
   setSpecialData: (receivedValue: TSpecialData | null) =>
     set(() => ({ specialData: receivedValue })),
+
+  isLoadingNumberGaps: false as boolean,
+  setIsLoadingNumberGaps: (receivedValue: boolean) =>
+    set(() => ({ isLoadingNumberGaps: receivedValue })),
+
+  numberGaps: [] as TNumberGap[],
+  setNumberGaps: (receivedValue: TNumberGap[]) =>
+    set(() => ({ numberGaps: receivedValue })),
 }));

@@ -9,4 +9,5 @@ export const API_ROUTE_CONST = {
   specialDataCounts: "/api/backend/special-data-counts",
   classQuota: "/api/backend/class-quota",
   classNumbers: "/api/backend/class-numbers",
+  numberGaps: "/api/backend/number-gaps",
 };
