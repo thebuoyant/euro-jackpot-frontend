@@ -77,22 +77,15 @@ export default function PrizeClassesPage() {
           </Typography>
         ) : null}
 
-        {/* Responsive CSS-Grid statt MUI Grid-Komponente */}
-        <Box
-          sx={{
-            display: "grid",
-            gap: 2,
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "1fr 1fr",
-              md: "repeat(3, 1fr)",
-              lg: "repeat(4, 1fr)",
-            },
-          }}
-        >
+        {/* Responsive CSS-Grid – max. 3 Spalten wie im Dashboard-Feeling */}
+        <Box className="cards-grid">
           {sorted.map((it) => (
-            <Card key={it.class} elevation={3} className="pc-card">
-              <CardContent>
+            <Card
+              key={it.class}
+              className="card pc-card" // ⟵ gleiche Klasse wie im Dashboard + lokale Feinheiten
+              elevation={4}
+            >
+              <CardContent className="pc-card-content">
                 <Stack
                   direction="row"
                   justifyContent="space-between"
@@ -109,16 +102,16 @@ export default function PrizeClassesPage() {
 
                 <Typography
                   variant="body2"
-                  sx={{ mt: 0.5, mb: 1 }}
+                  className="pc-subline"
                   color="text.secondary"
                 >
                   Benötigt: <b>{it.mainHits}</b> Gewinnzahlen +{" "}
                   <b>{it.euroHits}</b> Eurozahlen
                 </Typography>
 
-                <Divider sx={{ my: 1.5 }} />
+                <Divider className="pc-divider" />
 
-                <Box sx={{ display: "grid", gap: 1 }}>
+                <Box className="kv-grid">
                   <Tooltip title="Letztes Auftreten des Minimums">
                     <Box className="kv-row">
                       <span className="kv-label">Minimum</span>
