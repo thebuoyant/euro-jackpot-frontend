@@ -26,6 +26,8 @@ export const APP_TYPO_CONST = {
       title: "Die optimale Bildschirmgröße ist unzureichend.",
       description:
         "Für Diagramme und Tabellen empfehlen wir eine größere Fenstergröße. Deine aktuelle Auflösung kann die Lesbarkeit stark beeinträchtigen.",
+      labelRecommendation: "Empfehlung",
+      labelCurrent: "Aktuell",
     },
   },
   pages: {

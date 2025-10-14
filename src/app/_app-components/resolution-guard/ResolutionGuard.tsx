@@ -174,7 +174,7 @@ export default function ResolutionGuard() {
           <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
             <Chip
               size="small"
-              label={`Empfehlung: ≥ ${minWidth} × ${minHeight}px`}
+              label={`${APP_TYPO_CONST.components.resolutionGuard.labelRecommendation}: ≥ ${minWidth} × ${minHeight}px`}
               sx={{ fontWeight: 500 }}
             />
             <Chip
@@ -183,7 +183,9 @@ export default function ResolutionGuard() {
               icon={
                 widthOk && heightOk ? <CheckCircleRoundedIcon /> : undefined
               }
-              label={`Aktuell: ${size ? `${size.w} × ${size.h}px` : "–"}`}
+              label={`${
+                APP_TYPO_CONST.components.resolutionGuard.labelCurrent
+              }: ${size ? `${size.w} × ${size.h}px` : "–"}`}
               sx={{ fontWeight: 500 }}
             />
             <Chip
