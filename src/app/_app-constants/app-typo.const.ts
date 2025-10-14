@@ -22,6 +22,11 @@ export const APP_TYPO_CONST = {
       winningNumbers: "Gewinnzahlen (5 aus 50)",
       euroNumbers: "Eurozahlen (2 aus 12)",
     },
+    resolutionGuard: {
+      title: "Die optimale Bildschirmgröße ist unzureichend.",
+      description:
+        "Für Diagramme und Tabellen empfehlen wir eine größere Fenstergröße. Deine aktuelle Auflösung kann die Lesbarkeit stark beeinträchtigen.",
+    },
   },
   pages: {
     home: {

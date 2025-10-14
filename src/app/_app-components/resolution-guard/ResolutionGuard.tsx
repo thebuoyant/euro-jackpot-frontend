@@ -21,6 +21,7 @@ import {
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { APP_CONST } from "../../_app-constants/app.const";
+import { APP_TYPO_CONST } from "src/app/_app-constants/app-typo.const";
 
 /** Debounced window size messen (nur Client, hydrationssicher) */
 function useDebouncedWindowSize(delay = 200) {
@@ -159,15 +160,13 @@ export default function ResolutionGuard() {
           id="resolution-guard-title"
           sx={{ p: 0, fontSize: 18, fontWeight: 700 }}
         >
-          Optimale Bildschirmgröße empfohlen
+          {APP_TYPO_CONST.components.resolutionGuard.title}
         </DialogTitle>
       </Box>
 
       <DialogContent id="resolution-guard-desc" sx={{ p: 2.2 }}>
         <Typography variant="body2" color="text.secondary">
-          Für unsere Diagramme & Tabellen empfehlen wir eine größere
-          Fenstergröße. Deine aktuelle Auflösung kann die Lesbarkeit
-          beeinträchtigen.
+          {APP_TYPO_CONST.components.resolutionGuard.description}
         </Typography>
 
         {/* Soll vs. Ist */}
