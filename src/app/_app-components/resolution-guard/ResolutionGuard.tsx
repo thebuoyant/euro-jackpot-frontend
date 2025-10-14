@@ -5,25 +5,24 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Button,
-  Checkbox,
+  Chip,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   Divider,
-  FormControlLabel,
+  LinearProgress,
+  Stack,
   Typography,
+  Checkbox,
+  FormControlLabel,
+  useTheme,
 } from "@mui/material";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
 import { APP_CONST } from "../../_app-constants/app.const";
 
-type Props = {
-  /** Optional Override – standardmäßig werden die Werte aus APP_CONST.ui.resolution genutzt */
-  minWidth?: number;
-  minHeight?: number;
-  storageKey?: string;
-};
-
+/** Debounced window size messen (nur Client, hydrationssicher) */
 function useDebouncedWindowSize(delay = 200) {
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const tRef = useRef<number | null>(null);
@@ -49,21 +48,24 @@ function useDebouncedWindowSize(delay = 200) {
   return size;
 }
 
-export default function ResolutionGuard({
-  minWidth = APP_CONST.ui.resolution.minWidth,
-  minHeight = APP_CONST.ui.resolution.minHeight,
-  storageKey = APP_CONST.ui.resolution.storageKey,
-}: Props) {
+function clampPct(val: number) {
+  return Math.max(0, Math.min(100, Math.round(val)));
+}
+
+export default function ResolutionGuard() {
+  const theme = useTheme();
+  const { minWidth, minHeight, storageKey, aspect } = APP_CONST.ui.resolution;
+
   const size = useDebouncedWindowSize(200);
 
+  // „Nicht mehr anzeigen“ persistiert (nur nach Mount lesen)
   const [dismissed, setDismissed] = useState<boolean | null>(null);
   const [sessionDismissed, setSessionDismissed] = useState(false);
   const [neverAgain, setNeverAgain] = useState(false);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(storageKey);
-      setDismissed(raw === "1");
+      setDismissed(localStorage.getItem(storageKey) === "1");
     } catch {
       setDismissed(false);
     }
@@ -75,7 +77,7 @@ export default function ResolutionGuard({
   }, [size, minWidth, minHeight]);
 
   const open = useMemo(() => {
-    if (dismissed == null) return false;
+    if (dismissed == null) return false; // erst öffnen, wenn LS gelesen
     if (dismissed) return false;
     if (sessionDismissed) return false;
     return below;
@@ -90,6 +92,11 @@ export default function ResolutionGuard({
     setNeverAgain(false);
   };
 
+  const widthOk = size ? size.w >= minWidth : false;
+  const heightOk = size ? size.h >= minHeight : false;
+  const widthPct = size ? clampPct((size.w / minWidth) * 100) : 0;
+  const heightPct = size ? clampPct((size.h / minHeight) * 100) : 0;
+
   return (
     <Dialog
       open={open}
@@ -97,44 +104,149 @@ export default function ResolutionGuard({
       maxWidth="sm"
       fullWidth
       aria-labelledby="resolution-guard-title"
+      aria-describedby="resolution-guard-desc"
+      slotProps={{
+        backdrop: {
+          sx: {
+            backdropFilter: "blur(2px)",
+            backgroundColor: "rgba(0,0,0,0.15)",
+          },
+        },
+      }}
       PaperProps={{
         sx: {
           borderRadius: 2,
-          boxShadow: "0 2px 10px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06)",
+          overflow: "hidden",
+          boxShadow:
+            "0 10px 30px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.08)",
           border: "1px solid rgba(0,0,0,0.06)",
         },
       }}
     >
-      <DialogTitle
-        id="resolution-guard-title"
-        sx={{ display: "flex", alignItems: "center", gap: 1 }}
+      {/* Header mit Icon-Badge + leichtem Gradient */}
+      <Box
+        sx={{
+          px: 2.2,
+          py: 1.6,
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0))"
+              : "linear-gradient(180deg, rgba(18,52,86,0.06), rgba(18,52,86,0))",
+          borderBottom: "1px solid",
+          borderColor: "divider",
+        }}
       >
-        <WarningAmberOutlinedIcon color="warning" sx={{ fontSize: 24 }} />
-        Bildschirmgröße empfohlen
-      </DialogTitle>
+        <Box
+          aria-hidden
+          sx={{
+            width: 36,
+            height: 36,
+            borderRadius: "999px",
+            display: "grid",
+            placeItems: "center",
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(18,52,86,0.08)",
+          }}
+        >
+          <WarningAmberOutlinedIcon color="warning" />
+        </Box>
+        <DialogTitle
+          id="resolution-guard-title"
+          sx={{ p: 0, fontSize: 18, fontWeight: 700 }}
+        >
+          Optimale Bildschirmgröße empfohlen
+        </DialogTitle>
+      </Box>
 
-      <DialogContent dividers>
-        <Typography variant="body2" color="text.secondary" gutterBottom>
-          Für die Diagramme und Tabellen ist eine größere Auflösung
-          empfehlenswert. Deine aktuelle Fenstergröße könnte die Darstellung
-          einschränken.
+      <DialogContent id="resolution-guard-desc" sx={{ p: 2.2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Für unsere Diagramme & Tabellen empfehlen wir eine größere
+          Fenstergröße. Deine aktuelle Auflösung kann die Lesbarkeit
+          beeinträchtigen.
         </Typography>
 
-        <Box sx={{ mt: 1.5, mb: 1 }}>
-          <Typography variant="body2">
-            <b>Empfehlung:</b> mindestens{" "}
-            <b>
-              {minWidth} × {minHeight} px
-            </b>{" "}
-            (Ratio ca. {APP_CONST.ui.resolution.aspect.w}:
-            {APP_CONST.ui.resolution.aspect.h})
-          </Typography>
-          <Typography variant="body2" sx={{ mt: 0.5 }}>
-            Aktuell erkannt: <b>{size ? `${size.w} × ${size.h} px` : "–"}</b>
-          </Typography>
+        {/* Soll vs. Ist */}
+        <Box sx={{ mt: 2 }}>
+          <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Chip
+              size="small"
+              label={`Empfehlung: ≥ ${minWidth} × ${minHeight}px`}
+              sx={{ fontWeight: 500 }}
+            />
+            <Chip
+              size="small"
+              color={widthOk && heightOk ? "success" : "default"}
+              icon={
+                widthOk && heightOk ? <CheckCircleRoundedIcon /> : undefined
+              }
+              label={`Aktuell: ${size ? `${size.w} × ${size.h}px` : "–"}`}
+              sx={{ fontWeight: 500 }}
+            />
+            <Chip
+              size="small"
+              variant="outlined"
+              label={`Ratio: ${aspect.w}:${aspect.h}`}
+            />
+          </Stack>
         </Box>
 
-        <Divider sx={{ my: 1.5 }} />
+        {/* Progress-Indikatoren */}
+        <Box sx={{ mt: 2.2, display: "grid", gap: 1.4 }}>
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="caption" color="text.secondary">
+              Breite
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {size ? `${size.w}px / ${minWidth}px` : "–"}
+            </Typography>
+          </Stack>
+          <LinearProgress
+            variant="determinate"
+            value={widthPct}
+            sx={{
+              height: 8,
+              borderRadius: 999,
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: widthOk
+                  ? theme.palette.success.main
+                  : theme.palette.primary.main,
+              },
+            }}
+          />
+
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            sx={{ mt: 1.2 }}
+          >
+            <Typography variant="caption" color="text.secondary">
+              Höhe
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {size ? `${size.h}px / ${minHeight}px` : "–"}
+            </Typography>
+          </Stack>
+          <LinearProgress
+            variant="determinate"
+            value={heightPct}
+            sx={{
+              height: 8,
+              borderRadius: 999,
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: heightOk
+                  ? theme.palette.success.main
+                  : theme.palette.primary.main,
+              },
+            }}
+          />
+        </Box>
+
+        <Divider sx={{ my: 2.2 }} />
 
         <FormControlLabel
           control={
@@ -142,6 +254,9 @@ export default function ResolutionGuard({
               checked={neverAgain}
               onChange={(e) => setNeverAgain(e.target.checked)}
               sx={{ p: 0.5, mr: 1 }}
+              inputProps={{
+                "aria-label": "Diesen Hinweis nicht mehr anzeigen",
+              }}
             />
           }
           label={
@@ -152,7 +267,7 @@ export default function ResolutionGuard({
         />
       </DialogContent>
 
-      <DialogActions sx={{ px: 2, py: 1.25 }}>
+      <DialogActions sx={{ px: 2, py: 1.4 }}>
         <Button
           variant="text"
           color="inherit"
