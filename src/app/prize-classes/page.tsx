@@ -70,7 +70,10 @@ export default function PrizeClassesPage() {
         </Typography>
       </div>
 
-      <div className="page-content">
+      <div
+        className="page-content"
+        style={{ padding: "8px", paddingBottom: "14px" }}
+      >
         {error ? (
           <Typography variant="body2" color="error">
             {error}
@@ -109,7 +112,10 @@ export default function PrizeClassesPage() {
                   <b>{it.euroHits}</b> Eurozahlen
                 </Typography>
 
-                <Divider className="pc-divider" />
+                <Divider
+                  className="pc-divider"
+                  style={{ marginTop: "6px", marginBottom: "16px" }}
+                />
 
                 <Box className="kv-grid">
                   <Tooltip title="Letztes Auftreten des Minimums">
