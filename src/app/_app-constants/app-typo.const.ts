@@ -11,6 +11,7 @@ export const APP_TYPO_CONST = {
     navItemWinningNumbers123: "Gewinnzahlen 1-2-3",
     navItemClassQuota: "Quoten der Klassen",
     navItemClassNumbers: "Anzahl der Klassen",
+    navItemPrizeClasses: "Gewinnklassen",
   },
   components: {
     drawDetailsModal: {

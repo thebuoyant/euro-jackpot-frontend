@@ -6,4 +6,5 @@ export const APP_ROUTE_CONST = {
   winningNumbers123: "/winning-numbers-123",
   classQuota: "/class-quota",
   classNumbers: "/class-numbers",
+  prizeClasses: "/prize-classes",
 };

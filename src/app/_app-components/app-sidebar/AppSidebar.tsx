@@ -32,6 +32,10 @@ export default function AppSidebar() {
     router.push(APP_ROUTE_CONST.classNumbers, { scroll: true });
   };
 
+  const handleNavigationToPrizeClasses = () => {
+    router.push(APP_ROUTE_CONST.prizeClasses, { scroll: true });
+  };
+
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-content">
@@ -40,6 +44,12 @@ export default function AppSidebar() {
           iconType="dashboard"
           isActive={pathname === APP_ROUTE_CONST.dashboard}
           onClick={handleNavigationToDashboard}
+        />
+        <NavigationItem
+          title={APP_TYPO_CONST.sidebar.navItemPrizeClasses}
+          iconType="dashboard"
+          isActive={pathname === APP_ROUTE_CONST.prizeClasses}
+          onClick={handleNavigationToPrizeClasses}
         />
         <NavigationItem
           title={APP_TYPO_CONST.sidebar.navItemArchive}
