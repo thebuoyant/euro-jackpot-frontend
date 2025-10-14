@@ -12,7 +12,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(200).json({ summary });
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
-      // eslint-disable-next-line no-console
       console.error(err);
     }
     return res.status(500).json({ error: "Internal Server Error" });

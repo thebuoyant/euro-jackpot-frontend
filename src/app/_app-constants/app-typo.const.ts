@@ -60,6 +60,17 @@ export const APP_TYPO_CONST = {
         numberGaps: {
           title: "Überfällige Zahlen",
         },
+        prizeClasses: {
+          title: "Gewinnklassen",
+          cardLabelClass: "Klasse",
+          cardLabelNeeded: "Benötigt",
+          cardLabelWinningNumbers: "Gewinnzahlen",
+          cardLabelEuroNumbers: "Eurozahlen",
+          cardLabelMin: "Minimum",
+          cardLabelMax: "Maximum",
+          cardLabelMaxTooltip: "Letztes Auftreten des Maximums",
+          cardLabelMinTooltip: "Letztes Auftreten des Minimums",
+        },
       },
     },
     archive: {

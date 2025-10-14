@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -15,6 +14,7 @@ import {
 
 import "./PrizeClasses.css";
 import { API_ROUTE_CONST } from "../_app-constants/api-routes.const";
+import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 type PrizeClassSummaryItem = {
   class: number;
@@ -63,10 +63,8 @@ export default function PrizeClassesPage() {
   return (
     <div className="prize-classes-page">
       <div className="page-header">
-        <Typography variant="h6">Gewinnklassen</Typography>
-        <Typography variant="body2" color="text.secondary">
-          Benötigte Treffer sowie Minimal-/Maximal-Quoten inkl. letztem
-          Auftreten.
+        <Typography variant="h6">
+          {APP_TYPO_CONST.pages.dashboard.cards.prizeClasses.title}
         </Typography>
       </div>
 
@@ -80,22 +78,20 @@ export default function PrizeClassesPage() {
           </Typography>
         ) : null}
 
-        {/* Responsive CSS-Grid – max. 3 Spalten wie im Dashboard-Feeling */}
         <Box className="cards-grid">
           {sorted.map((it) => (
-            <Card
-              key={it.class}
-              className="card pc-card" // ⟵ gleiche Klasse wie im Dashboard + lokale Feinheiten
-              elevation={4}
-            >
-              <CardContent className="pc-card-content">
+            <Card key={it.class} className="card pc-card" elevation={2}>
+              <CardContent
+                className="pc-card-content"
+                style={{ cursor: "default" }}
+              >
                 <Stack
                   direction="row"
                   justifyContent="space-between"
                   alignItems="center"
                 >
                   <Typography variant="subtitle1" fontWeight={600}>
-                    Klasse {it.class}
+                    {`${APP_TYPO_CONST.pages.dashboard.cards.prizeClasses.cardLabelClass} ${it.class}`}
                   </Typography>
                   <Chip
                     size="small"
@@ -108,8 +104,20 @@ export default function PrizeClassesPage() {
                   className="pc-subline"
                   color="text.secondary"
                 >
-                  Benötigt: <b>{it.mainHits}</b> Gewinnzahlen +{" "}
-                  <b>{it.euroHits}</b> Eurozahlen
+                  {
+                    APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                      .cardLabelNeeded
+                  }{" "}
+                  <b>{it.mainHits}</b>{" "}
+                  {
+                    APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                      .cardLabelWinningNumbers
+                  }{" "}
+                  + <b>{it.euroHits}</b>{" "}
+                  {
+                    APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                      .cardLabelEuroNumbers
+                  }
                 </Typography>
 
                 <Divider
@@ -118,10 +126,20 @@ export default function PrizeClassesPage() {
                 />
 
                 <Box className="kv-grid">
-                  <Tooltip title="Letztes Auftreten des Minimums">
+                  <Tooltip
+                    title={
+                      APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                        .cardLabelMinTooltip
+                    }
+                  >
                     <Box className="kv-row">
-                      <span className="kv-label">Minimum</span>
-                      <span className="kv-value">
+                      <span className="kv-label" style={{ cursor: "default" }}>
+                        {
+                          APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                            .cardLabelMin
+                        }
+                      </span>
+                      <span className="kv-value" style={{ cursor: "default" }}>
                         {it.minValueStr}{" "}
                         {it.minLastDate ? (
                           <span className="kv-date">({it.minLastDate})</span>
@@ -130,10 +148,20 @@ export default function PrizeClassesPage() {
                     </Box>
                   </Tooltip>
 
-                  <Tooltip title="Letztes Auftreten des Maximums">
+                  <Tooltip
+                    title={
+                      APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                        .cardLabelMaxTooltip
+                    }
+                  >
                     <Box className="kv-row">
-                      <span className="kv-label">Maximum</span>
-                      <span className="kv-value">
+                      <span className="kv-label" style={{ cursor: "default" }}>
+                        {
+                          APP_TYPO_CONST.pages.dashboard.cards.prizeClasses
+                            .cardLabelMax
+                        }
+                      </span>
+                      <span className="kv-value" style={{ cursor: "default" }}>
                         {it.maxValueStr}{" "}
                         {it.maxLastDate ? (
                           <span className="kv-date">({it.maxLastDate})</span>
