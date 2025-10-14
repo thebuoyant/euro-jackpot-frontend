@@ -10,4 +10,5 @@ export const API_ROUTE_CONST = {
   classQuota: "/api/backend/class-quota",
   classNumbers: "/api/backend/class-numbers",
   numberGaps: "/api/backend/number-gaps",
+  prizeClassesSummary: "/api/backend/prize-classes-summary",
 };
