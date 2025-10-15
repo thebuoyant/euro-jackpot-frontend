@@ -35,8 +35,8 @@ import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 type Tip = {
   id: number; // 1..12
-  numbers: number[]; // 5 aus 1..50
-  euroNumbers: number[]; // 2 aus 1..12
+  numbers: number[]; // exakt 5 aus 1..50 (oder leer wenn komplett leerer Tipp)
+  euroNumbers: number[]; // exakt 2 aus 1..12 (oder leer wenn komplett leerer Tipp)
 };
 
 const MAX_TIPS = 12;
@@ -48,7 +48,8 @@ const EURO_MIN = 1;
 const EURO_MAX = 12;
 const LS_KEY = "eurojackpot.tips.v1";
 
-/** unique random Set mit Sortierung */
+// ---------------- Helpers
+
 function uniqueRandomSet(count: number, min: number, max: number): number[] {
   const out: number[] = [];
   while (out.length < count) {
@@ -71,72 +72,118 @@ function emptyTip(id: number): Tip {
   return { id, numbers: [] as number[], euroNumbers: [] as number[] };
 }
 
-function toNumberArray(
+/** strict: Ganzzahlen, Range, Duplikate, exakt requiredLen */
+function validateNumberArrayStrict(
   arr: unknown,
   min: number,
   max: number,
-  maxLen: number,
-  errors?: string[],
-  path?: string
-): number[] {
+  requiredLen: number,
+  label: string,
+  err: string[]
+): number[] | null {
   if (!Array.isArray(arr)) {
-    errors?.push(`${path ?? "Array"} fehlt oder ist kein Array.`);
-    return [];
+    err.push(`${label}: erwartet ein Array.`);
+    return null;
   }
-  const mapped = arr.map((x, i) => {
-    const n = Number(x);
-    if (!Number.isInteger(n)) {
-      errors?.push(`${path ?? "Wert"}[${i}] ist keine Ganzzahl.`);
-    } else if (n < min || n > max) {
-      errors?.push(
-        `${path ?? "Wert"}[${i}] ${n} außerhalb von ${min}..${max}.`
-      );
-    }
-    return n;
+
+  // Cast + primitive Checks
+  const raw = arr.map((x) => Number(x));
+  raw.forEach((n, i) => {
+    if (!Number.isInteger(n)) err.push(`${label}[${i}]: keine Ganzzahl.`);
   });
-  const cleaned = Array.from(
-    new Set(mapped.filter((n) => Number.isInteger(n) && n >= min && n <= max))
-  ).slice(0, maxLen);
-  cleaned.sort((a, b) => a - b);
-  return cleaned;
+  raw.forEach((n, i) => {
+    if (Number.isInteger(n) && (n < min || n > max)) {
+      err.push(`${label}[${i}]: ${n} außerhalb von ${min}..${max}.`);
+    }
+  });
+
+  // uniq + length
+  const uniq = Array.from(
+    new Set(raw.filter((n) => Number.isInteger(n) && n >= min && n <= max))
+  );
+  if (uniq.length !== raw.length) {
+    err.push(`${label}: Duplikate gefunden.`);
+  }
+  if (uniq.length !== requiredLen) {
+    err.push(
+      `${label}: exakt ${requiredLen} Werte erwartet (gefunden: ${uniq.length}).`
+    );
+  }
+
+  if (err.length) return null;
+  uniq.sort((a, b) => a - b);
+  return uniq;
 }
 
-function validateTip(raw: unknown, idx: number, errors: string[]): Tip | null {
-  if (typeof raw !== "object" || raw == null) {
+/**
+ * Strenge Tipp-Validierung:
+ * - id 1..12, keine Duplikate
+ * - Sonderfall: beide Arrays leer -> erlaubt (kein Fehler)
+ * - sonst: exakt 5/2, Range, Ganzzahlen, keine Duplikate
+ */
+function validateTipStrict(
+  row: unknown,
+  idx: number,
+  seenIds: Set<number>,
+  errors: string[]
+): Tip | null {
+  if (typeof row !== "object" || row == null) {
     errors.push(`Eintrag #${idx + 1}: kein Objekt.`);
     return null;
   }
-  const obj = raw as Record<string, unknown>;
+  const obj = row as Record<string, unknown>;
+
+  // id prüfen
   const idNum = Number(obj.id);
   if (!Number.isInteger(idNum) || idNum < 1 || idNum > MAX_TIPS) {
     errors.push(`Eintrag #${idx + 1}: id fehlt/ungültig (1..${MAX_TIPS}).`);
     return null;
   }
+  if (seenIds.has(idNum)) {
+    errors.push(`Eintrag #${idx + 1}: id ${idNum} doppelt.`);
+    return null;
+  }
 
-  const nums = toNumberArray(
-    obj.numbers,
+  // Roh-Arrays (können fehlen → leeres Array)
+  const rawNums = Array.isArray(obj.numbers) ? obj.numbers : [];
+  const rawEuros = Array.isArray(obj.euroNumbers) ? obj.euroNumbers : [];
+
+  // Kompletter Leer-Tipp: erlaubt
+  const isEmpty = rawNums.length === 0 && rawEuros.length === 0;
+  if (isEmpty) {
+    seenIds.add(idNum);
+    return { id: idNum, numbers: [], euroNumbers: [] };
+  }
+
+  // Befüllter Tipp => strikt
+  const localErr: string[] = [];
+  const nums = validateNumberArrayStrict(
+    rawNums,
     MAIN_MIN,
     MAIN_MAX,
     N_MAIN,
-    errors,
-    `Eintrag #${idx + 1} – numbers`
+    `Eintrag #${idx + 1} – numbers`,
+    localErr
   );
-  const euros = toNumberArray(
-    obj.euroNumbers,
+  const euros = validateNumberArrayStrict(
+    rawEuros,
     EURO_MIN,
     EURO_MAX,
     N_EURO,
-    errors,
-    `Eintrag #${idx + 1} – euroNumbers`
+    `Eintrag #${idx + 1} – euroNumbers`,
+    localErr
   );
 
-  if (nums.length > N_MAIN)
-    errors.push(`Eintrag #${idx + 1}: zu viele Gewinnzahlen (max ${N_MAIN}).`);
-  if (euros.length > N_EURO)
-    errors.push(`Eintrag #${idx + 1}: zu viele Eurozahlen (max ${N_EURO}).`);
+  if (localErr.length > 0 || !nums || !euros) {
+    errors.push(...localErr);
+    return null;
+  }
 
+  seenIds.add(idNum);
   return { id: idNum, numbers: nums, euroNumbers: euros };
 }
+
+// ---------------- Page
 
 export default function TipsPage() {
   const [tips, setTips] = useState<Tip[]>(
@@ -161,28 +208,41 @@ export default function TipsPage() {
     lines: string[];
   }>({ open: false, lines: [] });
 
-  // LS laden
+  // LocalStorage laden (streng), invalide verwerfen
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
       if (!raw) return;
       const parsed: unknown = JSON.parse(raw);
 
-      const next: Tip[] = Array.from({ length: MAX_TIPS }, (_, i) =>
+      const baseline: Tip[] = Array.from({ length: MAX_TIPS }, (_, i) =>
         emptyTip(i + 1)
       ) as Tip[];
 
       if (Array.isArray(parsed)) {
         const errs: string[] = [];
+        const seen = new Set<number>();
+        const valid: Tip[] = [];
+
         parsed.slice(0, MAX_TIPS).forEach((row, idx) => {
-          const v = validateTip(row, idx, errs);
-          if (v) next[v.id - 1] = v;
+          const before = errs.length;
+          const v = validateTipStrict(row, idx, seen, errs);
+          if (v) valid[v.id - 1] = v;
+          else if (errs.length === before) {
+            errs.push(`Eintrag #${idx + 1}: unbekannter Fehler.`);
+          }
         });
-        setTips(next);
+
+        const merged = [...baseline];
+        for (let i = 0; i < MAX_TIPS; i++) {
+          if (valid[i]) merged[i] = valid[i]!;
+        }
+        setTips(merged);
+
         if (errs.length) {
           setSnack({
             open: true,
-            msg: "Einige gespeicherte Tipps waren fehlerhaft (bereinigt).",
+            msg: "Einige lokal gespeicherte Tipps waren ungültig und wurden verworfen.",
             sev: "warning",
           });
         }
@@ -192,7 +252,7 @@ export default function TipsPage() {
     }
   }, []);
 
-  // LS speichern
+  // LocalStorage speichern
   useEffect(() => {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(tips));
@@ -222,7 +282,7 @@ export default function TipsPage() {
   const handleOpenTicket = (id: number) => setOpenModalFor(id);
   const handleCloseTicket = () => setOpenModalFor(null);
 
-  /** Wird vom Modal bei jeder Änderung aufgerufen */
+  /** Änderungen aus dem Modal – Teilauswahl zulassen, UI begrenzt ohnehin */
   const handleModalChange = (
     id: number,
     next: { numbers: number[]; euroNumbers: number[] }
@@ -230,17 +290,23 @@ export default function TipsPage() {
     setTips((prev) => {
       const idx = id - 1;
       const clone = [...prev];
+
       const nums = Array.from(new Set(next.numbers))
+        .filter((n) => Number.isInteger(n) && n >= MAIN_MIN && n <= MAIN_MAX)
         .slice(0, N_MAIN)
         .sort((a, b) => a - b);
+
       const euros = Array.from(new Set(next.euroNumbers))
+        .filter((n) => Number.isInteger(n) && n >= EURO_MIN && n <= EURO_MAX)
         .slice(0, N_EURO)
         .sort((a, b) => a - b);
+
       clone[idx] = { ...clone[idx], numbers: nums, euroNumbers: euros };
       return clone;
     });
   };
 
+  // Download
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(tips, null, 2)], {
       type: "application/json",
@@ -253,11 +319,12 @@ export default function TipsPage() {
     URL.revokeObjectURL(url);
   };
 
+  // Upload
   const handleUploadClick = () => fileRef.current?.click();
 
   const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    e.target.value = ""; // reset
+    e.target.value = ""; // reset für erneutes Hochladen
     if (!file) return;
 
     const reader = new FileReader();
@@ -265,32 +332,50 @@ export default function TipsPage() {
       try {
         const text = String(reader.result ?? "");
         const json: unknown = JSON.parse(text);
-
-        const next: Tip[] = Array.from({ length: MAX_TIPS }, (_, i) =>
-          emptyTip(i + 1)
-        ) as Tip[];
-
         if (!Array.isArray(json))
           throw new Error("Die JSON-Datei enthält kein Array.");
 
+        const baseline: Tip[] = Array.from({ length: MAX_TIPS }, (_, i) =>
+          emptyTip(i + 1)
+        ) as Tip[];
         const errs: string[] = [];
-        let accepted = 0;
+        const seen = new Set<number>();
+        const valid: Tip[] = [];
 
         json.slice(0, MAX_TIPS).forEach((row: unknown, idx) => {
-          const v = validateTip(row, idx, errs);
-          if (v) {
-            next[v.id - 1] = v;
-            accepted += 1;
+          const before = errs.length;
+          const v = validateTipStrict(row, idx, seen, errs);
+          if (v) valid[v.id - 1] = v;
+          else if (errs.length === before) {
+            // falls etwas schief lief aber keine Meldung generiert wurde
+            errs.push(`Eintrag #${idx + 1}: unbekannter Fehler.`);
           }
         });
 
-        setTips(next);
+        const accepted = valid.filter(Boolean).length;
+        if (accepted === 0) {
+          // Nichts überschreiben
+          setSnack({
+            open: true,
+            msg: "Keine gültigen Tipps in der Datei gefunden.",
+            sev: "error",
+          });
+          if (errs.length) setErrorDialog({ open: true, lines: errs });
+          return;
+        }
+
+        // valide in baseline mergen
+        const merged = [...baseline];
+        for (let i = 0; i < MAX_TIPS; i++) {
+          if (valid[i]) merged[i] = valid[i]!;
+        }
+        setTips(merged);
 
         if (errs.length) {
           setErrorDialog({ open: true, lines: errs });
           setSnack({
             open: true,
-            msg: `Teile der Datei waren ungültig. Übernommen: ${accepted} Tipp(e).`,
+            msg: `Teilweise gültig. Übernommen: ${accepted} Tipp(e).`,
             sev: "warning",
           });
         } else {
@@ -319,7 +404,7 @@ export default function TipsPage() {
     [tips]
   );
 
-  /** Pills – feste Größe */
+  /** Pills – einheitliche Größe */
   const renderPills = (vals: number[], color: "primary" | "success") => {
     if (!vals?.length) return <span className="value numbers">—</span>;
     const PILL_SIZE = 32;
@@ -482,7 +567,7 @@ export default function TipsPage() {
               </Box>
             </CardContent>
 
-            {/* Spielschein-Dialog (interaktiv, mit Fertig-Button) */}
+            {/* Spielschein-Dialog */}
             {openModalFor === tip.id && (
               <TicketModal
                 open
@@ -492,7 +577,7 @@ export default function TipsPage() {
                 euroNumbers={tip.euroNumbers}
                 mainMaxCount={N_MAIN}
                 euroMaxCount={N_EURO}
-                autoCloseOnComplete={false} // wenn du Autoclose willst -> true
+                autoCloseOnComplete={false}
                 onChange={(next) => handleModalChange(tip.id, next)}
               />
             )}
@@ -500,7 +585,7 @@ export default function TipsPage() {
         ))}
       </Box>
 
-      {/* Snackbar für Upload/Info */}
+      {/* Snackbar */}
       <Snackbar
         open={snack.open}
         autoHideDuration={4000}
@@ -517,7 +602,7 @@ export default function TipsPage() {
         </Alert>
       </Snackbar>
 
-      {/* Detail-Fehlerdialog bei Upload */}
+      {/* Fehler-Detaildialog (nur bei Upload) */}
       <Dialog
         open={errorDialog.open}
         onClose={() => setErrorDialog({ open: false, lines: [] })}
