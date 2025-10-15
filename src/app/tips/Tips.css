@@ -5,6 +5,10 @@
   margin-bottom: 12px;
 }
 
+.tips-toolbar-paper .MuiToolbar-root {
+  min-height: 0;
+}
+
 .tips-grid {
   display: grid;
   gap: 20px;
@@ -41,6 +45,18 @@
   border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
+.tip-card .tip-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tip-card .tip-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .tip-card .row {
   display: grid;
   grid-template-columns: 120px 1fr;
@@ -59,18 +75,9 @@
   font-variant-numeric: tabular-nums;
 }
 
-.tip-card .numbers {
-  letter-spacing: 0.2px;
-}
-
-.tip-card .tip-card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.tip-card .tip-actions {
+/* Chip-Reihen (Mini-FAB Look) */
+.pill-row {
   display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 6px;
 }

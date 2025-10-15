@@ -13,6 +13,9 @@ import {
   Typography,
   Toolbar,
   Button,
+  Paper,
+  Chip,
+  useTheme,
 } from "@mui/material";
 import CasinoIcon from "@mui/icons-material/Casino";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -106,6 +109,7 @@ export default function TipsPage() {
   );
   const [openModalFor, setOpenModalFor] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const theme = useTheme();
 
   // LS laden
   useEffect(() => {
@@ -168,7 +172,6 @@ export default function TipsPage() {
     setTips((prev) => {
       const idx = id - 1;
       const clone = [...prev];
-      // Sicherheit: Begrenzen + Sortieren
       const nums = Array.from(new Set(next.numbers))
         .slice(0, N_MAIN)
         .sort((a, b) => a - b);
@@ -196,7 +199,7 @@ export default function TipsPage() {
 
   const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    e.target.value = ""; // reset, damit gleiche Datei erneut wählbar ist
+    e.target.value = ""; // reset
     if (!file) return;
 
     const reader = new FileReader();
@@ -231,6 +234,44 @@ export default function TipsPage() {
     [tips]
   );
 
+  /** Pills-Renderer – alle gleich breit/hoch */
+  const renderPills = (vals: number[], color: "primary" | "success") => {
+    if (!vals?.length) return <span className="value numbers">—</span>;
+
+    const PILL_SIZE = 32; // gleiche Breite/Höhe für alle
+    return (
+      <Box className="pill-row">
+        {vals.map((n) => (
+          <Chip
+            key={`${color}-${n}`}
+            label={n}
+            size="small"
+            sx={{
+              height: PILL_SIZE,
+              width: PILL_SIZE, // ⟵ feste Breite
+              borderRadius: 9999,
+              fontWeight: 700,
+              fontVariantNumeric: "tabular-nums",
+              bgcolor: `${color}.main`,
+              color: `${color}.contrastText`,
+              p: 0, // kein Innenabstand
+              "& .MuiChip-label": {
+                width: "100%", // Label nimmt volle Breite
+                px: 0,
+                lineHeight: 1,
+                textAlign: "center", // Zahl mittig
+              },
+              boxShadow:
+                theme.palette.mode === "dark"
+                  ? "0 1px 2px rgba(0,0,0,.6)"
+                  : "0 1px 2px rgba(0,0,0,.15)",
+            }}
+          />
+        ))}
+      </Box>
+    );
+  };
+
   return (
     <div className="tips-page">
       <div className="page-header">
@@ -243,33 +284,51 @@ export default function TipsPage() {
         </Typography>
       </div>
 
-      {/* Toolbar */}
-      <Toolbar disableGutters sx={{ gap: 1, mb: 2, flexWrap: "wrap" }}>
-        <Button
-          variant="outlined"
-          startIcon={<FileDownloadOutlinedIcon />}
-          onClick={handleDownload}
-          disabled={!haveAnyTip}
-          sx={{ textTransform: "none" }}
-        >
-          JSON herunterladen
-        </Button>
-        <input
-          type="file"
-          accept="application/json"
-          ref={fileRef}
-          style={{ display: "none" }}
-          onChange={handleUploadFile}
-        />
-        <Button
-          variant="outlined"
-          startIcon={<FileUploadOutlinedIcon />}
-          onClick={handleUploadClick}
-          sx={{ textTransform: "none" }}
-        >
-          JSON hochladen
-        </Button>
-      </Toolbar>
+      {/* Toolbar – optisch aufgewertet */}
+      <Paper
+        elevation={0}
+        className="tips-toolbar-paper"
+        sx={{
+          p: 1.25,
+          mb: 2,
+          borderRadius: 2,
+          border: "1px solid",
+          borderColor: "divider",
+          background:
+            theme.palette.mode === "dark"
+              ? "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0))"
+              : "linear-gradient(180deg, rgba(18,52,86,0.05), rgba(18,52,86,0))",
+        }}
+      >
+        <Toolbar disableGutters sx={{ gap: 1, flexWrap: "wrap" }}>
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={<FileDownloadOutlinedIcon />}
+            onClick={handleDownload}
+            disabled={!haveAnyTip}
+            sx={{ textTransform: "none" }}
+          >
+            JSON herunterladen
+          </Button>
+          <input
+            type="file"
+            accept="application/json"
+            ref={fileRef}
+            style={{ display: "none" }}
+            onChange={handleUploadFile}
+          />
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<FileUploadOutlinedIcon />}
+            onClick={handleUploadClick}
+            sx={{ textTransform: "none" }}
+          >
+            JSON hochladen
+          </Button>
+        </Toolbar>
+      </Paper>
 
       {/* Grid mit 12 Karten */}
       <Box className="tips-grid">
@@ -285,24 +344,39 @@ export default function TipsPage() {
                     <IconButton
                       size="small"
                       onClick={() => handleRandom(tip.id)}
+                      sx={{
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        "&:hover": { bgcolor: "primary.dark" },
+                      }}
                     >
-                      <CasinoIcon />
+                      <CasinoIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Spielschein">
                     <IconButton
                       size="small"
                       onClick={() => handleOpenTicket(tip.id)}
+                      sx={{
+                        bgcolor: "success.main",
+                        color: "success.contrastText",
+                        "&:hover": { bgcolor: "success.dark" },
+                      }}
                     >
-                      <ConfirmationNumberIcon />
+                      <ConfirmationNumberIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                   <Tooltip title="Zurücksetzen">
                     <IconButton
                       size="small"
                       onClick={() => handleReset(tip.id)}
+                      sx={{
+                        bgcolor: "warning.main",
+                        color: "warning.contrastText",
+                        "&:hover": { bgcolor: "warning.dark" },
+                      }}
                     >
-                      <RestartAltIcon />
+                      <RestartAltIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 </Box>
@@ -313,13 +387,13 @@ export default function TipsPage() {
               <Box className="row">
                 <span className="label">Gewinnzahlen</span>
                 <span className="value numbers">
-                  {tip.numbers.length ? tip.numbers.join(" | ") : "—"}
+                  {renderPills(tip.numbers, "primary")}
                 </span>
               </Box>
               <Box className="row">
                 <span className="label">Eurozahlen</span>
                 <span className="value numbers">
-                  {tip.euroNumbers.length ? tip.euroNumbers.join(" | ") : "—"}
+                  {renderPills(tip.euroNumbers, "success")}
                 </span>
               </Box>
             </CardContent>
