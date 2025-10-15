@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -30,6 +30,7 @@ export default function DashboardCardPopularNumbers({
   ticketPrice = 2.0,
 }: Props) {
   const theme = useTheme();
+
   const {
     isLoadingPopularity,
     setIsLoadingPopularity,
@@ -39,30 +40,60 @@ export default function DashboardCardPopularNumbers({
     setPopularityEuro,
   } = useDashboardStore() as any;
 
+  // Robust: vermeidet "AbortError without reason" in Dev/StrictMode
+  const controllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
+    // ggf. laufenden Request abbrechen (mit Reason)
+    if (controllerRef.current && !controllerRef.current.signal.aborted) {
+      controllerRef.current.abort("refresh");
+    }
+
     const ac = new AbortController();
+    controllerRef.current = ac;
+    const { signal } = ac;
+    let alive = true;
+
     (async () => {
       try {
         setIsLoadingPopularity(true);
+        if (signal.aborted) throw new DOMException("aborted", "AbortError");
+
         const url = `${
           API_ROUTE_CONST.popularityNumbers
         }?ticketPrice=${encodeURIComponent(ticketPrice)}`;
-        const res = await fetch(url, { signal: ac.signal });
+        const res = await fetch(url, { signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const json = await res.json();
         const mains = Array.isArray(json?.mainScores) ? json.mainScores : [];
         const euros = Array.isArray(json?.euroScores) ? json.euroScores : [];
+
+        if (!alive || signal.aborted) return;
         setPopularityMain(mains);
         setPopularityEuro(euros);
-      } catch (err) {
-        if (process.env.NODE_ENV !== "production") console.error(err);
-        setPopularityMain([]);
-        setPopularityEuro([]);
+      } catch (err: any) {
+        if (err?.name !== "AbortError") {
+          if (process.env.NODE_ENV !== "production") console.error(err);
+          if (alive && !signal.aborted) {
+            setPopularityMain([]);
+            setPopularityEuro([]);
+          }
+        }
       } finally {
-        setIsLoadingPopularity(false);
+        if (alive && !signal.aborted) {
+          setIsLoadingPopularity(false);
+        }
+        if (controllerRef.current === ac) {
+          controllerRef.current = null;
+        }
       }
     })();
-    return () => ac.abort();
+
+    return () => {
+      alive = false;
+      if (!signal.aborted) ac.abort("unmount");
+    };
   }, [
     setIsLoadingPopularity,
     setPopularityMain,
@@ -70,7 +101,7 @@ export default function DashboardCardPopularNumbers({
     ticketPrice,
   ]);
 
-  // TOP 5
+  // TOP 5 pro Chart
   const topMain = useMemo(
     () => (popularityMain ?? []).slice(0, 5),
     [popularityMain]
@@ -80,7 +111,7 @@ export default function DashboardCardPopularNumbers({
     [popularityEuro]
   );
 
-  // Headroom damit Spitzenwerte im Grid bleiben (kein Overflow)
+  // Headroom: +10% damit keine Spitzen/Labels (falls später) aus dem Grid ragen
   const mainDomain = useMemo<[number, number]>(() => {
     const max = topMain.reduce(
       (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
