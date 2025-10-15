@@ -143,5 +143,8 @@ export const APP_TYPO_CONST = {
     classNumbers: {
       headerTitle: "Anzahl der Ziehungen für die Gewinnklassen",
     },
+    tips: {
+      headerTitle: "Meine Tipps",
+    },
   },
 };

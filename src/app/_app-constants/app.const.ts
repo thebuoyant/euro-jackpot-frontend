@@ -9,4 +9,7 @@ export const APP_CONST = {
       storageKey: "resolutionGuard.dismissed",
     },
   },
+  tips: {
+    headerTitle: "Meine Tipps",
+  },
 };

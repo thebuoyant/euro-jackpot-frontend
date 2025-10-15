@@ -7,4 +7,5 @@ export const APP_ROUTE_CONST = {
   classQuota: "/class-quota",
   classNumbers: "/class-numbers",
   prizeClasses: "/prize-classes",
+  tips: "/tips",
 };
