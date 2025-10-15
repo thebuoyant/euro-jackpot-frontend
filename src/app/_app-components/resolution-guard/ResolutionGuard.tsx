@@ -1,4 +1,3 @@
-/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -55,11 +54,10 @@ function clampPct(val: number) {
 
 export default function ResolutionGuard() {
   const theme = useTheme();
-  const { minWidth, minHeight, storageKey, aspect } = APP_CONST.ui.resolution;
+  const { minWidth, minHeight, storageKey } = APP_CONST.ui.resolution;
 
   const size = useDebouncedWindowSize(200);
 
-  // „Nicht mehr anzeigen“ persistiert (nur nach Mount lesen)
   const [dismissed, setDismissed] = useState<boolean | null>(null);
   const [sessionDismissed, setSessionDismissed] = useState(false);
   const [neverAgain, setNeverAgain] = useState(false);
@@ -188,11 +186,6 @@ export default function ResolutionGuard() {
               }: ${size ? `${size.w} × ${size.h}px` : "–"}`}
               sx={{ fontWeight: 500 }}
             />
-            <Chip
-              size="small"
-              variant="outlined"
-              label={`Ratio: ${aspect.w}:${aspect.h}`}
-            />
           </Stack>
         </Box>
 
@@ -200,7 +193,7 @@ export default function ResolutionGuard() {
         <Box sx={{ mt: 2.2, display: "grid", gap: 1.4 }}>
           <Stack direction="row" justifyContent="space-between">
             <Typography variant="caption" color="text.secondary">
-              Breite
+              {APP_TYPO_CONST.components.resolutionGuard.labelWidth}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {size ? `${size.w}px / ${minWidth}px` : "–"}
@@ -226,7 +219,7 @@ export default function ResolutionGuard() {
             sx={{ mt: 1.2 }}
           >
             <Typography variant="caption" color="text.secondary">
-              Höhe
+              {APP_TYPO_CONST.components.resolutionGuard.labelHeight}
             </Typography>
             <Typography variant="caption" color="text.secondary">
               {size ? `${size.h}px / ${minHeight}px` : "–"}
@@ -262,7 +255,7 @@ export default function ResolutionGuard() {
           }
           label={
             <Typography variant="body2" color="text.secondary">
-              Diesen Hinweis auf diesem Gerät nicht mehr anzeigen
+              {APP_TYPO_CONST.components.resolutionGuard.labelCheckbox}
             </Typography>
           }
         />
@@ -275,14 +268,16 @@ export default function ResolutionGuard() {
           onClick={handleClose}
           sx={{ textTransform: "none" }}
         >
-          Trotzdem fortfahren
+          {APP_TYPO_CONST.components.resolutionGuard.buttonLabelCancel}
         </Button>
         <Button
           variant="contained"
           onClick={neverAgain ? handleSaveNever : handleClose}
           sx={{ textTransform: "none" }}
         >
-          {neverAgain ? "Speichern & schließen" : "OK"}
+          {neverAgain
+            ? APP_TYPO_CONST.components.resolutionGuard.buttonLabelSave
+            : APP_TYPO_CONST.components.resolutionGuard.buttonLabelApply}
         </Button>
       </DialogActions>
     </Dialog>

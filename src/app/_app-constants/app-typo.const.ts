@@ -28,6 +28,12 @@ export const APP_TYPO_CONST = {
         "Für Diagramme und Tabellen empfehlen wir eine größere Fenstergröße. Deine aktuelle Auflösung kann die Lesbarkeit stark beeinträchtigen.",
       labelRecommendation: "Empfehlung",
       labelCurrent: "Aktuell",
+      labelWidth: "Breite",
+      labelHeight: "Höhe",
+      labelCheckbox: "Diesen Hinweis auf diesem Gerät nicht mehr anzeigen",
+      buttonLabelCancel: "Trotzdem fortfahren",
+      buttonLabelApply: "OK",
+      buttonLabelSave: "Speichern & schließen",
     },
   },
   pages: {
