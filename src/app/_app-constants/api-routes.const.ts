@@ -11,4 +11,5 @@ export const API_ROUTE_CONST = {
   classNumbers: "/api/backend/class-numbers",
   numberGaps: "/api/backend/number-gaps",
   prizeClassesSummary: "/api/backend/prize-classes-summary",
+  popularityNumbers: "/api/backend/popularity-numbers",
 };

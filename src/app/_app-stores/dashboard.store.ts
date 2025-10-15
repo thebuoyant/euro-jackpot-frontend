@@ -5,6 +5,7 @@ import {
 } from "../_app-types/record.types";
 import { TSpecialData } from "../_app-types/special.types";
 import { TNumberGap } from "../_app-handlers/handleGetNumberGaps";
+import { PopularityItem } from "../_app-handlers/handleComputePopularity";
 
 export const useDashboardStore = create((set) => ({
   isLoadingLastDrawData: false as boolean,
@@ -56,4 +57,13 @@ export const useDashboardStore = create((set) => ({
   numberGaps: [] as TNumberGap[],
   setNumberGaps: (receivedValue: TNumberGap[]) =>
     set(() => ({ numberGaps: receivedValue })),
+
+  isLoadingPopularity: false as boolean,
+  setIsLoadingPopularity: (v: boolean) => set({ isLoadingPopularity: v }),
+
+  popularityMain: [] as PopularityItem[],
+  setPopularityMain: (v: PopularityItem[]) => set({ popularityMain: v }),
+
+  popularityEuro: [] as PopularityItem[],
+  setPopularityEuro: (v: PopularityItem[]) => set({ popularityEuro: v }),
 }));

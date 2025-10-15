@@ -10,6 +10,7 @@ import DashboardCardTopWinningNumbers from "../_app-components/_dynamic/dashboar
 import DashboardCardTopWinningNumbers123 from "../_app-components/_dynamic/dashboard-card-top-winning-numbers-123/DashboardCardTopWinningNumbers123";
 import DashboardCardSpecialData from "../_app-components/_dynamic/dashboard-card-special-data/DashboardCardSpecialData";
 import DashboardCardNumberGaps from "../_app-components/_dynamic/dashboard-card-number-gaps/DashboardCardNumberGaps";
+import DashboardCardPopularNumbers from "../_app-components/_dynamic/dashboard-card-popular-numbers/DashboardCardPopularNumbers";
 
 export default function DashboardPage() {
   return (
@@ -73,6 +74,10 @@ export default function DashboardPage() {
           />
           <DashboardCardNumberGaps
             title={APP_TYPO_CONST.pages.dashboard.cards.numberGaps.title}
+          />
+          <DashboardCardPopularNumbers
+            title={APP_TYPO_CONST.pages.dashboard.cards.popularNumbers.title}
+            ticketPrice={2.0}
           />
         </div>
       </div>

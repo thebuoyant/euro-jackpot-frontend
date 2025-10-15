@@ -85,6 +85,9 @@ export const APP_TYPO_CONST = {
           cardLabelMaxTooltip: "Letztes Auftreten des Maximums",
           cardLabelMinTooltip: "Letztes Auftreten des Minimums",
         },
+        popularNumbers: {
+          title: "Populäre Zahlen",
+        },
       },
     },
     archive: {

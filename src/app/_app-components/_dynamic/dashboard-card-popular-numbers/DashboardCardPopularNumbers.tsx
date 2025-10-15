@@ -1,0 +1,180 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
+"use client";
+
+import React, { useEffect, useMemo } from "react";
+import { Card, CardContent, Divider, Typography } from "@mui/material";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Cell,
+  LabelList,
+} from "recharts";
+import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
+import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
+import { APP_COLOR_CONST } from "src/app/_app-constants/app-color.const";
+import SkeletonBarChart from "../../_static/skeleton-bar-chart/SkeletonBarChart";
+
+type Props = { title?: string; ticketPrice?: number };
+
+export default function DashboardCardPopularNumbers({
+  title = "Populäre Zahlen (Heuristik)",
+  ticketPrice = 2.0,
+}: Props) {
+  const {
+    isLoadingPopularity,
+    setIsLoadingPopularity,
+    popularityMain,
+    setPopularityMain,
+    popularityEuro,
+    setPopularityEuro,
+  } = useDashboardStore() as any;
+
+  useEffect(() => {
+    const ac = new AbortController();
+    (async () => {
+      try {
+        setIsLoadingPopularity(true);
+        const url = `${
+          API_ROUTE_CONST.popularityNumbers
+        }?ticketPrice=${encodeURIComponent(ticketPrice)}`;
+        const res = await fetch(url, { signal: ac.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+        const mains = Array.isArray(json?.mainScores) ? json.mainScores : [];
+        const euros = Array.isArray(json?.euroScores) ? json.euroScores : [];
+        setPopularityMain(mains);
+        setPopularityEuro(euros);
+      } catch (err) {
+        if (process.env.NODE_ENV !== "production") console.error(err);
+        setPopularityMain([]);
+        setPopularityEuro([]);
+      } finally {
+        setIsLoadingPopularity(false);
+      }
+    })();
+    return () => ac.abort();
+  }, [
+    setIsLoadingPopularity,
+    setPopularityMain,
+    setPopularityEuro,
+    ticketPrice,
+  ]);
+
+  const topMain = useMemo(
+    () => (popularityMain ?? []).slice(0, 10),
+    [popularityMain]
+  );
+  const topEuro = useMemo(
+    () => (popularityEuro ?? []).slice(0, 10),
+    [popularityEuro]
+  );
+
+  // Headroom damit LabelList „top“ im Grid bleibt
+  const mainDomain = useMemo<[number, number]>(() => {
+    const max = topMain.reduce(
+      (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
+      0
+    );
+    return [0, Math.max(0.001, Number((max * 1.1).toFixed(6)))];
+  }, [topMain]);
+
+  const euroDomain = useMemo<[number, number]>(() => {
+    const max = topEuro.reduce(
+      (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
+      0
+    );
+    return [0, Math.max(0.001, Number((max * 1.1).toFixed(6)))];
+  }, [topEuro]);
+
+  const color = APP_COLOR_CONST.colorPrimary;
+
+  return (
+    <Card className="card" elevation={4}>
+      <CardContent>
+        <Typography variant="h6" gutterBottom>
+          {title}
+        </Typography>
+        <Divider sx={{ my: 2 }} />
+
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            alignItems: "stretch",
+            width: "100%",
+          }}
+        >
+          {/* Linker Chart: Gewinnzahlen */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {isLoadingPopularity ? (
+              <SkeletonBarChart height={205} />
+            ) : (
+              <ResponsiveContainer width="100%" height={205}>
+                <BarChart
+                  data={topMain}
+                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <YAxis domain={mainDomain} hide />
+                  <Bar dataKey="value" name="Score" isAnimationActive={false}>
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      style={{ fontSize: 10 }}
+                    />
+                    {topMain.map((_: any, idx: number) => (
+                      <Cell key={`m-${idx}`} fill={color} />
+                    ))}
+                  </Bar>
+                  <XAxis
+                    dataKey="key"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    height={28}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {/* Rechter Chart: Eurozahlen */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {isLoadingPopularity ? (
+              <SkeletonBarChart height={205} />
+            ) : (
+              <ResponsiveContainer width="100%" height={205}>
+                <BarChart
+                  data={topEuro}
+                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <YAxis domain={euroDomain} hide />
+                  <Bar dataKey="value" name="Score" isAnimationActive={false}>
+                    <LabelList
+                      dataKey="value"
+                      position="top"
+                      style={{ fontSize: 10 }}
+                    />
+                    {topEuro.map((_: any, idx: number) => (
+                      <Cell key={`e-${idx}`} fill={color} />
+                    ))}
+                  </Bar>
+                  <XAxis
+                    dataKey="key"
+                    tick={{ fontSize: 10 }}
+                    interval={0}
+                    height={28}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
