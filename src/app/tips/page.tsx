@@ -39,7 +39,7 @@ const EURO_MIN = 1;
 const EURO_MAX = 12;
 const LS_KEY = "eurojackpot.tips.v1";
 
-/** Hilfsfunktion: unique sortiertes Set im Bereich */
+/** unique random Set mit Sortierung */
 function uniqueRandomSet(count: number, min: number, max: number): number[] {
   const out: number[] = [];
   while (out.length < count) {
@@ -62,7 +62,6 @@ function emptyTip(id: number): Tip {
   return { id, numbers: [] as number[], euroNumbers: [] as number[] };
 }
 
-/** robustes Parsen von unknown[] → number[] im erlaubten Bereich */
 function toNumberArray(
   arr: unknown,
   min: number,
@@ -81,7 +80,6 @@ function toNumberArray(
   return cleaned;
 }
 
-/** Validierung für Upload/LocalStorage */
 function validateTip(raw: unknown): Tip | null {
   if (typeof raw !== "object" || raw == null) return null;
   const obj = raw as Record<string, unknown>;
@@ -97,7 +95,6 @@ function validateTip(raw: unknown): Tip | null {
     N_EURO
   );
 
-  // unvollständige Tipps sind ok; aber niemals mehr als die Max-Länge
   if (numbers.length > N_MAIN || euroNumbers.length > N_EURO) return null;
 
   return { id: idNum, numbers, euroNumbers };
@@ -110,7 +107,7 @@ export default function TipsPage() {
   const [openModalFor, setOpenModalFor] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // LocalStorage laden (nach Mount)
+  // LS laden
   useEffect(() => {
     try {
       const raw = localStorage.getItem(LS_KEY);
@@ -133,7 +130,7 @@ export default function TipsPage() {
     }
   }, []);
 
-  // Persistieren
+  // LS speichern
   useEffect(() => {
     try {
       localStorage.setItem(LS_KEY, JSON.stringify(tips));
@@ -163,6 +160,26 @@ export default function TipsPage() {
   const handleOpenTicket = (id: number) => setOpenModalFor(id);
   const handleCloseTicket = () => setOpenModalFor(null);
 
+  /** Wird vom Modal bei jeder Änderung aufgerufen */
+  const handleModalChange = (
+    id: number,
+    next: { numbers: number[]; euroNumbers: number[] }
+  ) => {
+    setTips((prev) => {
+      const idx = id - 1;
+      const clone = [...prev];
+      // Sicherheit: Begrenzen + Sortieren
+      const nums = Array.from(new Set(next.numbers))
+        .slice(0, N_MAIN)
+        .sort((a, b) => a - b);
+      const euros = Array.from(new Set(next.euroNumbers))
+        .slice(0, N_EURO)
+        .sort((a, b) => a - b);
+      clone[idx] = { ...clone[idx], numbers: nums, euroNumbers: euros };
+      return clone;
+    });
+  };
+
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(tips, null, 2)], {
       type: "application/json",
@@ -179,7 +196,7 @@ export default function TipsPage() {
 
   const handleUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    e.target.value = ""; // reset
+    e.target.value = ""; // reset, damit gleiche Datei erneut wählbar ist
     if (!file) return;
 
     const reader = new FileReader();
@@ -307,14 +324,17 @@ export default function TipsPage() {
               </Box>
             </CardContent>
 
-            {/* Spielschein-Dialog */}
+            {/* Spielschein-Dialog (interaktiv) */}
             {openModalFor === tip.id && (
               <TicketModal
                 open
                 onClose={handleCloseTicket}
                 title={`Tipp ${tip.id} – Spielschein`}
-                numbers={tip.numbers as number[]}
-                euroNumbers={tip.euroNumbers as number[]}
+                numbers={tip.numbers}
+                euroNumbers={tip.euroNumbers}
+                mainMaxCount={N_MAIN}
+                euroMaxCount={N_EURO}
+                onChange={(next) => handleModalChange(tip.id, next)}
               />
             )}
           </Card>
