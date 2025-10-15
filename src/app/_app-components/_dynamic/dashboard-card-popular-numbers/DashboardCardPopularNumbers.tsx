@@ -2,7 +2,13 @@
 "use client";
 
 import React, { useEffect, useMemo } from "react";
-import { Card, CardContent, Divider, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Divider,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import {
   ResponsiveContainer,
   BarChart,
@@ -11,7 +17,6 @@ import {
   YAxis,
   CartesianGrid,
   Cell,
-  LabelList,
 } from "recharts";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
@@ -24,6 +29,7 @@ export default function DashboardCardPopularNumbers({
   title = "Populäre Zahlen (Heuristik)",
   ticketPrice = 2.0,
 }: Props) {
+  const theme = useTheme();
   const {
     isLoadingPopularity,
     setIsLoadingPopularity,
@@ -64,16 +70,17 @@ export default function DashboardCardPopularNumbers({
     ticketPrice,
   ]);
 
+  // TOP 5
   const topMain = useMemo(
-    () => (popularityMain ?? []).slice(0, 10),
+    () => (popularityMain ?? []).slice(0, 5),
     [popularityMain]
   );
   const topEuro = useMemo(
-    () => (popularityEuro ?? []).slice(0, 10),
+    () => (popularityEuro ?? []).slice(0, 5),
     [popularityEuro]
   );
 
-  // Headroom damit LabelList „top“ im Grid bleibt
+  // Headroom damit Spitzenwerte im Grid bleiben (kein Overflow)
   const mainDomain = useMemo<[number, number]>(() => {
     const max = topMain.reduce(
       (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
@@ -90,7 +97,8 @@ export default function DashboardCardPopularNumbers({
     return [0, Math.max(0.001, Number((max * 1.1).toFixed(6)))];
   }, [topEuro]);
 
-  const color = APP_COLOR_CONST.colorPrimary;
+  const mainColor = APP_COLOR_CONST.colorPrimary;
+  const euroColor = theme.palette.success.main;
 
   return (
     <Card className="card" elevation={4}>
@@ -108,10 +116,10 @@ export default function DashboardCardPopularNumbers({
             width: "100%",
           }}
         >
-          {/* Linker Chart: Gewinnzahlen */}
+          {/* Linker Chart: Gewinnzahlen (TOP 5) */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {isLoadingPopularity ? (
-              <SkeletonBarChart height={205} />
+              <SkeletonBarChart height={205} bars={5} />
             ) : (
               <ResponsiveContainer width="100%" height={205}>
                 <BarChart
@@ -121,13 +129,8 @@ export default function DashboardCardPopularNumbers({
                   <CartesianGrid strokeDasharray="3 3" />
                   <YAxis domain={mainDomain} hide />
                   <Bar dataKey="value" name="Score" isAnimationActive={false}>
-                    <LabelList
-                      dataKey="value"
-                      position="top"
-                      style={{ fontSize: 10 }}
-                    />
                     {topMain.map((_: any, idx: number) => (
-                      <Cell key={`m-${idx}`} fill={color} />
+                      <Cell key={`m-${idx}`} fill={mainColor} />
                     ))}
                   </Bar>
                   <XAxis
@@ -141,10 +144,10 @@ export default function DashboardCardPopularNumbers({
             )}
           </div>
 
-          {/* Rechter Chart: Eurozahlen */}
+          {/* Rechter Chart: Eurozahlen (TOP 5, success color) */}
           <div style={{ flex: 1, minWidth: 0 }}>
             {isLoadingPopularity ? (
-              <SkeletonBarChart height={205} />
+              <SkeletonBarChart height={205} bars={5} />
             ) : (
               <ResponsiveContainer width="100%" height={205}>
                 <BarChart
@@ -154,13 +157,8 @@ export default function DashboardCardPopularNumbers({
                   <CartesianGrid strokeDasharray="3 3" />
                   <YAxis domain={euroDomain} hide />
                   <Bar dataKey="value" name="Score" isAnimationActive={false}>
-                    <LabelList
-                      dataKey="value"
-                      position="top"
-                      style={{ fontSize: 10 }}
-                    />
                     {topEuro.map((_: any, idx: number) => (
-                      <Cell key={`e-${idx}`} fill={color} />
+                      <Cell key={`e-${idx}`} fill={euroColor} />
                     ))}
                   </Bar>
                   <XAxis
