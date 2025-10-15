@@ -8,6 +8,7 @@ import {
   Divider,
   Typography,
   useTheme,
+  Box,
 } from "@mui/material";
 import {
   ResponsiveContainer,
@@ -44,7 +45,6 @@ export default function DashboardCardPopularNumbers({
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    // ggf. laufenden Request abbrechen (mit Reason)
     if (controllerRef.current && !controllerRef.current.signal.aborted) {
       controllerRef.current.abort("refresh");
     }
@@ -111,7 +111,7 @@ export default function DashboardCardPopularNumbers({
     [popularityEuro]
   );
 
-  // Headroom: +10% damit keine Spitzen/Labels (falls später) aus dem Grid ragen
+  // Headroom: +10%, damit Spitzenwerte im Grid bleiben
   const mainDomain = useMemo<[number, number]>(() => {
     const max = topMain.reduce(
       (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
@@ -131,6 +131,9 @@ export default function DashboardCardPopularNumbers({
   const mainColor = APP_COLOR_CONST.colorPrimary;
   const euroColor = theme.palette.success.main;
 
+  // etwas mehr top-Margin für Platz unter der Überschrift (Card-Höhe bleibt gleich)
+  const chartMargin = { top: 18, right: 12, left: 10, bottom: 8 };
+
   return (
     <Card className="card" elevation={4}>
       <CardContent>
@@ -147,16 +150,29 @@ export default function DashboardCardPopularNumbers({
             width: "100%",
           }}
         >
-          {/* Linker Chart: Gewinnzahlen (TOP 5) */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Linker Block: Gewinnzahlen */}
+          <Box sx={{ flex: 1, minWidth: 0, position: "relative" }}>
+            {/* Dezente Überschrift – overlay, beeinflusst Card-Höhe nicht */}
+            <Typography
+              variant="caption"
+              sx={{
+                position: "absolute",
+                top: 2,
+                left: 12,
+                zIndex: 2,
+                color: "text.secondary",
+                opacity: 0.9,
+                pointerEvents: "none",
+              }}
+            >
+              Gewinnzahlen
+            </Typography>
+
             {isLoadingPopularity ? (
               <SkeletonBarChart height={205} bars={5} />
             ) : (
               <ResponsiveContainer width="100%" height={205}>
-                <BarChart
-                  data={topMain}
-                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
-                >
+                <BarChart data={topMain} margin={chartMargin}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <YAxis domain={mainDomain} hide />
                   <Bar dataKey="value" name="Score" isAnimationActive={false}>
@@ -173,18 +189,31 @@ export default function DashboardCardPopularNumbers({
                 </BarChart>
               </ResponsiveContainer>
             )}
-          </div>
+          </Box>
 
-          {/* Rechter Chart: Eurozahlen (TOP 5, success color) */}
-          <div style={{ flex: 1, minWidth: 0 }}>
+          {/* Rechter Block: Eurozahlen */}
+          <Box sx={{ flex: 1, minWidth: 0, position: "relative" }}>
+            {/* Dezente Überschrift – overlay */}
+            <Typography
+              variant="caption"
+              sx={{
+                position: "absolute",
+                top: 2,
+                left: 12,
+                zIndex: 2,
+                color: "text.secondary",
+                opacity: 0.9,
+                pointerEvents: "none",
+              }}
+            >
+              Eurozahlen
+            </Typography>
+
             {isLoadingPopularity ? (
               <SkeletonBarChart height={205} bars={5} />
             ) : (
               <ResponsiveContainer width="100%" height={205}>
-                <BarChart
-                  data={topEuro}
-                  margin={{ top: 8, right: 12, left: 10, bottom: 8 }}
-                >
+                <BarChart data={topEuro} margin={chartMargin}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <YAxis domain={euroDomain} hide />
                   <Bar dataKey="value" name="Score" isAnimationActive={false}>
@@ -201,7 +230,7 @@ export default function DashboardCardPopularNumbers({
                 </BarChart>
               </ResponsiveContainer>
             )}
-          </div>
+          </Box>
         </div>
       </CardContent>
     </Card>
