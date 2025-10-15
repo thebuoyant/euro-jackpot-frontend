@@ -16,6 +16,12 @@ import {
   Paper,
   Chip,
   useTheme,
+  Snackbar,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import CasinoIcon from "@mui/icons-material/Casino";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
@@ -69,38 +75,67 @@ function toNumberArray(
   arr: unknown,
   min: number,
   max: number,
-  maxLen: number
+  maxLen: number,
+  errors?: string[],
+  path?: string
 ): number[] {
-  if (!Array.isArray(arr)) return [];
+  if (!Array.isArray(arr)) {
+    errors?.push(`${path ?? "Array"} fehlt oder ist kein Array.`);
+    return [];
+  }
+  const mapped = arr.map((x, i) => {
+    const n = Number(x);
+    if (!Number.isInteger(n)) {
+      errors?.push(`${path ?? "Wert"}[${i}] ist keine Ganzzahl.`);
+    } else if (n < min || n > max) {
+      errors?.push(
+        `${path ?? "Wert"}[${i}] ${n} außerhalb von ${min}..${max}.`
+      );
+    }
+    return n;
+  });
   const cleaned = Array.from(
-    new Set(
-      arr
-        .map((x) => Number(x))
-        .filter((n) => Number.isInteger(n) && n >= min && n <= max)
-    )
+    new Set(mapped.filter((n) => Number.isInteger(n) && n >= min && n <= max))
   ).slice(0, maxLen);
   cleaned.sort((a, b) => a - b);
   return cleaned;
 }
 
-function validateTip(raw: unknown): Tip | null {
-  if (typeof raw !== "object" || raw == null) return null;
+function validateTip(raw: unknown, idx: number, errors: string[]): Tip | null {
+  if (typeof raw !== "object" || raw == null) {
+    errors.push(`Eintrag #${idx + 1}: kein Objekt.`);
+    return null;
+  }
   const obj = raw as Record<string, unknown>;
-
   const idNum = Number(obj.id);
-  if (!Number.isInteger(idNum) || idNum < 1 || idNum > MAX_TIPS) return null;
+  if (!Number.isInteger(idNum) || idNum < 1 || idNum > MAX_TIPS) {
+    errors.push(`Eintrag #${idx + 1}: id fehlt/ungültig (1..${MAX_TIPS}).`);
+    return null;
+  }
 
-  const numbers = toNumberArray(obj.numbers, MAIN_MIN, MAIN_MAX, N_MAIN);
-  const euroNumbers = toNumberArray(
+  const nums = toNumberArray(
+    obj.numbers,
+    MAIN_MIN,
+    MAIN_MAX,
+    N_MAIN,
+    errors,
+    `Eintrag #${idx + 1} – numbers`
+  );
+  const euros = toNumberArray(
     obj.euroNumbers,
     EURO_MIN,
     EURO_MAX,
-    N_EURO
+    N_EURO,
+    errors,
+    `Eintrag #${idx + 1} – euroNumbers`
   );
 
-  if (numbers.length > N_MAIN || euroNumbers.length > N_EURO) return null;
+  if (nums.length > N_MAIN)
+    errors.push(`Eintrag #${idx + 1}: zu viele Gewinnzahlen (max ${N_MAIN}).`);
+  if (euros.length > N_EURO)
+    errors.push(`Eintrag #${idx + 1}: zu viele Eurozahlen (max ${N_EURO}).`);
 
-  return { id: idNum, numbers, euroNumbers };
+  return { id: idNum, numbers: nums, euroNumbers: euros };
 }
 
 export default function TipsPage() {
@@ -110,6 +145,21 @@ export default function TipsPage() {
   const [openModalFor, setOpenModalFor] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
   const theme = useTheme();
+
+  // Upload/Feedback
+  const [snack, setSnack] = useState<{
+    open: boolean;
+    msg: string;
+    sev: "success" | "error" | "warning" | "info";
+  }>({
+    open: false,
+    msg: "",
+    sev: "info",
+  });
+  const [errorDialog, setErrorDialog] = useState<{
+    open: boolean;
+    lines: string[];
+  }>({ open: false, lines: [] });
 
   // LS laden
   useEffect(() => {
@@ -123,11 +173,19 @@ export default function TipsPage() {
       ) as Tip[];
 
       if (Array.isArray(parsed)) {
-        parsed.slice(0, MAX_TIPS).forEach((row) => {
-          const v = validateTip(row);
+        const errs: string[] = [];
+        parsed.slice(0, MAX_TIPS).forEach((row, idx) => {
+          const v = validateTip(row, idx, errs);
           if (v) next[v.id - 1] = v;
         });
         setTips(next);
+        if (errs.length) {
+          setSnack({
+            open: true,
+            msg: "Einige gespeicherte Tipps waren fehlerhaft (bereinigt).",
+            sev: "warning",
+          });
+        }
       }
     } catch {
       // ignore
@@ -212,15 +270,42 @@ export default function TipsPage() {
           emptyTip(i + 1)
         ) as Tip[];
 
-        if (!Array.isArray(json)) throw new Error("Invalid JSON");
+        if (!Array.isArray(json))
+          throw new Error("Die JSON-Datei enthält kein Array.");
 
-        json.slice(0, MAX_TIPS).forEach((row: unknown) => {
-          const v = validateTip(row);
-          if (v) next[v.id - 1] = v;
+        const errs: string[] = [];
+        let accepted = 0;
+
+        json.slice(0, MAX_TIPS).forEach((row: unknown, idx) => {
+          const v = validateTip(row, idx, errs);
+          if (v) {
+            next[v.id - 1] = v;
+            accepted += 1;
+          }
         });
+
         setTips(next);
-      } catch {
-        alert("Ungültige Datei. Bitte ein valides JSON mit Tipps hochladen.");
+
+        if (errs.length) {
+          setErrorDialog({ open: true, lines: errs });
+          setSnack({
+            open: true,
+            msg: `Teile der Datei waren ungültig. Übernommen: ${accepted} Tipp(e).`,
+            sev: "warning",
+          });
+        } else {
+          setSnack({
+            open: true,
+            msg: `Tipps geladen (${accepted}).`,
+            sev: "success",
+          });
+        }
+      } catch (err: any) {
+        setSnack({
+          open: true,
+          msg: err?.message || "Ungültige Datei.",
+          sev: "error",
+        });
       }
     };
     reader.readAsText(file);
@@ -234,11 +319,10 @@ export default function TipsPage() {
     [tips]
   );
 
-  /** Pills-Renderer – alle gleich breit/hoch */
+  /** Pills – feste Größe */
   const renderPills = (vals: number[], color: "primary" | "success") => {
     if (!vals?.length) return <span className="value numbers">—</span>;
-
-    const PILL_SIZE = 32; // gleiche Breite/Höhe für alle
+    const PILL_SIZE = 32;
     return (
       <Box className="pill-row">
         {vals.map((n) => (
@@ -248,18 +332,18 @@ export default function TipsPage() {
             size="small"
             sx={{
               height: PILL_SIZE,
-              width: PILL_SIZE, // ⟵ feste Breite
+              width: PILL_SIZE,
               borderRadius: 9999,
               fontWeight: 700,
               fontVariantNumeric: "tabular-nums",
               bgcolor: `${color}.main`,
               color: `${color}.contrastText`,
-              p: 0, // kein Innenabstand
+              p: 0,
               "& .MuiChip-label": {
-                width: "100%", // Label nimmt volle Breite
+                width: "100%",
                 px: 0,
                 lineHeight: 1,
-                textAlign: "center", // Zahl mittig
+                textAlign: "center",
               },
               boxShadow:
                 theme.palette.mode === "dark"
@@ -284,7 +368,7 @@ export default function TipsPage() {
         </Typography>
       </div>
 
-      {/* Toolbar – optisch aufgewertet */}
+      {/* Toolbar */}
       <Paper
         elevation={0}
         className="tips-toolbar-paper"
@@ -398,7 +482,7 @@ export default function TipsPage() {
               </Box>
             </CardContent>
 
-            {/* Spielschein-Dialog (interaktiv) */}
+            {/* Spielschein-Dialog (interaktiv, mit Fertig-Button) */}
             {openModalFor === tip.id && (
               <TicketModal
                 open
@@ -408,12 +492,60 @@ export default function TipsPage() {
                 euroNumbers={tip.euroNumbers}
                 mainMaxCount={N_MAIN}
                 euroMaxCount={N_EURO}
+                autoCloseOnComplete={false} // wenn du Autoclose willst -> true
                 onChange={(next) => handleModalChange(tip.id, next)}
               />
             )}
           </Card>
         ))}
       </Box>
+
+      {/* Snackbar für Upload/Info */}
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={4000}
+        onClose={() => setSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setSnack((s) => ({ ...s, open: false }))}
+          severity={snack.sev}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snack.msg}
+        </Alert>
+      </Snackbar>
+
+      {/* Detail-Fehlerdialog bei Upload */}
+      <Dialog
+        open={errorDialog.open}
+        onClose={() => setErrorDialog({ open: false, lines: [] })}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Probleme beim Import</DialogTitle>
+        <DialogContent dividers>
+          {errorDialog.lines.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              Keine Details verfügbar.
+            </Typography>
+          ) : (
+            <Box component="ul" sx={{ m: 0, pl: 3 }}>
+              {errorDialog.lines.map((line, i) => (
+                <li key={i}>
+                  <Typography variant="body2">{line}</Typography>
+                </li>
+              ))}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setErrorDialog({ open: false, lines: [] })}>
+            Schließen
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

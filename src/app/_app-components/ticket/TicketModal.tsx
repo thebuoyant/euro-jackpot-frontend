@@ -1,7 +1,7 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Box,
   Dialog,
@@ -11,6 +11,8 @@ import {
   Typography,
   useTheme,
   Chip,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { APP_COLOR_CONST } from "../../_app-constants/app-color.const";
@@ -30,6 +32,9 @@ type Props = {
   /** Optional Limits (Default EuroJackpot) */
   mainMaxCount?: number; // default 5
   euroMaxCount?: number; // default 2
+
+  /** UX: automatisch schließen, sobald Limits voll sind */
+  autoCloseOnComplete?: boolean; // default: false
 };
 
 const MAIN_RANGE_MAX = 50;
@@ -44,6 +49,7 @@ export default function TicketModal({
   onChange,
   mainMaxCount = 5,
   euroMaxCount = 2,
+  autoCloseOnComplete = false,
 }: Props) {
   const theme = useTheme();
 
@@ -55,8 +61,19 @@ export default function TicketModal({
 
   const remainingMain = Math.max(0, mainMaxCount - mainSet.size);
   const remainingEuro = Math.max(0, euroMaxCount - euroSet.size);
+  const isComplete = remainingMain === 0 && remainingEuro === 0;
 
-  /** Hilfsfunktionen: toggle mit Limits */
+  /** Auto-Close (optional), sobald vollständig */
+  useEffect(() => {
+    if (!open) return;
+    if (autoCloseOnComplete && isComplete) {
+      // kleines Delay fühlt sich natürlicher an
+      const t = setTimeout(() => onClose(), 180);
+      return () => clearTimeout(t);
+    }
+  }, [autoCloseOnComplete, isComplete, onClose, open]);
+
+  /** toggle + commit */
   const commit = (nextNums: number[], nextEuros: number[]) =>
     onChange({ numbers: nextNums, euroNumbers: nextEuros });
 
@@ -65,8 +82,7 @@ export default function TicketModal({
     if (isActive) {
       const next = [...numbers].filter((x) => x !== n);
       commit(next, [...euroNumbers]);
-    } else {
-      if (mainSet.size >= mainMaxCount) return; // Limit erreicht
+    } else if (mainSet.size < mainMaxCount) {
       const next = [...numbers, n].sort((a, b) => a - b);
       commit(next, [...euroNumbers]);
     }
@@ -77,8 +93,7 @@ export default function TicketModal({
     if (isActive) {
       const next = [...euroNumbers].filter((x) => x !== n);
       commit([...numbers], next);
-    } else {
-      if (euroSet.size >= euroMaxCount) return; // Limit erreicht
+    } else if (euroSet.size < euroMaxCount) {
       const next = [...euroNumbers, n].sort((a, b) => a - b);
       commit([...numbers], next);
     }
@@ -142,7 +157,7 @@ export default function TicketModal({
         >
           {title}
         </Typography>
-        <Tooltip title="Schließen">
+        <Tooltip title="Schließen (Esc)">
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
@@ -151,7 +166,15 @@ export default function TicketModal({
 
       <DialogContent sx={{ p: 2.2 }}>
         {/* Status-Zeile (Restplätze) */}
-        <Box sx={{ mb: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+        <Box
+          sx={{
+            mb: 2,
+            display: "flex",
+            gap: 1,
+            flexWrap: "wrap",
+            alignItems: "center",
+          }}
+        >
           <Chip
             size="small"
             label={`Gewinnzahlen: ${numbers.length}/${mainMaxCount} (noch ${remainingMain})`}
@@ -170,6 +193,13 @@ export default function TicketModal({
             }}
             variant={euroNumbers.length >= euroMaxCount ? "outlined" : "filled"}
           />
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ ml: "auto" }}
+          >
+            Tipp: Drücke <kbd>Esc</kbd> zum Schließen
+          </Typography>
         </Box>
 
         {/* Gewinnzahlen 1..50 */}
@@ -288,6 +318,33 @@ export default function TicketModal({
           </Box>
         </Box>
       </DialogContent>
+
+      {/* Footer-Actions: klarer Abschluss */}
+      <DialogActions
+        sx={{
+          px: 2.2,
+          py: 1.6,
+          borderTop: "1px solid",
+          borderColor: "divider",
+        }}
+      >
+        <Button
+          onClick={onClose}
+          color="inherit"
+          sx={{ textTransform: "none" }}
+        >
+          Schließen
+        </Button>
+        <Button
+          onClick={onClose}
+          variant="contained"
+          color="primary"
+          sx={{ textTransform: "none" }}
+          disabled={!isComplete}
+        >
+          Fertig
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }
