@@ -26,6 +26,20 @@ import SkeletonBarChart from "../../_static/skeleton-bar-chart/SkeletonBarChart"
 
 type Props = { title?: string; ticketPrice?: number };
 
+// ————————————————————————————————————————————————————————————————————————
+// Helper: erkennt alle gängigen Abbruch-Fälle (AbortController, Reason-Strings, alte codes)
+function isAbort(err: unknown) {
+  if (!err) return false;
+  if (typeof err === "string") return err === "unmount" || err === "refresh";
+  if (typeof err === "object") {
+    const e = err as any;
+    if (e?.name === "AbortError") return true;
+    if (e?.code === 20) return true; // ältere Browser
+    if (e?.message === "aborted") return true;
+  }
+  return false;
+}
+
 export default function DashboardCardPopularNumbers({
   title = "Populäre Zahlen (Heuristik)",
   ticketPrice = 2.0,
@@ -41,10 +55,11 @@ export default function DashboardCardPopularNumbers({
     setPopularityEuro,
   } = useDashboardStore() as any;
 
-  // Robust: vermeidet "AbortError without reason" in Dev/StrictMode
+  // Controller-Ref, um laufende Requests bewusst zu beenden (mit Reason)
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    // vorherigen Request abbrechen (mit Reason → kein „without reason“-Noise)
     if (controllerRef.current && !controllerRef.current.signal.aborted) {
       controllerRef.current.abort("refresh");
     }
@@ -57,11 +72,13 @@ export default function DashboardCardPopularNumbers({
     (async () => {
       try {
         setIsLoadingPopularity(true);
-        if (signal.aborted) throw new DOMException("aborted", "AbortError");
 
-        const url = `${
-          API_ROUTE_CONST.popularityNumbers
-        }?ticketPrice=${encodeURIComponent(ticketPrice)}`;
+        if (signal.aborted) return; // früh raus, kein catch-Noise
+
+        const url = `${API_ROUTE_CONST.popularityNumbers}?ticketPrice=${encodeURIComponent(
+          ticketPrice
+        )}`;
+
         const res = await fetch(url, { signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -73,20 +90,17 @@ export default function DashboardCardPopularNumbers({
         setPopularityMain(mains);
         setPopularityEuro(euros);
       } catch (err: any) {
-        if (err?.name !== "AbortError") {
-          if (process.env.NODE_ENV !== "production") console.error(err);
-          if (alive && !signal.aborted) {
-            setPopularityMain([]);
-            setPopularityEuro([]);
-          }
+        // Abbrüche still ignorieren
+        if (isAbort(err) || signal.aborted) return;
+
+        if (process.env.NODE_ENV !== "production") console.error(err);
+        if (alive) {
+          setPopularityMain([]);
+          setPopularityEuro([]);
         }
       } finally {
-        if (alive && !signal.aborted) {
-          setIsLoadingPopularity(false);
-        }
-        if (controllerRef.current === ac) {
-          controllerRef.current = null;
-        }
+        if (alive && !signal.aborted) setIsLoadingPopularity(false);
+        if (controllerRef.current === ac) controllerRef.current = null;
       }
     })();
 
@@ -111,7 +125,7 @@ export default function DashboardCardPopularNumbers({
     [popularityEuro]
   );
 
-  // Headroom: +10%, damit Spitzenwerte im Grid bleiben
+  // Headroom: +10%, damit Spitzen im Grid bleiben
   const mainDomain = useMemo<[number, number]>(() => {
     const max = topMain.reduce(
       (m: number, r: any) => Math.max(m, Number(r?.value ?? 0)),
@@ -131,7 +145,7 @@ export default function DashboardCardPopularNumbers({
   const mainColor = APP_COLOR_CONST.colorPrimary;
   const euroColor = theme.palette.success.main;
 
-  // etwas mehr top-Margin für Platz unter der Überschrift (Card-Höhe bleibt gleich)
+  // Etwas top-Margin, damit die überlagerten Mini-Titel nicht mit dem Grid kollidieren
   const chartMargin = { top: 18, right: 12, left: 10, bottom: 8 };
 
   return (
@@ -150,9 +164,9 @@ export default function DashboardCardPopularNumbers({
             width: "100%",
           }}
         >
-          {/* Linker Block: Gewinnzahlen */}
+          {/* Gewinnzahlen */}
           <Box sx={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {/* Dezente Überschrift – overlay, beeinflusst Card-Höhe nicht */}
+            {/* dezente Überschrift (Overlay) */}
             <Typography
               variant="caption"
               sx={{
@@ -191,9 +205,9 @@ export default function DashboardCardPopularNumbers({
             )}
           </Box>
 
-          {/* Rechter Block: Eurozahlen */}
+          {/* Eurozahlen */}
           <Box sx={{ flex: 1, minWidth: 0, position: "relative" }}>
-            {/* Dezente Überschrift – overlay */}
+            {/* dezente Überschrift (Overlay) */}
             <Typography
               variant="caption"
               sx={{
