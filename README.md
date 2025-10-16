@@ -79,7 +79,7 @@ All dashboard widgets are modular and designed for easy expansion — additional
 ### Technical Information
 
 - Built with **Next.js (App Router)**, **React**, and **TypeScript**
-- UI components based on **Material UI (MUI 5)**
+- UI components based on **Material UI**
 - State management via **Zustand**
 - Optimized for desktop resolutions ≥ 1200×775 px
 - Responsive only within the desktop layout range
@@ -96,28 +96,9 @@ This application is intended for **informational and educational purposes only**
 
 ---
 
-### Quick Start
+### Author
 
-```bash
-# Clone repository
-git clone https://github.com/yourname/eurojackpotfrontend.git
-cd eurojackpotfrontend
-
-# Install dependencies
-npm install
-
-# Start development server
-npm run dev
-```
-
-Then open [http://localhost:3000](http://localhost:3000) in a desktop browser (minimum 1200×775 px).
-
----
-
-### Author & License
-
-Developed by **Thomas Schlender**  
-Licensed under the **MIT License**
+Developed by **Thomas Schlender**
 
 ---
 
@@ -193,7 +174,7 @@ Alle Dashboard‑Karten sind modular aufgebaut und für zukünftige Erweiterunge
 ### Technische Informationen
 
 - Entwickelt mit **Next.js (App Router)**, **React** und **TypeScript**
-- Benutzeroberfläche auf Basis von **Material UI (MUI 5)**
+- Benutzeroberfläche auf Basis von **Material UI**
 - Globaler Zustand über **Zustand**
 - Optimiert für Desktop‑Auflösungen ab 1200×775 px
 - Zeigt ein Hinweis‑Modal bei zu kleiner Fenstergröße
@@ -209,25 +190,6 @@ Diese Anwendung dient ausschließlich **Informations‑ und Analysezwecken** und
 
 ---
 
-### Schnellstart
+### Autor
 
-```bash
-# Repository klonen
-git clone https://github.com/yourname/eurojackpotfrontend.git
-cd eurojackpotfrontend
-
-# Abhängigkeiten installieren
-npm install
-
-# Entwicklungsserver starten
-npm run dev
-```
-
-Öffnen Sie anschließend [http://localhost:3000](http://localhost:3000) in einem Desktop‑Browser (mindestens 1200×775 px).
-
----
-
-### Autor & Lizenz
-
-Entwickelt von **Thomas Schlender**  
-Lizenziert unter der **MIT License**
+Entwickelt von **Thomas Schlender**
