@@ -162,7 +162,7 @@ export default function TipsPage() {
     }
   }, [tips]); // Recompute ist billig, ändert sich selten
 
-  // Download
+  // Download -> zeige Snackbar (oben/zentriert)
   const handleDownload = () => {
     const blob = new Blob([JSON.stringify(tips, null, 2)], {
       type: "application/json",
@@ -173,6 +173,12 @@ export default function TipsPage() {
     a.href = url;
     a.click();
     URL.revokeObjectURL(url);
+    // Erfolgsmeldung
+    setSnack({
+      open: true,
+      msg: "JSON erfolgreich heruntergeladen.",
+      sev: "success",
+    });
   };
 
   // Upload
@@ -300,12 +306,12 @@ export default function TipsPage() {
         </Box>
       </Box>
 
-      {/* Snackbar */}
+      {/* Snackbar (oben/zentriert für JSON Up-/Download) */}
       <Snackbar
         open={snack.open}
         autoHideDuration={4000}
         onClose={() => setSnack((s) => ({ ...s, open: false }))}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
         <Alert
           onClose={() => setSnack((s) => ({ ...s, open: false }))}
