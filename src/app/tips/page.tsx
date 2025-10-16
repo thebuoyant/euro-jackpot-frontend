@@ -14,6 +14,7 @@ import {
   Button,
   Paper,
   Chip,
+  Badge,
   useTheme,
   Snackbar,
   Alert,
@@ -32,6 +33,11 @@ import "./Tips.css";
 import TicketModal from "../_app-components/ticket/TicketModal";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
+// Letzte Ziehung + Day helper + Typen
+import { handleGetLastDrawData } from "../_app-handlers/handleGetLastDrawData";
+import { resolveDay } from "../_app-utils/record.util";
+import type { DrawRecord } from "../_app-types/record.types";
+
 type Tip = {
   id: number; // 1..12
   numbers: number[]; // exakt 5 aus 1..50 (oder leer wenn komplett leerer Tipp)
@@ -46,6 +52,9 @@ const MAIN_MAX = 50;
 const EURO_MIN = 1;
 const EURO_MAX = 12;
 const LS_KEY = "eurojackpot.tips.v1";
+
+// Kontrastgrün für Treffer-Badge (bewusst anders als MUI "success")
+const BADGE_GREEN = "#00C853"; // green A700
 
 // ---------------- Helpers
 
@@ -206,6 +215,35 @@ export default function TipsPage() {
     open: boolean;
     lines: string[];
   }>({ open: false, lines: [] });
+
+  // letzte Ziehung (Toolbar + Match-Badges)
+  const lastDraw: DrawRecord | null = useMemo(() => {
+    try {
+      return handleGetLastDrawData();
+    } catch {
+      return null;
+    }
+  }, []);
+
+  const lastMainSet = useMemo(
+    () =>
+      lastDraw
+        ? new Set([
+            lastDraw.nummer1,
+            lastDraw.nummer2,
+            lastDraw.nummer3,
+            lastDraw.nummer4,
+            lastDraw.nummer5,
+          ])
+        : new Set<number>(),
+    [lastDraw]
+  );
+
+  const lastEuroSet = useMemo(
+    () =>
+      lastDraw ? new Set([lastDraw.zz1, lastDraw.zz2]) : new Set<number>(),
+    [lastDraw]
+  );
 
   // LocalStorage laden (streng), invalide verwerfen
   useEffect(() => {
@@ -403,7 +441,7 @@ export default function TipsPage() {
     [tips]
   );
 
-  /** Pills – einheitliche Größe */
+  /** Pills – einheitliche Größe (unverändert) */
   const renderPills = (vals: number[], color: "primary" | "success") => {
     if (!vals?.length) return <span className="value numbers">—</span>;
     const PILL_SIZE = 32;
@@ -440,6 +478,79 @@ export default function TipsPage() {
     );
   };
 
+  /** Pills mit optionalem Match-Badge (gegen letzte Ziehung) */
+  const renderPillsMatched = (
+    vals: number[],
+    color: "primary" | "success",
+    matchSet?: Set<number>
+  ) => {
+    if (!vals?.length) return <span className="value numbers">—</span>;
+    const PILL_SIZE = 32;
+    return (
+      <Box className="pill-row">
+        {vals.map((n) => {
+          const isMatch = !!matchSet && matchSet.has(n);
+          const chip = (
+            <Chip
+              key={`${color}-${n}`}
+              label={n}
+              size="small"
+              sx={{
+                height: PILL_SIZE,
+                width: PILL_SIZE,
+                borderRadius: 9999,
+                fontWeight: 700,
+                fontVariantNumeric: "tabular-nums",
+                bgcolor: `${color}.main`,
+                color: `${color}.contrastText`,
+                p: 0,
+                "& .MuiChip-label": {
+                  width: "100%",
+                  px: 0,
+                  lineHeight: 1,
+                  textAlign: "center",
+                },
+                boxShadow:
+                  theme.palette.mode === "dark"
+                    ? "0 1px 2px rgba(0,0,0,.6)"
+                    : "0 1px 2px rgba(0,0,0,.15)",
+              }}
+            />
+          );
+          return isMatch ? (
+            <Badge
+              key={`${color}-match-${n}`}
+              overlap="circular"
+              variant="dot"
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              sx={{
+                "& .MuiBadge-badge": {
+                  // größer & kontrastreich grün
+                  bgcolor: BADGE_GREEN,
+                  color: BADGE_GREEN,
+                  width: 14,
+                  height: 14,
+                  minWidth: 14,
+                  borderRadius: "50%",
+                  border: "2px solid #fff",
+                  boxShadow:
+                    theme.palette.mode === "dark"
+                      ? "0 0 0 1px rgba(0,0,0,.6)"
+                      : "0 0 0 1px rgba(0,0,0,.15)",
+                },
+              }}
+              title="Treffer"
+            >
+              {chip}
+            </Badge>
+          ) : (
+            chip
+          );
+        })}
+      </Box>
+    );
+  };
+
   return (
     <div className="tips-page">
       <div className="page-header">
@@ -469,6 +580,44 @@ export default function TipsPage() {
         }}
       >
         <Toolbar disableGutters sx={{ gap: 1, flexWrap: "wrap" }}>
+          {/* Letzte Ziehung – Datum + Zahlen (ohne Badges) */}
+          {lastDraw && (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.25,
+                flexWrap: "wrap",
+                pr: 1,
+                mr: 1,
+                borderRight: (t) => `1px solid ${t.palette.divider}`,
+              }}
+            >
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mr: 0.5 }}
+              >
+                Letzte Ziehung: {lastDraw.datum} ({resolveDay(lastDraw.tag)})
+              </Typography>
+              <span className="value numbers">
+                {renderPills(
+                  [
+                    lastDraw.nummer1,
+                    lastDraw.nummer2,
+                    lastDraw.nummer3,
+                    lastDraw.nummer4,
+                    lastDraw.nummer5,
+                  ],
+                  "primary"
+                )}
+              </span>
+              <span className="value numbers">
+                {renderPills([lastDraw.zz1, lastDraw.zz2], "success")}
+              </span>
+            </Box>
+          )}
+
           <Button
             variant="contained"
             color="primary"
@@ -555,13 +704,13 @@ export default function TipsPage() {
               <Box className="row">
                 <span className="label">Gewinnzahlen</span>
                 <span className="value numbers">
-                  {renderPills(tip.numbers, "primary")}
+                  {renderPillsMatched(tip.numbers, "primary", lastMainSet)}
                 </span>
               </Box>
               <Box className="row">
                 <span className="label">Eurozahlen</span>
                 <span className="value numbers">
-                  {renderPills(tip.euroNumbers, "success")}
+                  {renderPillsMatched(tip.euroNumbers, "success", lastEuroSet)}
                 </span>
               </Box>
             </CardContent>
