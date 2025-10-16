@@ -28,6 +28,7 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
+import CheckIcon from "@mui/icons-material/Check"; // NEW
 
 import "./Tips.css";
 import TicketModal from "../_app-components/ticket/TicketModal";
@@ -478,7 +479,7 @@ export default function TipsPage() {
     );
   };
 
-  /** Pills mit optionalem Match-Badge (gegen letzte Ziehung) */
+  /** Pills mit optionalem Match-Badge (gegen letzte Ziehung) – mit Checkmark */
   const renderPillsMatched = (
     vals: number[],
     color: "primary" | "success",
@@ -486,6 +487,7 @@ export default function TipsPage() {
   ) => {
     if (!vals?.length) return <span className="value numbers">—</span>;
     const PILL_SIZE = 32;
+    const BADGE_SIZE = 18; // größer als vorher
     return (
       <Box className="pill-row">
         {vals.map((n) => {
@@ -521,18 +523,27 @@ export default function TipsPage() {
             <Badge
               key={`${color}-match-${n}`}
               overlap="circular"
-              variant="dot"
               anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              badgeContent={
+                <CheckIcon
+                  sx={{
+                    color: "#fff",
+                    fontSize: BADGE_SIZE * 0.7, // gut lesbar
+                    lineHeight: 1,
+                  }}
+                />
+              }
               sx={{
                 "& .MuiBadge-badge": {
-                  // größer & kontrastreich grün
                   bgcolor: BADGE_GREEN,
-                  color: BADGE_GREEN,
-                  width: 14,
-                  height: 14,
-                  minWidth: 14,
+                  width: BADGE_SIZE,
+                  height: BADGE_SIZE,
+                  minWidth: BADGE_SIZE,
                   borderRadius: "50%",
-                  border: "2px solid #fff",
+                  border: "2px solid #fff", // Abhebung auf farbigen Chips
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                   boxShadow:
                     theme.palette.mode === "dark"
                       ? "0 0 0 1px rgba(0,0,0,.6)"
