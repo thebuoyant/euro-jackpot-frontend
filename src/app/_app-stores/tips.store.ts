@@ -50,7 +50,7 @@ type State = {
 
 export const useTipsStore = create<State>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       tips: Array.from({ length: MAX_TIPS }, (_, i) => emptyTip(i + 1)),
       setTip: (id, next) => {
         set((s) => {

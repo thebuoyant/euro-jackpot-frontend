@@ -22,6 +22,9 @@ import TipsToolbar from "../_app-components/tips/TipsToolbar";
 
 import { useTipsStore, Tip, MAX_TIPS } from "../_app-stores/tips.store";
 
+// ✅ Statt require: normaler Import
+import { handleGetLastDrawData } from "../_app-handlers/handleGetLastDrawData";
+
 // --- strikte Validierung (wie vorher, leicht gekürzt für Import)
 const N_MAIN = 5,
   N_EURO = 2,
@@ -115,7 +118,7 @@ function validateTipStrict(
 }
 
 export default function TipsPage() {
-  const { tips, setTip, randomizeTip, resetTip, replaceAll } = useTipsStore();
+  const { tips, randomizeTip, resetTip, replaceAll } = useTipsStore();
   const [openModalFor, setOpenModalFor] = useState<number | null>(null);
 
   // Snackbar & Import-Fehlerdialog
@@ -140,12 +143,9 @@ export default function TipsPage() {
     [tips]
   );
 
-  // letzte Ziehung Sets (für Matches)
+  // ✅ letzte Ziehung Sets (für Matches) – ohne unnötige Abhängigkeiten
   const { lastMainSet, lastEuroSet } = useMemo(() => {
     try {
-      const {
-        handleGetLastDrawData,
-      } = require("../_app-handlers/handleGetLastDrawData");
       const d = handleGetLastDrawData();
       return {
         lastMainSet: new Set([
@@ -160,7 +160,7 @@ export default function TipsPage() {
     } catch {
       return { lastMainSet: new Set<number>(), lastEuroSet: new Set<number>() };
     }
-  }, [tips]); // Recompute ist billig, ändert sich selten
+  }, []); // ← leere Dep-Liste
 
   // Download -> zeige Snackbar (oben/zentriert)
   const handleDownload = () => {
@@ -284,7 +284,7 @@ export default function TipsPage() {
         onUploadFile={handleUploadFile}
       />
 
-      {/* Scrollbarer Bereich für die Karten (Fix) */}
+      {/* Scrollbarer Bereich für die Karten */}
       <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 0.5 }}>
         <Box className="tips-grid">
           {tips.map((tip) => (
