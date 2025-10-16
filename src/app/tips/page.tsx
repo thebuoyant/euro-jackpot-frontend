@@ -13,11 +13,14 @@ import {
   Button,
   Typography,
 } from "@mui/material";
+
 import "./Tips.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
+
 import TipCard from "../_app-components/tips/TipCard";
 import TipsToolbar from "../_app-components/tips/TipsToolbar";
-import { useTipsStore, Tip, MAX_TIPS, LS_KEY } from "../_app-stores/tips.store";
+
+import { useTipsStore, Tip, MAX_TIPS } from "../_app-stores/tips.store";
 
 // --- strikte Validierung (wie vorher, leicht gekürzt für Import)
 const N_MAIN = 5,
@@ -26,6 +29,7 @@ const N_MAIN = 5,
   MAIN_MAX = 50,
   EURO_MIN = 1,
   EURO_MAX = 12;
+
 function validateNumberArrayStrict(
   arr: unknown,
   min: number,
@@ -58,6 +62,7 @@ function validateNumberArrayStrict(
   uniq.sort((a, b) => a - b);
   return uniq;
 }
+
 function validateTipStrict(
   row: unknown,
   idx: number,
@@ -122,7 +127,10 @@ export default function TipsPage() {
   const [errorDialog, setErrorDialog] = useState<{
     open: boolean;
     lines: string[];
-  }>({ open: false, lines: [] });
+  }>({
+    open: false,
+    lines: [],
+  });
 
   const haveAnyTip = useMemo(
     () =>
@@ -152,7 +160,7 @@ export default function TipsPage() {
     } catch {
       return { lastMainSet: new Set<number>(), lastEuroSet: new Set<number>() };
     }
-  }, [tips]); // ändert sich selten; Recompute ist billig
+  }, [tips]); // Recompute ist billig, ändert sich selten
 
   // Download
   const handleDownload = () => {
@@ -179,9 +187,11 @@ export default function TipsPage() {
         const json: unknown = JSON.parse(text);
         if (!Array.isArray(json))
           throw new Error("Die JSON-Datei enthält kein Array.");
+
         const errs: string[] = [];
         const seen = new Set<number>();
         const valid: Tip[] = [];
+
         (json as unknown[]).slice(0, MAX_TIPS).forEach((row, idx) => {
           const before = errs.length;
           const v = validateTipStrict(row, idx, seen, errs);
@@ -189,6 +199,7 @@ export default function TipsPage() {
           else if (errs.length === before)
             errs.push(`Eintrag #${idx + 1}: unbekannter Fehler.`);
         });
+
         const baseline: Tip[] = Array.from({ length: MAX_TIPS }, (_, i) => ({
           id: i + 1,
           numbers: [],
@@ -202,6 +213,7 @@ export default function TipsPage() {
             accepted++;
           }
         }
+
         if (accepted === 0) {
           setSnack({
             open: true,
@@ -211,7 +223,9 @@ export default function TipsPage() {
           if (errs.length) setErrorDialog({ open: true, lines: errs });
           return;
         }
+
         replaceAll(merged);
+
         if (errs.length) {
           setErrorDialog({ open: true, lines: errs });
           setSnack({
@@ -238,7 +252,15 @@ export default function TipsPage() {
   };
 
   return (
-    <div className="tips-page">
+    <Box
+      className="tips-page"
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        minHeight: 0,
+      }}
+    >
       <div className="page-header">
         <Typography variant="h6">
           {APP_TYPO_CONST?.pages?.tips?.headerTitle ?? "Meine Tipps"}
@@ -249,31 +271,36 @@ export default function TipsPage() {
         </Typography>
       </div>
 
+      {/* Toolbar */}
       <TipsToolbar
         haveAnyTip={haveAnyTip}
         onDownload={handleDownload}
         onUploadFile={handleUploadFile}
       />
 
-      <Box className="tips-grid">
-        {tips.map((tip) => (
-          <TipCard
-            key={tip.id}
-            tip={tip}
-            openModalFor={openModalFor}
-            onOpenTicket={(id) => setOpenModalFor(id)}
-            onCloseTicket={() => setOpenModalFor(null)}
-            onRandom={(id) => randomizeTip(id)}
-            onReset={(id) => resetTip(id)}
-            onModalChange={(id, next) =>
-              useTipsStore.getState().setTip(id, next)
-            }
-            lastMainSet={lastMainSet}
-            lastEuroSet={lastEuroSet}
-          />
-        ))}
+      {/* Scrollbarer Bereich für die Karten (Fix) */}
+      <Box sx={{ flex: 1, minHeight: 0, overflowY: "auto", pr: 0.5 }}>
+        <Box className="tips-grid">
+          {tips.map((tip) => (
+            <TipCard
+              key={tip.id}
+              tip={tip}
+              openModalFor={openModalFor}
+              onOpenTicket={(id) => setOpenModalFor(id)}
+              onCloseTicket={() => setOpenModalFor(null)}
+              onRandom={(id) => randomizeTip(id)}
+              onReset={(id) => resetTip(id)}
+              onModalChange={(id, next) =>
+                useTipsStore.getState().setTip(id, next)
+              }
+              lastMainSet={lastMainSet}
+              lastEuroSet={lastEuroSet}
+            />
+          ))}
+        </Box>
       </Box>
 
+      {/* Snackbar */}
       <Snackbar
         open={snack.open}
         autoHideDuration={4000}
@@ -290,6 +317,7 @@ export default function TipsPage() {
         </Alert>
       </Snackbar>
 
+      {/* Fehler-Detaildialog (nur bei Upload) */}
       <Dialog
         open={errorDialog.open}
         onClose={() => setErrorDialog({ open: false, lines: [] })}
@@ -318,6 +346,6 @@ export default function TipsPage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 }
