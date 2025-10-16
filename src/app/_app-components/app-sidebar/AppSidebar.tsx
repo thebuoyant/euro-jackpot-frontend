@@ -36,6 +36,10 @@ export default function AppSidebar() {
     router.push(APP_ROUTE_CONST.prizeClasses, { scroll: true });
   };
 
+  const handleNavigationToTips = () => {
+    router.push(APP_ROUTE_CONST.tips, { scroll: true });
+  };
+
   return (
     <div className="app-sidebar">
       <div className="app-sidebar-content">
@@ -80,6 +84,12 @@ export default function AppSidebar() {
           iconType="quota"
           isActive={pathname === APP_ROUTE_CONST.classNumbers}
           onClick={handleNavigationToClassNumbers}
+        />
+        <NavigationItem
+          title={APP_TYPO_CONST.sidebar.navItemTips}
+          iconType="tips"
+          isActive={pathname === APP_ROUTE_CONST.tips}
+          onClick={handleNavigationToTips}
         />
       </div>
     </div>

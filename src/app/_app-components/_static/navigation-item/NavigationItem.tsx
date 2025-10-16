@@ -9,12 +9,13 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import TableRowsIcon from "@mui/icons-material/TableRows";
 import AreaChartIcon from "@mui/icons-material/AreaChart";
+import Filter1Icon from "@mui/icons-material/Filter1";
 
 type NavigationItemProps = {
   height?: number;
   backgoundColor?: string;
   iconColor?: string;
-  iconType?: "dashboard" | "archive" | "winning-numbers" | "quota";
+  iconType?: "dashboard" | "archive" | "winning-numbers" | "quota" | "tips";
   isActive?: boolean;
   title?: string;
   titleColor?: string;
@@ -62,6 +63,13 @@ export default function NavigationItem({
       case "quota":
         return (
           <AreaChartIcon
+            fontSize="medium"
+            sx={{ color: isActive ? "#123456" : iconColor }}
+          />
+        );
+      case "tips":
+        return (
+          <Filter1Icon
             fontSize="medium"
             sx={{ color: isActive ? "#123456" : iconColor }}
           />
