@@ -1,11 +1,10 @@
 # EuroJackpotFrontend (EJF)
 
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=nextdotjs)
-![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
-![MUI](https://img.shields.io/badge/MUI-5-007FFF?style=flat-square&logo=mui)
+![MUI](https://img.shields.io/badge/MUI-7-007FFF?style=flat-square&logo=mui)
 ![Zustand](https://img.shields.io/badge/State-Zustand-ffb703?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ---
 
