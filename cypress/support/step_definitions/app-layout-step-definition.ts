@@ -1,4 +1,4 @@
-import { Then, Given } from "@badeball/cypress-cucumber-preprocessor";
+import { Given } from "@badeball/cypress-cucumber-preprocessor";
 import { E2E } from "../../e2e/constants";
 
 beforeEach(() => {
@@ -11,6 +11,12 @@ Given("I can see an app header content", () => {
 
 Given("I can see an app sidebar content", () => {
   cy.get(".layout-content-sidebar > .app-sidebar")
+    .should("have.length", 1)
+    .should("be.visible");
+});
+
+Given("I can see an app main content", () => {
+  cy.get(".layout-content-main > .home-page")
     .should("have.length", 1)
     .should("be.visible");
 });
