@@ -2,30 +2,33 @@
 
 import { handleComputePopularityNumbers } from "./handleComputePopularity";
 import { handleGetNumberGaps } from "./handleGetNumberGaps";
-// JSON-Daten – Pfad ggf. anpassen. Voraussetzung: tsconfig -> "resolveJsonModule": true
+// ⚠️ Pfad ggf. anpassen. Voraussetzung: tsconfig -> "resolveJsonModule": true
 import draws from "../_app-data/data.json" assert { type: "json" };
 
 /**
- * Kriterien:
+ * Bewertungs-Kriterien:
  * 1) Top-5 Gewinnzahlen (gesamt)
  * 2) Top-Dekade (häufigste 10er-Gruppe)
  * 3) Top Hoch/Tief (dominante Hälfte 1–25 oder 26–50)
  * 4) Top-5 überfällige Zahlen (größte Gaps)
- * 5) Top-5 beliebte Zahlen (derzeit Alias zu 1 – separater Tag/Farbe)
+ * 5) Top-5 beliebte Zahlen (aktuell Alias zu 1 – separater Tag)
  * 6) Top-5 Gewinnzahlen innerhalb der Klassen 1–3 (aus data.json ermittelt)
+ *
+ * Ampel-Balkenfarbe = ausschließlich abhängig von Score (0..6)
+ *   0: rot  →  1: orange-rot  →  2: orange  →  3: gelb
+ *   4: gelbgrün  →  5: grün  →  6: tiefgrün
  */
 
 export type NumberHit = {
   key: string;
   label: string;
-  color: string; // Hex
 };
 
 export type NumberScore = {
   n: number;
   score: number; // 0..6
-  hits: NumberHit[]; // getroffene Kriterien
-  barColor: string; // gemischte/abgeleitete Farbe für den Status-Balken
+  hits: NumberHit[];
+  barColor: string; // Ampel-Farbe aus Score
 };
 
 export type ScoringData = {
@@ -37,16 +40,15 @@ export type ScoringData = {
   top5TopClasses123: Set<number>;
 };
 
-// Basisfarben je Kriterium (bewusst kontrastreich)
-const COLOR = {
-  topOverall: "#1976d2", // Blau (MUI primary)
-  topDecade: "#6d28d9", // Violett
-  topHalf: "#009688", // Türkis
-  overdue: "#ef6c00", // Orange
-  popular: "#2e7d32", // Grün (dunkler als Eurozahlen-Grün)
-  topClass: "#b32800", // Rotbraun (Klasse 1–3)
-  bad: "#c62828", // Schlecht (0 Treffer)
-  best: "#2e7d32", // Top (6 Treffer) – sattes Grün
+// ---------- Farbskala (Ampel)
+const SCORE_COLOR: Record<number, string> = {
+  0: "#c62828", // deep red
+  1: "#ef6c00", // orange-800
+  2: "#fb8c00", // orange-600
+  3: "#fbc02d", // amber-700 (gelb)
+  4: "#c0ca33", // lime-600 (gelbgrün)
+  5: "#43a047", // green-600
+  6: "#2e7d32", // green-800 (tiefgrün)
 };
 
 // ---------- Helpers
@@ -143,55 +145,16 @@ function computeTop5Classes123FromData(): Set<number> {
   return new Set(topNFromCountMap(acc, 5));
 }
 
-/** Hex -> {r,g,b} */
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  if (!m) return null;
-  return {
-    r: parseInt(m[1], 16),
-    g: parseInt(m[2], 16),
-    b: parseInt(m[3], 16),
-  };
-}
-/** {r,g,b} -> Hex */
-function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
-  const h = (n: number) =>
-    Math.max(0, Math.min(255, Math.round(n)))
-      .toString(16)
-      .padStart(2, "0");
-  return `#${h(r)}${h(g)}${h(b)}`;
-}
-
-/** mischt mehrere Hex-Farben (einfaches RGB-Mittel) */
-function mixColors(hexColors: string[]): string {
-  if (!hexColors.length) return COLOR.bad;
-  let R = 0,
-    G = 0,
-    B = 0;
-  let k = 0;
-  for (const h of hexColors) {
-    const rgb = hexToRgb(h);
-    if (!rgb) continue;
-    R += rgb.r;
-    G += rgb.g;
-    B += rgb.b;
-    k++;
-  }
-  if (k === 0) return COLOR.bad;
-  return rgbToHex({ r: R / k, g: G / k, b: B / k });
-}
-
-/** Score (0..6) -> Balkenfarbe; 0 = rot, 6 = best; dazwischen Mischung der getroffenen Kriterien */
-function deriveBarColor(hits: NumberHit[]): string {
-  const score = hits.length;
-  if (score <= 0) return COLOR.bad;
-  if (score >= 6) return COLOR.best;
-  // Farbmischung aus den tatsächlich getroffenen Kriterien
-  const mixed = mixColors(hits.map((h) => h.color));
-  return mixed;
-}
-
 // ---------- Kernaufbau
+
+export type CriteriaSets = {
+  overall: Set<number>;
+  decade: Set<number>;
+  halfHigh: boolean; // true = High dominiert
+  overdue: Set<number>;
+  popular: Set<number>;
+  topClass123: Set<number>;
+};
 
 export function buildNumberScoringData(): ScoringData {
   // Popularität gesamt
@@ -229,7 +192,7 @@ export function buildNumberScoringData(): ScoringData {
       .map((r) => r.n)
   );
 
-  // 5) Beliebte Zahlen – aktuell alias zu overall (eigene Farbe)
+  // 5) Beliebt (alias overall, separater Tag)
   const top5Popular = new Set<number>(top5OverallArr);
 
   // 6) Top-5 aus Klassen 1–3
@@ -250,18 +213,10 @@ export function scoreMainNumber(n: number, data: ScoringData): NumberScore {
   const hits: NumberHit[] = [];
 
   if (data.top5Overall.has(n)) {
-    hits.push({
-      key: "top5Overall",
-      label: "Top-5 Gewinnzahlen (gesamt)",
-      color: COLOR.topOverall,
-    });
+    hits.push({ key: "top5Overall", label: "Top-5 Gewinnzahlen (gesamt)" });
   }
   if (data.topDecade.has(n)) {
-    hits.push({
-      key: "topDecade",
-      label: "Top-Dekade",
-      color: COLOR.topDecade,
-    });
+    hits.push({ key: "topDecade", label: "Top-Dekade" });
   }
   const inHigh = n >= 26;
   if (
@@ -271,31 +226,20 @@ export function scoreMainNumber(n: number, data: ScoringData): NumberScore {
     hits.push({
       key: "topHalf",
       label: data.topHalf === "high" ? "Top Hoch-Zahlen" : "Top Tief-Zahlen",
-      color: COLOR.topHalf,
     });
   }
   if (data.top5Overdue.has(n)) {
-    hits.push({
-      key: "overdue",
-      label: "Top-5 überfällig",
-      color: COLOR.overdue,
-    });
+    hits.push({ key: "overdue", label: "Top-5 überfällig" });
   }
   if (data.top5Popular.has(n)) {
-    hits.push({
-      key: "popular",
-      label: "Top-5 beliebte Zahlen",
-      color: COLOR.popular,
-    });
+    hits.push({ key: "popular", label: "Top-5 beliebte Zahlen" });
   }
   if (data.top5TopClasses123.has(n)) {
-    hits.push({
-      key: "topClass123",
-      label: "Top-5 (Klassen 1–3)",
-      color: COLOR.topClass,
-    });
+    hits.push({ key: "topClass123", label: "Top-5 (Klassen 1–3)" });
   }
 
-  const barColor = deriveBarColor(hits);
-  return { n, score: hits.length, hits, barColor };
+  const score = hits.length;
+  const barColor = SCORE_COLOR[Math.max(0, Math.min(6, score))];
+
+  return { n, score, hits, barColor };
 }

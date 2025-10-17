@@ -14,6 +14,7 @@ import {
 import CasinoIcon from "@mui/icons-material/Casino";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
+import CheckIcon from "@mui/icons-material/Check";
 
 import TicketModal from "../ticket/TicketModal";
 import {
@@ -58,8 +59,12 @@ export default function TipCard({
   // Scoring-Daten (einmal pro Mount)
   const scoringData = React.useMemo(() => buildNumberScoringData(), []);
 
-  // Rendert Chip + Ampel-Balken (eine Farbe, abhängig vom Score 0..6)
-  const renderScoredPill = (n: number, chip: React.ReactNode) => {
+  // Chip + Ampel-Balken (eine Farbe) + Match-Badge
+  const renderScoredPill = (
+    n: number,
+    isMatch: boolean,
+    chipColor: "primary" | "success"
+  ) => {
     const s = scoreMainNumber(n, scoringData);
     const tooltipTitle = (
       <Box sx={{ fontSize: 12, lineHeight: 1.3 }}>
@@ -80,9 +85,37 @@ export default function TipCard({
       </Box>
     );
 
+    // Chip
+    const chip = (
+      <Chip
+        label={n}
+        size="small"
+        sx={{
+          height: PILL_SIZE,
+          width: PILL_SIZE,
+          borderRadius: 9999,
+          fontWeight: 700,
+          fontVariantNumeric: "tabular-nums",
+          bgcolor: `${chipColor}.main`,
+          color: `${chipColor}.contrastText`,
+          p: 0,
+          "& .MuiChip-label": {
+            width: "100%",
+            px: 0,
+            lineHeight: 1,
+            textAlign: "center",
+          },
+          boxShadow: (t) =>
+            t.palette.mode === "dark"
+              ? "0 1px 2px rgba(0,0,0,.6)"
+              : "0 1px 2px rgba(0,0,0,.15)",
+        }}
+      />
+    );
+
     return (
       <Box
-        key={`pill-${n}`}
+        key={`pill-${chipColor}-${n}`}
         sx={{
           display: "inline-flex",
           flexDirection: "column",
@@ -91,10 +124,36 @@ export default function TipCard({
         }}
       >
         <Tooltip title={tooltipTitle} arrow>
-          <Box>{chip}</Box>
+          <Box sx={{ position: "relative" }}>
+            {chip}
+
+            {/* Match-Badge: weißes Checkmark auf kräftigem Grün */}
+            {isMatch && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: -6,
+                  right: -6,
+                  width: 18,
+                  height: 18,
+                  borderRadius: "50%",
+                  bgcolor: "success.main",
+                  color: "common.white",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow:
+                    "0 0 0 2px rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,.25)",
+                }}
+                aria-label="Treffer mit letzter Ziehung"
+              >
+                <CheckIcon sx={{ fontSize: 14 }} />
+              </Box>
+            )}
+          </Box>
         </Tooltip>
 
-        {/* Ampel-Status-Balken (eine Farbe) */}
+        {/* Ampel-Status-Balken (eine Farbe je Score) */}
         <Box
           sx={{
             mt: 0.5,
@@ -114,51 +173,64 @@ export default function TipCard({
   };
 
   const renderNumberChip = (n: number, color: "primary" | "success") => {
-    // dein bestehendes Treffer-Matching (letzte Ziehung)
     const isMatch =
       (color === "primary" && lastMainSet.has(n)) ||
       (color === "success" && lastEuroSet.has(n));
 
-    // hier könntest du weiterhin dein grünes Checkmark-Badge um den Chip legen
-    const chip = (
-      <Chip
-        key={`${color}-${n}`}
-        label={n}
-        size="small"
-        sx={{
-          height: PILL_SIZE,
-          width: PILL_SIZE,
-          borderRadius: 9999,
-          fontWeight: 700,
-          fontVariantNumeric: "tabular-nums",
-          bgcolor: `${color}.main`,
-          color: `${color}.contrastText`,
-          p: 0,
-          "& .MuiChip-label": {
-            width: "100%",
-            px: 0,
-            lineHeight: 1,
-            textAlign: "center",
-          },
-          boxShadow: (t) =>
-            t.palette.mode === "dark"
-              ? "0 1px 2px rgba(0,0,0,.6)"
-              : "0 1px 2px rgba(0,0,0,.15)",
-          // optional: leichtes Glühen, wenn Treffer gg. letzte Ziehung
-          outline: isMatch ? "2px solid rgba(46,125,50,.55)" : "none",
-        }}
-      />
-    );
-
-    // Hauptzahlen → mit Ampel-Balken
+    // Hauptzahlen → mit Ampel-Balken + Badge
     if (color === "primary") {
-      return renderScoredPill(n, chip);
+      return renderScoredPill(n, isMatch, "primary");
     }
 
-    // Eurozahlen → nur Chip (ohne Ampel)
+    // Eurozahlen → kein Ampel-Balken, aber Match-Badge anzeigen
     return (
-      <Box key={`euro-${n}`} sx={{ mx: 0.25 }}>
-        {chip}
+      <Box key={`euro-${n}`} sx={{ position: "relative", mx: 0.25 }}>
+        <Chip
+          label={n}
+          size="small"
+          sx={{
+            height: PILL_SIZE,
+            width: PILL_SIZE,
+            borderRadius: 9999,
+            fontWeight: 700,
+            fontVariantNumeric: "tabular-nums",
+            bgcolor: `success.main`,
+            color: `success.contrastText`,
+            p: 0,
+            "& .MuiChip-label": {
+              width: "100%",
+              px: 0,
+              lineHeight: 1,
+              textAlign: "center",
+            },
+            boxShadow: (t) =>
+              t.palette.mode === "dark"
+                ? "0 1px 2px rgba(0,0,0,.6)"
+                : "0 1px 2px rgba(0,0,0,.15)",
+          }}
+        />
+        {isMatch && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: -6,
+              right: -6,
+              width: 18,
+              height: 18,
+              borderRadius: "50%",
+              bgcolor: "success.main",
+              color: "common.white",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow:
+                "0 0 0 2px rgba(255,255,255,0.85), 0 2px 6px rgba(0,0,0,.25)",
+            }}
+            aria-label="Treffer mit letzter Ziehung"
+          >
+            <CheckIcon sx={{ fontSize: 14 }} />
+          </Box>
+        )}
       </Box>
     );
   };
@@ -215,7 +287,7 @@ export default function TipCard({
 
         <Divider sx={{ my: 1.5 }} />
 
-        {/* Hauptzahlen (mit Ampel-Balken) */}
+        {/* Hauptzahlen (mit Ampel-Balken + Badge) */}
         <Box className="row">
           <span className="label">Gewinnzahlen</span>
           <span className="value numbers">
@@ -229,7 +301,7 @@ export default function TipCard({
           </span>
         </Box>
 
-        {/* Eurozahlen (ohne Ampel-Balken) */}
+        {/* Eurozahlen (nur Badge) */}
         <Box className="row">
           <span className="label">Eurozahlen</span>
           <span className="value numbers">
