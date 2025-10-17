@@ -2,32 +2,30 @@
 
 import { handleComputePopularityNumbers } from "./handleComputePopularity";
 import { handleGetNumberGaps } from "./handleGetNumberGaps";
-// ⚠️ Passe den Pfad ggf. an. Erwartet: resolveJsonModule = true
+// JSON-Daten – Pfad ggf. anpassen. Voraussetzung: tsconfig -> "resolveJsonModule": true
 import draws from "../_app-data/data.json" assert { type: "json" };
 
 /**
- * Bewertet Tippzahlen anhand mehrerer Kriterien und liefert
- * kompakte Score-Strukturen samt Farbindikatoren.
- *
  * Kriterien:
  * 1) Top-5 Gewinnzahlen (gesamt)
- * 2) Top-Dekade (häufigste 10er-Gruppe, z. B. 11–20)
+ * 2) Top-Dekade (häufigste 10er-Gruppe)
  * 3) Top Hoch/Tief (dominante Hälfte 1–25 oder 26–50)
- * 4) Top-5 überfällige Zahlen (längste „Gaps“)
- * 5) Top-5 beliebte Zahlen (aktuell Alias zu 1, separater Tag/Farbe)
+ * 4) Top-5 überfällige Zahlen (größte Gaps)
+ * 5) Top-5 beliebte Zahlen (derzeit Alias zu 1 – separater Tag/Farbe)
  * 6) Top-5 Gewinnzahlen innerhalb der Klassen 1–3 (aus data.json ermittelt)
  */
 
 export type NumberHit = {
   key: string;
   label: string;
-  color: string; // MUI-kompatibel oder Hex
+  color: string; // Hex
 };
 
 export type NumberScore = {
   n: number;
-  score: number;
-  hits: NumberHit[];
+  score: number; // 0..6
+  hits: NumberHit[]; // getroffene Kriterien
+  barColor: string; // gemischte/abgeleitete Farbe für den Status-Balken
 };
 
 export type ScoringData = {
@@ -39,13 +37,16 @@ export type ScoringData = {
   top5TopClasses123: Set<number>;
 };
 
+// Basisfarben je Kriterium (bewusst kontrastreich)
 const COLOR = {
-  topOverall: "#1976d2", // primary.main
-  topDecade: "#6d28d9", // violet
-  topHalf: "#009688", // teal
-  overdue: "#ef6c00", // orange
-  popular: "#2e7d32", // green (anders als Eurozahlen-Grün gewählt)
-  topClass: "#b32800", // deep red für Klassen 1–3
+  topOverall: "#1976d2", // Blau (MUI primary)
+  topDecade: "#6d28d9", // Violett
+  topHalf: "#009688", // Türkis
+  overdue: "#ef6c00", // Orange
+  popular: "#2e7d32", // Grün (dunkler als Eurozahlen-Grün)
+  topClass: "#b32800", // Rotbraun (Klasse 1–3)
+  bad: "#c62828", // Schlecht (0 Treffer)
+  best: "#2e7d32", // Top (6 Treffer) – sattes Grün
 };
 
 // ---------- Helpers
@@ -62,7 +63,7 @@ function decadeStart(n: number) {
   return d * 10 + 1; // 1,11,21,31,41
 }
 
-/** Aus beliebigen Popularitäts-Rückgaben eine Map<number,count> bauen */
+/** Popularität -> Map<number,count> */
 function normalizePopularity(pop: unknown): Map<number, number> {
   const countMap = new Map<number, number>();
   if (Array.isArray(pop)) {
@@ -87,7 +88,7 @@ function normalizePopularity(pop: unknown): Map<number, number> {
   return countMap;
 }
 
-/** Gaps normalisieren → Array<{ n, gap }> */
+/** Gaps -> Array<{ n, gap }> */
 function normalizeGaps(gaps: unknown): Array<{ n: number; gap: number }> {
   const out: Array<{ n: number; gap: number }> = [];
   if (Array.isArray(gaps)) {
@@ -110,7 +111,7 @@ function normalizeGaps(gaps: unknown): Array<{ n: number; gap: number }> {
   return out;
 }
 
-/** prüft heuristisch, ob in Klasse I–III Gewinner vorhanden waren (row-Objekt) */
+/** Klasse I–III Gewinner? (heuristisch) */
 function hadTopClassWinner(row: Record<string, unknown>): boolean {
   const keys = Object.keys(row);
   const has = (idx: 1 | 2 | 3, roman: "i" | "ii" | "iii") =>
@@ -124,31 +125,76 @@ function hadTopClassWinner(row: Record<string, unknown>): boolean {
         Number(row[k]) > 0
       );
     });
-
   return has(1, "i") || has(2, "ii") || has(3, "iii");
 }
 
-/** Top-5 (Klassen 1–3) aus data.json ermitteln */
+/** Top-5 Klasse 1–3 aus data.json */
 function computeTop5Classes123FromData(): Set<number> {
   const acc = new Map<number, number>();
   const arr = Array.isArray(draws) ? (draws as any[]) : [];
   for (const row of arr) {
     const o = row as Record<string, unknown>;
     if (!hadTopClassWinner(o)) continue;
-
     const nums = [o.nummer1, o.nummer2, o.nummer3, o.nummer4, o.nummer5]
       .map((v) => Number(v))
       .filter((v) => Number.isInteger(v) && v >= 1 && v <= 50);
-
     for (const n of nums) acc.set(n, (acc.get(n) ?? 0) + 1);
   }
   return new Set(topNFromCountMap(acc, 5));
 }
 
+/** Hex -> {r,g,b} */
+function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!m) return null;
+  return {
+    r: parseInt(m[1], 16),
+    g: parseInt(m[2], 16),
+    b: parseInt(m[3], 16),
+  };
+}
+/** {r,g,b} -> Hex */
+function rgbToHex({ r, g, b }: { r: number; g: number; b: number }): string {
+  const h = (n: number) =>
+    Math.max(0, Math.min(255, Math.round(n)))
+      .toString(16)
+      .padStart(2, "0");
+  return `#${h(r)}${h(g)}${h(b)}`;
+}
+
+/** mischt mehrere Hex-Farben (einfaches RGB-Mittel) */
+function mixColors(hexColors: string[]): string {
+  if (!hexColors.length) return COLOR.bad;
+  let R = 0,
+    G = 0,
+    B = 0;
+  let k = 0;
+  for (const h of hexColors) {
+    const rgb = hexToRgb(h);
+    if (!rgb) continue;
+    R += rgb.r;
+    G += rgb.g;
+    B += rgb.b;
+    k++;
+  }
+  if (k === 0) return COLOR.bad;
+  return rgbToHex({ r: R / k, g: G / k, b: B / k });
+}
+
+/** Score (0..6) -> Balkenfarbe; 0 = rot, 6 = best; dazwischen Mischung der getroffenen Kriterien */
+function deriveBarColor(hits: NumberHit[]): string {
+  const score = hits.length;
+  if (score <= 0) return COLOR.bad;
+  if (score >= 6) return COLOR.best;
+  // Farbmischung aus den tatsächlich getroffenen Kriterien
+  const mixed = mixColors(hits.map((h) => h.color));
+  return mixed;
+}
+
 // ---------- Kernaufbau
 
 export function buildNumberScoringData(): ScoringData {
-  // 1) Popularität (gesamt)
+  // Popularität gesamt
   const countMap = normalizePopularity(handleComputePopularityNumbers());
 
   // 1) Top-5 gesamt
@@ -174,7 +220,7 @@ export function buildNumberScoringData(): ScoringData {
   for (let n = 26; n <= 50; n++) highSum += countMap.get(n) ?? 0;
   const topHalf: "low" | "high" = highSum >= lowSum ? "high" : "low";
 
-  // 4) Überfällige Zahlen Top-5
+  // 4) Top-5 überfällig
   const gaps = normalizeGaps(handleGetNumberGaps());
   const top5Overdue = new Set<number>(
     gaps
@@ -183,10 +229,10 @@ export function buildNumberScoringData(): ScoringData {
       .map((r) => r.n)
   );
 
-  // 5) „Beliebte Zahlen“ (eigene Farbe; aktuell = Top-5 gesamt)
+  // 5) Beliebte Zahlen – aktuell alias zu overall (eigene Farbe)
   const top5Popular = new Set<number>(top5OverallArr);
 
-  // 6) Top-5 (Klassen 1–3) aus Daten
+  // 6) Top-5 aus Klassen 1–3
   const top5TopClasses123 = computeTop5Classes123FromData();
 
   return {
@@ -199,7 +245,7 @@ export function buildNumberScoringData(): ScoringData {
   };
 }
 
-/** Bewertung einer Hauptzahl (1..50) */
+/** Bewertung einer Hauptzahl (1..50) – Score = Anzahl erfüllter Kriterien (0..6) */
 export function scoreMainNumber(n: number, data: ScoringData): NumberScore {
   const hits: NumberHit[] = [];
 
@@ -250,5 +296,6 @@ export function scoreMainNumber(n: number, data: ScoringData): NumberScore {
     });
   }
 
-  return { n, score: hits.length, hits };
+  const barColor = deriveBarColor(hits);
+  return { n, score: hits.length, hits, barColor };
 }

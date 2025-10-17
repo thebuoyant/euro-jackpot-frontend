@@ -55,12 +55,30 @@ export default function TipCard({
   lastMainSet,
   lastEuroSet,
 }: Props) {
-  // Scoring-Daten einmalig berechnen
+  // Scoring-Daten (einmal pro Mount)
   const scoringData = React.useMemo(() => buildNumberScoringData(), []);
 
-  // Rendert Chip + Status-Balken (nur für Hauptzahlen)
+  // Rendert Chip + Ampel-Balken (eine Farbe, abhängig vom Score 0..6)
   const renderScoredPill = (n: number, chip: React.ReactNode) => {
     const s = scoreMainNumber(n, scoringData);
+    const tooltipTitle = (
+      <Box sx={{ fontSize: 12, lineHeight: 1.3 }}>
+        <div>
+          <strong>Score:</strong> {s.score} / 6
+        </div>
+        {s.hits.length ? (
+          <div style={{ marginTop: 4 }}>
+            {s.hits.map((h) => (
+              <div key={h.key}>• {h.label}</div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ marginTop: 4 }}>
+            Keine Treffer der Bewertungs-Kriterien
+          </div>
+        )}
+      </Box>
+    );
 
     return (
       <Box
@@ -72,51 +90,36 @@ export default function TipCard({
           mx: 0.25,
         }}
       >
-        {chip}
-        {/* Status-Balken */}
+        <Tooltip title={tooltipTitle} arrow>
+          <Box>{chip}</Box>
+        </Tooltip>
+
+        {/* Ampel-Status-Balken (eine Farbe) */}
         <Box
           sx={{
             mt: 0.5,
             width: PILL_SIZE,
             height: 6,
-            display: "flex",
-            gap: 0.25,
+            bgcolor: s.barColor,
+            borderRadius: 1,
+            boxShadow: (t) =>
+              t.palette.mode === "dark"
+                ? "inset 0 0 0 1px rgba(0,0,0,.35)"
+                : "inset 0 0 0 1px rgba(255,255,255,.35)",
           }}
-        >
-          {s.hits.length === 0 ? (
-            <Box
-              sx={{
-                width: "100%",
-                height: "100%",
-                bgcolor: "divider",
-                borderRadius: 1,
-              }}
-            />
-          ) : (
-            s.hits.map((h, idx) => (
-              <Tooltip key={`${n}-${h.key}-${idx}`} title={h.label} arrow>
-                <Box
-                  sx={{
-                    flex: 1,
-                    height: "100%",
-                    bgcolor: h.color,
-                    borderRadius: 1,
-                  }}
-                />
-              </Tooltip>
-            ))
-          )}
-        </Box>
+          aria-label={`Bewertung für Zahl ${n}: Score ${s.score} von 6`}
+        />
       </Box>
     );
   };
 
   const renderNumberChip = (n: number, color: "primary" | "success") => {
+    // dein bestehendes Treffer-Matching (letzte Ziehung)
     const isMatch =
       (color === "primary" && lastMainSet.has(n)) ||
       (color === "success" && lastEuroSet.has(n));
 
-    // Dein bestehendes Match-Badge ggf. hier drüber wrappen
+    // hier könntest du weiterhin dein grünes Checkmark-Badge um den Chip legen
     const chip = (
       <Chip
         key={`${color}-${n}`}
@@ -141,16 +144,18 @@ export default function TipCard({
             t.palette.mode === "dark"
               ? "0 1px 2px rgba(0,0,0,.6)"
               : "0 1px 2px rgba(0,0,0,.15)",
+          // optional: leichtes Glühen, wenn Treffer gg. letzte Ziehung
+          outline: isMatch ? "2px solid rgba(46,125,50,.55)" : "none",
         }}
       />
     );
 
-    // Für Hauptzahlen: Chip + Status-Balken darunter
+    // Hauptzahlen → mit Ampel-Balken
     if (color === "primary") {
       return renderScoredPill(n, chip);
     }
 
-    // Für Eurozahlen: nur Chip (ohne Scoring-Balken)
+    // Eurozahlen → nur Chip (ohne Ampel)
     return (
       <Box key={`euro-${n}`} sx={{ mx: 0.25 }}>
         {chip}
@@ -210,7 +215,7 @@ export default function TipCard({
 
         <Divider sx={{ my: 1.5 }} />
 
-        {/* Hauptzahlen (mit Status-Balken) */}
+        {/* Hauptzahlen (mit Ampel-Balken) */}
         <Box className="row">
           <span className="label">Gewinnzahlen</span>
           <span className="value numbers">
@@ -224,7 +229,7 @@ export default function TipCard({
           </span>
         </Box>
 
-        {/* Eurozahlen (ohne Status-Balken) */}
+        {/* Eurozahlen (ohne Ampel-Balken) */}
         <Box className="row">
           <span className="label">Eurozahlen</span>
           <span className="value numbers">
