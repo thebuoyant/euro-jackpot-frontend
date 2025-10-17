@@ -121,6 +121,7 @@ export default function TipCard({
           flexDirection: "column",
           alignItems: "center",
           mx: 0.25,
+          cursor: "default",
         }}
       >
         <Tooltip title={tooltipTitle} arrow>

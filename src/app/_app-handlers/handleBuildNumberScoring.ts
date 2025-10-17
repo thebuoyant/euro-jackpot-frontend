@@ -1,8 +1,8 @@
+/* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
 import { handleComputePopularityNumbers } from "./handleComputePopularity";
 import { handleGetNumberGaps } from "./handleGetNumberGaps";
-// ⚠️ Pfad ggf. anpassen. Voraussetzung: tsconfig -> "resolveJsonModule": true
 import draws from "../_app-data/data.json" assert { type: "json" };
 
 /**
@@ -25,7 +25,7 @@ export type NumberHit = {
 };
 
 export type NumberScore = {
-  n: number;
+  number: number;
   score: number; // 0..6
   hits: NumberHit[];
   barColor: string; // Ampel-Farbe aus Score
@@ -241,5 +241,5 @@ export function scoreMainNumber(n: number, data: ScoringData): NumberScore {
   const score = hits.length;
   const barColor = SCORE_COLOR[Math.max(0, Math.min(6, score))];
 
-  return { n, score, hits, barColor };
+  return { number: n, score, hits, barColor };
 }
