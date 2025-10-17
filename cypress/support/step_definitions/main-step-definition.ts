@@ -6,21 +6,13 @@ beforeEach(() => {
 });
 
 Given("I am on application page", () => {
-  cy.get(".app-layout").should("have.length", 1).should("be.visible");
-});
-
-Then("I can see all base layout wrappers", () => {
-  cy.get(".app-layout > .header").should("have.length", 1).should("be.visible");
-  cy.get(".app-layout > .content")
+  cy.get("#app.layout-definition")
     .should("have.length", 1)
     .should("be.visible");
 });
 
-Then("I can see a header section", () => {
+Then("I can see all base layout wrappers", () => {
   cy.get(".app-layout > .header").should("have.length", 1).should("be.visible");
-});
-
-Then("I can see a content section", () => {
   cy.get(".app-layout > .content")
     .should("have.length", 1)
     .should("be.visible");

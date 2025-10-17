@@ -14,7 +14,7 @@ export default function LayoutDefinition({
   const calculatedContentMainWidth = `calc(100% - ${sidebarWidth}px)`;
 
   return (
-    <div className="layout-definition">
+    <div id="app" className="layout-definition">
       <div className="layout-header" style={{ height: `${headerHeight}px` }}>
         <AppHeader />
       </div>
