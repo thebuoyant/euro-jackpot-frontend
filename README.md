@@ -193,3 +193,5 @@ Diese Anwendung dient ausschließlich **Informations‑ und Analysezwecken** und
 ### Autor
 
 Entwickelt von **Thomas Schlender**
+
+https://euro-jackpot-frontend.vercel.app/

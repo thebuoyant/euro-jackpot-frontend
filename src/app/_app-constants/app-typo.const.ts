@@ -40,6 +40,8 @@ export const APP_TYPO_CONST = {
   pages: {
     home: {
       headerTitle: "Herzlich Willkommen",
+      welcomeText:
+        "Willkommen bei deinem Analyse-Dashboard rund um EuroJackpot-Daten. Entdecke Trends, werte Ziehungsverläufe aus und verwalte deine persönlichen Tipps in einer einheitlichen Oberfläche.",
     },
     dashboard: {
       headerTitle: "Dashboard",
