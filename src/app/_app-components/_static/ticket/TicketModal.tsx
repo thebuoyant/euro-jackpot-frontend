@@ -14,7 +14,7 @@ import {
   Button,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { APP_COLOR_CONST } from "../../_app-constants/app-color.const";
+import { APP_COLOR_CONST } from "../../../_app-constants/app-color.const";
 
 type Props = {
   open: boolean;
@@ -237,8 +237,8 @@ export default function TicketModal({
                       color: active
                         ? "#fff"
                         : disabled
-                        ? "text.disabled"
-                        : "text.secondary",
+                          ? "text.disabled"
+                          : "text.secondary",
                       backgroundColor: active ? mainColor : "transparent",
                       transition: "all .12s ease",
                       userSelect: "none",
@@ -295,8 +295,8 @@ export default function TicketModal({
                       color: active
                         ? "#fff"
                         : disabled
-                        ? "text.disabled"
-                        : "text.secondary",
+                          ? "text.disabled"
+                          : "text.secondary",
                       backgroundColor: active ? euroColor : "transparent",
                       transition: "all .12s ease",
                       userSelect: "none",
