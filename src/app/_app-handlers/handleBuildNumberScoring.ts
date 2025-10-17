@@ -40,7 +40,6 @@ export type ScoringData = {
   top5TopClasses123: Set<number>;
 };
 
-// ---------- Farbskala (Ampel)
 const SCORE_COLOR: Record<number, string> = {
   0: "#c62828", // deep red
   1: "#ef6c00", // orange-800
@@ -50,8 +49,6 @@ const SCORE_COLOR: Record<number, string> = {
   5: "#43a047", // green-600
   6: "#2e7d32", // green-800 (tiefgrün)
 };
-
-// ---------- Helpers
 
 function topNFromCountMap(map: Map<number, number>, n: number): number[] {
   return Array.from(map.entries())
@@ -81,9 +78,9 @@ function normalizePopularity(pop: unknown): Map<number, number> {
       pop instanceof Map
         ? pop.entries()
         : Object.entries(pop as Record<string, number>);
-    for (const [k, v] of entries as Iterable<[string | number, number]>) {
-      const n = Number(k);
-      const c = Number(v);
+    for (const [key, value] of entries as Iterable<[string | number, number]>) {
+      const n = Number(key);
+      const c = Number(value);
       if (Number.isInteger(n) && Number.isFinite(c)) countMap.set(n, c);
     }
   }
@@ -113,7 +110,7 @@ function normalizeGaps(gaps: unknown): Array<{ n: number; gap: number }> {
   return out;
 }
 
-/** Klasse I–III Gewinner? (heuristisch) */
+/** Klasse I–III Gewinne (heuristisch) */
 function hadTopClassWinner(row: Record<string, unknown>): boolean {
   const keys = Object.keys(row);
   const has = (idx: 1 | 2 | 3, roman: "i" | "ii" | "iii") =>
@@ -145,12 +142,10 @@ function computeTop5Classes123FromData(): Set<number> {
   return new Set(topNFromCountMap(acc, 5));
 }
 
-// ---------- Kernaufbau
-
 export type CriteriaSets = {
   overall: Set<number>;
   decade: Set<number>;
-  halfHigh: boolean; // true = High dominiert
+  halfHigh: boolean; // true === high dominiert
   overdue: Set<number>;
   popular: Set<number>;
   topClass123: Set<number>;
