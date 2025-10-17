@@ -12,8 +12,10 @@ Given("I am on application page", () => {
 });
 
 Then("I can see all base layout wrappers", () => {
-  cy.get(".app-layout > .header").should("have.length", 1).should("be.visible");
-  cy.get(".app-layout > .content")
+  cy.get(".layout-definition > .layout-header")
+    .should("have.length", 1)
+    .should("be.visible");
+  cy.get(".layout-definition > .layout-content")
     .should("have.length", 1)
     .should("be.visible");
 });
