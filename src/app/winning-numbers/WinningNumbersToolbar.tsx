@@ -1,12 +1,19 @@
 /* eslint-disable  @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Box, FormControlLabel, FormGroup, Switch } from "@mui/material";
+import {
+  Box,
+  FormControlLabel,
+  FormGroup,
+  Switch,
+  useTheme,
+} from "@mui/material";
 import React from "react";
 import { useWinningNumbersStore } from "../_app-stores/winning-numbers.store";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
 export default function WinningNumbersToolbar() {
+  const theme = useTheme();
   const { setShowSortedValues, showSortedValues } =
     useWinningNumbersStore() as any;
 
@@ -18,10 +25,16 @@ export default function WinningNumbersToolbar() {
     <Box
       sx={{
         display: "flex",
-        gap: 2,
-        alignItems: "center",
-        flexWrap: "wrap",
-        mt: 1,
+        p: 1.25,
+        mb: 2,
+        borderRadius: 1,
+        border: "1px solid",
+        borderColor: "divider",
+        background:
+          theme.palette.mode === "dark"
+            ? "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0))"
+            : "linear-gradient(180deg, rgba(18,52,86,0.05), rgba(18,52,86,0))",
+        minHeight: "56px",
       }}
     >
       <FormGroup>
