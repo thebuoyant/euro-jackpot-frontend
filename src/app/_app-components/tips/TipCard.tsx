@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   Box,
@@ -8,13 +9,23 @@ import {
   IconButton,
   Tooltip,
   Typography,
+  Chip,
 } from "@mui/material";
 import CasinoIcon from "@mui/icons-material/Casino";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
-import TicketModal from "../../_app-components/ticket/TicketModal";
-import { PillsMatched } from "./PillsMatched";
-import { Tip, N_MAIN, N_EURO } from "../../_app-stores/tips.store";
+
+import TicketModal from "../ticket/TicketModal";
+import {
+  buildNumberScoringData,
+  scoreMainNumber,
+} from "../../_app-handlers/handleBuildNumberScoring";
+
+type Tip = {
+  id: number;
+  numbers: number[]; // 5 aus 1..50
+  euroNumbers: number[]; // 2 aus 1..12
+};
 
 type Props = {
   tip: Tip;
@@ -31,6 +42,8 @@ type Props = {
   lastEuroSet: Set<number>;
 };
 
+const PILL_SIZE = 32;
+
 export default function TipCard({
   tip,
   openModalFor,
@@ -42,6 +55,109 @@ export default function TipCard({
   lastMainSet,
   lastEuroSet,
 }: Props) {
+  // Scoring-Daten einmalig berechnen
+  const scoringData = React.useMemo(() => buildNumberScoringData(), []);
+
+  // Rendert Chip + Status-Balken (nur für Hauptzahlen)
+  const renderScoredPill = (n: number, chip: React.ReactNode) => {
+    const s = scoreMainNumber(n, scoringData);
+
+    return (
+      <Box
+        key={`pill-${n}`}
+        sx={{
+          display: "inline-flex",
+          flexDirection: "column",
+          alignItems: "center",
+          mx: 0.25,
+        }}
+      >
+        {chip}
+        {/* Status-Balken */}
+        <Box
+          sx={{
+            mt: 0.5,
+            width: PILL_SIZE,
+            height: 6,
+            display: "flex",
+            gap: 0.25,
+          }}
+        >
+          {s.hits.length === 0 ? (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                bgcolor: "divider",
+                borderRadius: 1,
+              }}
+            />
+          ) : (
+            s.hits.map((h, idx) => (
+              <Tooltip key={`${n}-${h.key}-${idx}`} title={h.label} arrow>
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: "100%",
+                    bgcolor: h.color,
+                    borderRadius: 1,
+                  }}
+                />
+              </Tooltip>
+            ))
+          )}
+        </Box>
+      </Box>
+    );
+  };
+
+  const renderNumberChip = (n: number, color: "primary" | "success") => {
+    const isMatch =
+      (color === "primary" && lastMainSet.has(n)) ||
+      (color === "success" && lastEuroSet.has(n));
+
+    // Dein bestehendes Match-Badge ggf. hier drüber wrappen
+    const chip = (
+      <Chip
+        key={`${color}-${n}`}
+        label={n}
+        size="small"
+        sx={{
+          height: PILL_SIZE,
+          width: PILL_SIZE,
+          borderRadius: 9999,
+          fontWeight: 700,
+          fontVariantNumeric: "tabular-nums",
+          bgcolor: `${color}.main`,
+          color: `${color}.contrastText`,
+          p: 0,
+          "& .MuiChip-label": {
+            width: "100%",
+            px: 0,
+            lineHeight: 1,
+            textAlign: "center",
+          },
+          boxShadow: (t) =>
+            t.palette.mode === "dark"
+              ? "0 1px 2px rgba(0,0,0,.6)"
+              : "0 1px 2px rgba(0,0,0,.15)",
+        }}
+      />
+    );
+
+    // Für Hauptzahlen: Chip + Status-Balken darunter
+    if (color === "primary") {
+      return renderScoredPill(n, chip);
+    }
+
+    // Für Eurozahlen: nur Chip (ohne Scoring-Balken)
+    return (
+      <Box key={`euro-${n}`} sx={{ mx: 0.25 }}>
+        {chip}
+      </Box>
+    );
+  };
+
   return (
     <Card className="card tip-card" elevation={4}>
       <CardContent>
@@ -94,28 +210,36 @@ export default function TipCard({
 
         <Divider sx={{ my: 1.5 }} />
 
+        {/* Hauptzahlen (mit Status-Balken) */}
         <Box className="row">
           <span className="label">Gewinnzahlen</span>
           <span className="value numbers">
-            <PillsMatched
-              vals={tip.numbers}
-              color="primary"
-              matchSet={lastMainSet}
-            />
+            <Box className="pill-row">
+              {tip.numbers?.length ? (
+                tip.numbers.map((n) => renderNumberChip(n, "primary"))
+              ) : (
+                <span>—</span>
+              )}
+            </Box>
           </span>
         </Box>
+
+        {/* Eurozahlen (ohne Status-Balken) */}
         <Box className="row">
           <span className="label">Eurozahlen</span>
           <span className="value numbers">
-            <PillsMatched
-              vals={tip.euroNumbers}
-              color="success"
-              matchSet={lastEuroSet}
-            />
+            <Box className="pill-row">
+              {tip.euroNumbers?.length ? (
+                tip.euroNumbers.map((n) => renderNumberChip(n, "success"))
+              ) : (
+                <span>—</span>
+              )}
+            </Box>
           </span>
         </Box>
       </CardContent>
 
+      {/* Spielschein-Dialog */}
       {openModalFor === tip.id && (
         <TicketModal
           open
@@ -123,8 +247,8 @@ export default function TipCard({
           title={`Tipp ${tip.id} – Spielschein`}
           numbers={tip.numbers}
           euroNumbers={tip.euroNumbers}
-          mainMaxCount={N_MAIN}
-          euroMaxCount={N_EURO}
+          mainMaxCount={5}
+          euroMaxCount={2}
           autoCloseOnComplete={false}
           onChange={(next) => onModalChange(tip.id, next)}
         />
