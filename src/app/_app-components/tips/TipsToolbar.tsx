@@ -44,7 +44,7 @@ export default function TipsToolbar({
       sx={{
         p: 1.25,
         mb: 2,
-        borderRadius: 2,
+        borderRadius: 1,
         border: "1px solid",
         borderColor: "divider",
         background:

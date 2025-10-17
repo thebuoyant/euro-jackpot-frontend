@@ -7,6 +7,7 @@ import {
   TextField,
   ToggleButton,
   ToggleButtonGroup,
+  useTheme,
 } from "@mui/material";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
@@ -45,6 +46,7 @@ export default function ArchiveToolbar({
   classes,
   onClassesChange,
 }: Props) {
+  const theme = useTheme();
   /** Normalize empty strings to null for consistent state shape. */
   const orNull = (s: string) => (s?.trim() ? s : null);
 
@@ -93,10 +95,15 @@ export default function ArchiveToolbar({
     <Box
       sx={{
         display: "flex",
-        gap: 2,
-        alignItems: "center",
-        flexWrap: "wrap",
-        mt: 1,
+        p: 1.25,
+        mb: 2,
+        borderRadius: 1,
+        border: "1px solid",
+        borderColor: "divider",
+        background:
+          theme.palette.mode === "dark"
+            ? "linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0))"
+            : "linear-gradient(180deg, rgba(18,52,86,0.05), rgba(18,52,86,0))",
       }}
     >
       <TextField
@@ -105,7 +112,7 @@ export default function ArchiveToolbar({
         value={value.from ?? ""}
         onChange={handleFromChange}
         size="small"
-        sx={{ width: "170px" }}
+        sx={{ width: "170px", mr: 2 }}
         slotProps={{
           inputLabel: { shrink: true },
           input: {
@@ -122,7 +129,7 @@ export default function ArchiveToolbar({
         value={value.to ?? ""}
         onChange={handleToChange}
         size="small"
-        sx={{ width: "170px" }}
+        sx={{ width: "170px", mr: 2 }}
         slotProps={{
           inputLabel: { shrink: true },
           input: {

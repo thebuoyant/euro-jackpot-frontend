@@ -56,3 +56,7 @@ body {
     }
   }
 }
+
+.page-content {
+  margin-top: 16px;
+}
