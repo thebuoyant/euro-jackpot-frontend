@@ -11,9 +11,9 @@ import {
 import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import FileUploadOutlinedIcon from "@mui/icons-material/FileUploadOutlined";
 import { Pills } from "./Pills";
-import { handleGetLastDrawData } from "../../_app-handlers/handleGetLastDrawData";
-import { resolveDay } from "../../_app-utils/record.util";
-import type { DrawRecord } from "../../_app-types/record.types";
+import { handleGetLastDrawData } from "../../../_app-handlers/handleGetLastDrawData";
+import { resolveDay } from "../../../_app-utils/record.util";
+import type { DrawRecord } from "../../../_app-types/record.types";
 
 type Props = {
   haveAnyTip: boolean;

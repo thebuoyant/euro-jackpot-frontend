@@ -16,11 +16,11 @@ import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import ConfirmationNumberIcon from "@mui/icons-material/ConfirmationNumber";
 import CheckIcon from "@mui/icons-material/Check";
 
-import TicketModal from "../ticket/TicketModal";
+import TicketModal from "../../ticket/TicketModal";
 import {
   buildNumberScoringData,
   scoreMainNumber,
-} from "../../_app-handlers/handleBuildNumberScoring";
+} from "../../../_app-handlers/handleBuildNumberScoring";
 
 type Tip = {
   id: number;

@@ -17,8 +17,8 @@ import {
 import "./Tips.css";
 import { APP_TYPO_CONST } from "../_app-constants/app-typo.const";
 
-import TipCard from "../_app-components/tips/TipCard";
-import TipsToolbar from "../_app-components/tips/TipsToolbar";
+import TipCard from "../_app-components/_static/tips/TipCard";
+import TipsToolbar from "../_app-components/_static/tips/TipsToolbar";
 
 import { useTipsStore, Tip, MAX_TIPS } from "../_app-stores/tips.store";
 
