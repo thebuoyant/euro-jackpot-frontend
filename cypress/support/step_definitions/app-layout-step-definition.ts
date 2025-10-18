@@ -1,22 +1,15 @@
-import { Given } from "@badeball/cypress-cucumber-preprocessor";
-import { E2E } from "../../e2e/constants";
+import { Then } from "@badeball/cypress-cucumber-preprocessor";
 
-beforeEach(() => {
-  cy.visit(E2E.url);
+Then("I can see an app header content", () => {
+  cy.get(".app-header").should("be.visible");
 });
 
-Given("I can see an app header content", () => {
-  cy.get(".app-header").should("have.length", 1).should("be.visible");
+Then("I can see an app sidebar content", () => {
+  cy.get(".layout-content-sidebar > .app-sidebar").should("be.visible");
 });
 
-Given("I can see an app sidebar content", () => {
-  cy.get(".layout-content-sidebar > .app-sidebar")
-    .should("have.length", 1)
-    .should("be.visible");
+Then("I can see an app main content", () => {
+  cy.get(".layout-content-main > .home-page").should("be.visible");
 });
 
-Given("I can see an app main content", () => {
-  cy.get(".layout-content-main > .home-page")
-    .should("have.length", 1)
-    .should("be.visible");
-});
+export {};

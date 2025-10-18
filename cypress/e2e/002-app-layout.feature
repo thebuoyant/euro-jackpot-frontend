@@ -1,4 +1,4 @@
-Feature: App layout
+Feature: App Layout
 
   Scenario: Ensure layout wrappers
     Given I am on application page

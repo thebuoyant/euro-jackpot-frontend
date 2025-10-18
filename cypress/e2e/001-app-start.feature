@@ -1,4 +1,4 @@
-Feature: App start
+Feature: App Start
 
   Scenario: Open application with base layout wrappers
     Given I am on application page

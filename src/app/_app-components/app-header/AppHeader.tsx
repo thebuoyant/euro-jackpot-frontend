@@ -22,7 +22,9 @@ export default function AppHeader() {
       }}
       onClick={handleNavigationToHome}
     >
-      <Typography variant="h6">{APP_CONST.appTitle}</Typography>
+      <Typography className="app-title" variant="h6">
+        {APP_CONST.appTitle}
+      </Typography>
     </div>
   );
 }
