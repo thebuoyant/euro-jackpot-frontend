@@ -176,7 +176,7 @@ export default function TipsPage() {
     // Erfolgsmeldung
     setSnack({
       open: true,
-      msg: "JSON erfolgreich heruntergeladen.",
+      msg: "Tipps wurden erfolgreich heruntergeladen.",
       sev: "success",
     });
   };
@@ -236,13 +236,13 @@ export default function TipsPage() {
           setErrorDialog({ open: true, lines: errs });
           setSnack({
             open: true,
-            msg: `Teilweise gültig. Übernommen: ${accepted} Tipp(e).`,
+            msg: `Teilweise gültig. Übernommen: ${accepted} Tipp(s).`,
             sev: "warning",
           });
         } else {
           setSnack({
             open: true,
-            msg: `Tipps geladen (${accepted}).`,
+            msg: `Tipps wurden erfolgreich geladen (${accepted}).`,
             sev: "success",
           });
         }

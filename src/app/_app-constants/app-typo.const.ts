@@ -156,6 +156,10 @@ export const APP_TYPO_CONST = {
         download: "Meine Tipps herunterladen",
         upload: "Meine Tipps hochladen",
       },
+      card: {
+        tooltipScoreItem: "Score",
+        tooltipNoMatchItem: "Score",
+      },
     },
   },
 };

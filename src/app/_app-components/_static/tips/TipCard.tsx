@@ -21,6 +21,7 @@ import {
   buildNumberScoringData,
   scoreMainNumber,
 } from "../../../_app-handlers/handleBuildNumberScoring";
+import { APP_TYPO_CONST } from "src/app/_app-constants/app-typo.const";
 
 type Tip = {
   id: number;
@@ -69,7 +70,8 @@ export default function TipCard({
     const tooltipTitle = (
       <Box sx={{ fontSize: 12, lineHeight: 1.3 }}>
         <div>
-          <strong>Score:</strong> {s.score} / 6
+          <strong>{APP_TYPO_CONST.pages.tips.card.tooltipScoreItem}:</strong>{" "}
+          {s.score} / 6
         </div>
         {s.hits.length ? (
           <div style={{ marginTop: 4 }}>
@@ -79,13 +81,12 @@ export default function TipCard({
           </div>
         ) : (
           <div style={{ marginTop: 4 }}>
-            Keine Treffer der Bewertungs-Kriterien
+            {APP_TYPO_CONST.pages.tips.card.tooltipNoMatchItem}
           </div>
         )}
       </Box>
     );
 
-    // Chip
     const chip = (
       <Chip
         label={n}
@@ -178,12 +179,10 @@ export default function TipCard({
       (color === "primary" && lastMainSet.has(n)) ||
       (color === "success" && lastEuroSet.has(n));
 
-    // Hauptzahlen → mit Ampel-Balken + Badge
     if (color === "primary") {
       return renderScoredPill(n, isMatch, "primary");
     }
 
-    // Eurozahlen → kein Ampel-Balken, aber Match-Badge anzeigen
     return (
       <Box key={`euro-${n}`} sx={{ position: "relative", mx: 0.25 }}>
         <Chip
@@ -240,7 +239,7 @@ export default function TipCard({
     <Card className="card tip-card" elevation={4}>
       <CardContent>
         <Box className="tip-card-head">
-          <Typography variant="subtitle1" fontWeight={600}>
+          <Typography variant="subtitle1" fontWeight={600} color="primary">
             Tipp {tip.id}
           </Typography>
           <Box className="tip-actions">
@@ -248,11 +247,7 @@ export default function TipCard({
               <IconButton
                 size="small"
                 onClick={() => onRandom(tip.id)}
-                sx={{
-                  bgcolor: "primary.main",
-                  color: "primary.contrastText",
-                  "&:hover": { bgcolor: "primary.dark" },
-                }}
+                color="default"
               >
                 <CasinoIcon fontSize="small" />
               </IconButton>
@@ -261,11 +256,7 @@ export default function TipCard({
               <IconButton
                 size="small"
                 onClick={() => onOpenTicket(tip.id)}
-                sx={{
-                  bgcolor: "success.main",
-                  color: "success.contrastText",
-                  "&:hover": { bgcolor: "success.dark" },
-                }}
+                color="default"
               >
                 <ConfirmationNumberIcon fontSize="small" />
               </IconButton>
@@ -274,11 +265,7 @@ export default function TipCard({
               <IconButton
                 size="small"
                 onClick={() => onReset(tip.id)}
-                sx={{
-                  bgcolor: "warning.main",
-                  color: "warning.contrastText",
-                  "&:hover": { bgcolor: "warning.dark" },
-                }}
+                color="default"
               >
                 <RestartAltIcon fontSize="small" />
               </IconButton>
@@ -288,7 +275,6 @@ export default function TipCard({
 
         <Divider sx={{ my: 1.5 }} />
 
-        {/* Hauptzahlen (mit Ampel-Balken + Badge) */}
         <Box className="row">
           <span className="label">Gewinnzahlen</span>
           <span className="value numbers">
@@ -302,7 +288,6 @@ export default function TipCard({
           </span>
         </Box>
 
-        {/* Eurozahlen (nur Badge) */}
         <Box className="row">
           <span className="label">Eurozahlen</span>
           <span className="value numbers">
@@ -317,7 +302,6 @@ export default function TipCard({
         </Box>
       </CardContent>
 
-      {/* Spielschein-Dialog */}
       {openModalFor === tip.id && (
         <TicketModal
           open
