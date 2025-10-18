@@ -158,7 +158,7 @@ export const APP_TYPO_CONST = {
       },
       card: {
         tooltipScoreItem: "Score",
-        tooltipNoMatchItem: "Score",
+        tooltipNoMatchItem: "Keine Treffer der Bewertungskriterien",
       },
     },
   },
