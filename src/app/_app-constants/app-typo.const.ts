@@ -151,6 +151,11 @@ export const APP_TYPO_CONST = {
     },
     tips: {
       headerTitle: "Meine Tipps",
+      toolbar: {
+        lastDraw: "Letzte Ziehung",
+        download: "Meine Tipps herunterladen",
+        upload: "Meine Tipps hochladen",
+      },
     },
   },
 };

@@ -14,6 +14,7 @@ import { Pills } from "./Pills";
 import { handleGetLastDrawData } from "../../../_app-handlers/handleGetLastDrawData";
 import { resolveDay } from "../../../_app-utils/record.util";
 import type { DrawRecord } from "../../../_app-types/record.types";
+import { APP_TYPO_CONST } from "src/app/_app-constants/app-typo.const";
 
 type Props = {
   haveAnyTip: boolean;
@@ -54,7 +55,15 @@ export default function TipsToolbar({
         minHeight: "56px",
       }}
     >
-      <Toolbar disableGutters sx={{ gap: 1, flexWrap: "wrap" }}>
+      <Toolbar
+        disableGutters
+        sx={{
+          gap: 1,
+          flexWrap: "wrap",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         {lastDraw && (
           <Box
             sx={{
@@ -64,13 +73,17 @@ export default function TipsToolbar({
               flexWrap: "wrap",
               pr: 1,
               mr: 1,
-              borderRight: (t) => `1px solid ${t.palette.divider}`,
             }}
           >
-            <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
-              Letzte Ziehung: {lastDraw.datum} ({resolveDay(lastDraw.tag)})
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ mr: 2, cursor: "default" }}
+            >
+              {APP_TYPO_CONST.pages.tips.toolbar.lastDraw}: {lastDraw.datum} (
+              {resolveDay(lastDraw.tag)})
             </Typography>
-            <span className="value numbers">
+            <span className="value numbers" style={{ cursor: "default" }}>
               <Pills
                 vals={[
                   lastDraw.nummer1,
@@ -82,39 +95,40 @@ export default function TipsToolbar({
                 color="primary"
               />
             </span>
-            <span className="value numbers">
+            <span className="value numbers" style={{ cursor: "default" }}>
               <Pills vals={[lastDraw.zz1, lastDraw.zz2]} color="success" />
             </span>
           </Box>
         )}
+        <div className="action-section">
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<FileDownloadOutlinedIcon />}
+            onClick={onDownload}
+            disabled={!haveAnyTip}
+            sx={{ textTransform: "none", width: "240px" }}
+          >
+            {APP_TYPO_CONST.pages.tips.toolbar.download}
+          </Button>
 
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<FileDownloadOutlinedIcon />}
-          onClick={onDownload}
-          disabled={!haveAnyTip}
-          sx={{ textTransform: "none" }}
-        >
-          JSON herunterladen
-        </Button>
-
-        <input
-          type="file"
-          accept="application/json"
-          ref={fileRef}
-          style={{ display: "none" }}
-          onChange={onUploadFile}
-        />
-        <Button
-          variant="contained"
-          color="success"
-          startIcon={<FileUploadOutlinedIcon />}
-          onClick={() => fileRef.current?.click()}
-          sx={{ textTransform: "none" }}
-        >
-          JSON hochladen
-        </Button>
+          <input
+            type="file"
+            accept="application/json"
+            ref={fileRef}
+            style={{ display: "none" }}
+            onChange={onUploadFile}
+          />
+          <Button
+            variant="contained"
+            color="inherit"
+            startIcon={<FileUploadOutlinedIcon />}
+            onClick={() => fileRef.current?.click()}
+            sx={{ textTransform: "none", width: "240px", marginLeft: "8px" }}
+          >
+            {APP_TYPO_CONST.pages.tips.toolbar.upload}
+          </Button>
+        </div>
       </Toolbar>
     </Paper>
   );
