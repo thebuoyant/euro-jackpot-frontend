@@ -11,6 +11,7 @@ import DashboardCardTopWinningNumbers123 from "../_app-components/_dynamic/dashb
 import DashboardCardSpecialData from "../_app-components/_dynamic/dashboard-card-special-data/DashboardCardSpecialData";
 import DashboardCardNumberGaps from "../_app-components/_dynamic/dashboard-card-number-gaps/DashboardCardNumberGaps";
 import DashboardCardPopularNumbers from "../_app-components/_dynamic/dashboard-card-popular-numbers/DashboardCardPopularNumbers";
+import JackpotStakeHint from "../_app-components/dashboard/JackpotStakeHint";
 
 export default function DashboardPage() {
   return (
@@ -81,6 +82,7 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+      <JackpotStakeHint targetProb={0.5} nearPct={0.9} />
     </div>
   );
 }

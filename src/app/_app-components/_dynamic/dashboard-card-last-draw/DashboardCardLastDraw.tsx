@@ -12,6 +12,7 @@ import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
 import SkeletonKeyValueList from "src/app/_app-components/_static/skeleton-key-value-list/SkeletonKeyValueList";
 import NumberPillsInline from "src/app/_app-components/_shared/NumberPillsInline";
+import JackpotStakeInlineAlert from "../../dashboard/JackpotStakeInlineAlert";
 
 export default function DashboardCardLastDraw({
   title,
@@ -224,6 +225,7 @@ export default function DashboardCardLastDraw({
           </ul>
         )}
       </CardContent>
+      <JackpotStakeInlineAlert targetProb={0.5} nearPct={0.9} />
     </Card>
   );
 }
