@@ -90,7 +90,11 @@ export default function PrizeClassesPage() {
                   justifyContent="space-between"
                   alignItems="center"
                 >
-                  <Typography variant="subtitle1" fontWeight={600}>
+                  <Typography
+                    variant="subtitle1"
+                    fontWeight={600}
+                    color="primary"
+                  >
                     {`${APP_TYPO_CONST.pages.dashboard.cards.prizeClasses.cardLabelClass} ${it.class}`}
                   </Typography>
                   <Chip
