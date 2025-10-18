@@ -2,7 +2,15 @@ import { Then, Given } from "@badeball/cypress-cucumber-preprocessor";
 import { E2E } from "../../e2e/constants";
 
 beforeEach(() => {
-  cy.visit(E2E.url);
+  // 1) Viewport setzen
+  cy.viewport(E2E.viewport.width, E2E.viewport.height);
+
+  // 2) Resolution-Guard im localStorage deaktivieren *vor* dem Laden
+  cy.visit(E2E.url, {
+    onBeforeLoad(win) {
+      win.localStorage.setItem(E2E.resolutionGuardStorageKey, "true");
+    },
+  });
 });
 
 Given("I am on application page", () => {
