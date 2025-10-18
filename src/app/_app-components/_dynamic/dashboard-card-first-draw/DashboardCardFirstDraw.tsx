@@ -11,6 +11,7 @@ import {
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
 import SkeletonKeyValueList from "src/app/_app-components/_static/skeleton-key-value-list/SkeletonKeyValueList";
+import NumberPillsInline from "src/app/_app-components/_shared/NumberPillsInline";
 
 export default function DashboardCardFirstDraw({
   title,
@@ -34,7 +35,6 @@ export default function DashboardCardFirstDraw({
     isLoadingFirstDrawData,
   } = useDashboardStore() as any;
 
-  // ⬇️ Merkt, ob der allererste Fetch bereits einmal durchgelaufen ist
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function DashboardCardFirstDraw({
       } finally {
         if (alive) {
           setIsLoadingFirstDrawData(false);
-          hasFetchedRef.current = true; // ⬅️ jetzt wissen wir: erster Fetch ist durch
+          hasFetchedRef.current = true;
         }
       }
     })();
@@ -66,10 +66,20 @@ export default function DashboardCardFirstDraw({
     };
   }, [setIsLoadingFirstDrawData, setFirstDrawRecord]);
 
-  // 🔑 Anzeige-Logik:
-  // - Solange wir noch nie gefetched haben ODER loading=true ⇒ Skeleton
-  // - Danach: wenn kein Record ⇒ "Keine Daten"
   const showSkeleton = !hasFetchedRef.current || isLoadingFirstDrawData;
+
+  const mainNumbers: number[] = firstDrawRecord
+    ? [
+        firstDrawRecord.nummer1,
+        firstDrawRecord.nummer2,
+        firstDrawRecord.nummer3,
+        firstDrawRecord.nummer4,
+        firstDrawRecord.nummer5,
+      ].map(Number)
+    : [];
+  const euroNumbers: number[] = firstDrawRecord
+    ? [firstDrawRecord.zz1, firstDrawRecord.zz2].map(Number)
+    : [];
 
   return (
     <Card className="card" elevation={4}>
@@ -100,14 +110,35 @@ export default function DashboardCardFirstDraw({
               <span className="label">{`${labelDate}:`}</span>
               <span className="value">{firstDrawRecord.datum}</span>
             </li>
+
             <li>
               <span className="label">{`${labelWinningNumbers}:`}</span>
-              <span className="value">{`${firstDrawRecord.nummer1} | ${firstDrawRecord.nummer2} | ${firstDrawRecord.nummer3} | ${firstDrawRecord.nummer4} | ${firstDrawRecord.nummer5}`}</span>
+              <span
+                className="value"
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <NumberPillsInline
+                  values={mainNumbers}
+                  color="primary"
+                  aria-label="Gewinnzahlen"
+                />
+              </span>
             </li>
+
             <li>
               <span className="label">{`${labelEuroNumbers}:`}</span>
-              <span className="value">{`${firstDrawRecord.zz1} | ${firstDrawRecord.zz2}`}</span>
+              <span
+                className="value"
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <NumberPillsInline
+                  values={euroNumbers}
+                  color="success"
+                  aria-label="Eurozahlen"
+                />
+              </span>
             </li>
+
             <li>
               <span className="label">{`${labelStake}:`}</span>
               <span className="value">{`${formatNumberToString(
@@ -115,6 +146,7 @@ export default function DashboardCardFirstDraw({
                 2
               )} €`}</span>
             </li>
+
             <li>
               <span className="label">{`${labelDay}:`}</span>
               <span className="value">{resolveDay(firstDrawRecord.tag)}</span>

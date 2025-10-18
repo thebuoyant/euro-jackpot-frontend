@@ -11,6 +11,7 @@ import {
 import { useDashboardStore } from "src/app/_app-stores/dashboard.store";
 import { API_ROUTE_CONST } from "src/app/_app-constants/api-routes.const";
 import SkeletonKeyValueList from "src/app/_app-components/_static/skeleton-key-value-list/SkeletonKeyValueList";
+import NumberPillsInline from "src/app/_app-components/_shared/NumberPillsInline";
 
 export default function DashboardCardLastDraw({
   title,
@@ -34,7 +35,6 @@ export default function DashboardCardLastDraw({
     isLoadingLastDrawData,
   } = useDashboardStore() as any;
 
-  // ⬇️ Merkt, ob der allererste Fetch bereits einmal durchgelaufen ist
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function DashboardCardLastDraw({
       } finally {
         if (alive) {
           setIsLoadingLastDrawData(false);
-          hasFetchedRef.current = true; // ⬅️ erster Fetch abgeschlossen
+          hasFetchedRef.current = true;
         }
       }
     })();
@@ -66,15 +66,13 @@ export default function DashboardCardLastDraw({
     };
   }, [setIsLoadingLastDrawData, setLastDrawRecord]);
 
-  // 🔑 Anzeige-Logik:
   const showSkeleton = !hasFetchedRef.current || isLoadingLastDrawData;
 
-  // 🎖️ Gold-Hintergrund aktivieren, wenn Klasse 1 Gewinner vorhanden
+  // Gold-Highlight wenn Klasse 1 Gewinner vorhanden
   const isJackpotHit = !!(
     lastDrawRecord && Number(lastDrawRecord.anzahlKlasse1) > 0
   );
 
-  // 🎨 Professioneller Gold-Gradient + feiner Rahmen/Glanz
   const goldenStyles = isJackpotHit
     ? {
         // Card-Wrapper
@@ -103,12 +101,10 @@ export default function DashboardCardLastDraw({
           position: "relative",
           color: "rgba(0,0,0,0.85)",
           // etwas mehr „Card“-Feeling
-          border: "1px solid rgba(0,0,0,0.08)",
         } as const,
         // Divider auf Gold
         sxDivider: {
           my: 2,
-          borderColor: "rgba(0,0,0,0.18)",
           opacity: 0.7,
         } as const,
         // Labels/Values für lesbaren Kontrast auf Gold
@@ -131,10 +127,24 @@ export default function DashboardCardLastDraw({
         sxTitle: {},
       };
 
+  // Hilfsarrays für die Darstellung (ändert die Card-Höhe nicht, nur die Zeileninhalte)
+  const mainNumbers: number[] = lastDrawRecord
+    ? [
+        lastDrawRecord.nummer1,
+        lastDrawRecord.nummer2,
+        lastDrawRecord.nummer3,
+        lastDrawRecord.nummer4,
+        lastDrawRecord.nummer5,
+      ].map(Number)
+    : [];
+  const euroNumbers: number[] = lastDrawRecord
+    ? [lastDrawRecord.zz1, lastDrawRecord.zz2].map(Number)
+    : [];
+
   return (
     <Card
       className="card"
-      elevation={isJackpotHit ? 8 : 4}
+      elevation={isJackpotHit ? 10 : 4}
       sx={goldenStyles.sxCard}
     >
       <CardContent sx={goldenStyles.sxContent}>
@@ -170,14 +180,35 @@ export default function DashboardCardLastDraw({
               <span className="label">{`${labelDate}:`}</span>
               <span className="value">{lastDrawRecord.datum}</span>
             </li>
+
             <li>
               <span className="label">{`${labelWinningNumbers}:`}</span>
-              <span className="value">{`${lastDrawRecord.nummer1} | ${lastDrawRecord.nummer2} | ${lastDrawRecord.nummer3} | ${lastDrawRecord.nummer4} | ${lastDrawRecord.nummer5}`}</span>
+              <span
+                className="value"
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <NumberPillsInline
+                  values={mainNumbers}
+                  color="primary"
+                  aria-label="Gewinnzahlen"
+                />
+              </span>
             </li>
+
             <li>
               <span className="label">{`${labelEuroNumbers}:`}</span>
-              <span className="value">{`${lastDrawRecord.zz1} | ${lastDrawRecord.zz2}`}</span>
+              <span
+                className="value"
+                style={{ display: "inline-flex", alignItems: "center" }}
+              >
+                <NumberPillsInline
+                  values={euroNumbers}
+                  color="success"
+                  aria-label="Eurozahlen"
+                />
+              </span>
             </li>
+
             <li>
               <span className="label">{`${labelStake}:`}</span>
               <span className="value">{`${formatNumberToString(
@@ -185,6 +216,7 @@ export default function DashboardCardLastDraw({
                 2
               )} €`}</span>
             </li>
+
             <li>
               <span className="label">{`${labelDay}:`}</span>
               <span className="value">{resolveDay(lastDrawRecord.tag)}</span>
