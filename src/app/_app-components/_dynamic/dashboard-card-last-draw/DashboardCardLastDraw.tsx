@@ -56,7 +56,7 @@ export default function DashboardCardLastDraw({
       } finally {
         if (alive) {
           setIsLoadingLastDrawData(false);
-          hasFetchedRef.current = true; // ⬅️ jetzt wissen wir: erster Fetch ist durch
+          hasFetchedRef.current = true; // ⬅️ erster Fetch abgeschlossen
         }
       }
     })();
@@ -67,18 +67,82 @@ export default function DashboardCardLastDraw({
   }, [setIsLoadingLastDrawData, setLastDrawRecord]);
 
   // 🔑 Anzeige-Logik:
-  // - Solange wir noch nie gefetched haben ODER loading=true ⇒ Skeleton
-  // - Danach: wenn kein Record ⇒ "Keine Daten"
   const showSkeleton = !hasFetchedRef.current || isLoadingLastDrawData;
 
+  // 🎖️ Gold-Hintergrund aktivieren, wenn Klasse 1 Gewinner vorhanden
+  const isJackpotHit = !!(
+    lastDrawRecord && Number(lastDrawRecord.anzahlKlasse1) > 0
+  );
+
+  // 🎨 Professioneller Gold-Gradient + feiner Rahmen/Glanz
+  const goldenStyles = isJackpotHit
+    ? {
+        // Card-Wrapper
+        sxCard: {
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: 3,
+          // subtiler „glow“
+          boxShadow:
+            "0 10px 25px rgba(0,0,0,0.20), inset 0 0 0 1px rgba(255,255,255,0.15)",
+        } as const,
+        // CardContent Hintergrund (Gradient + Textkontrast)
+        sxContent: {
+          background:
+            // sanfter Goldverlauf, mit leichtem „Sheen“
+            "linear-gradient(145deg, #b4882c 0%, #d4a638 25%, #f1d27a 50%, #d4a638 75%, #b07e27 100%)",
+          // dezenter Glanzfilm oben links
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            background:
+              "linear-gradient(120deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.08) 35%, rgba(255,255,255,0.00) 60%)",
+            pointerEvents: "none",
+          },
+          position: "relative",
+          color: "rgba(0,0,0,0.85)",
+          // etwas mehr „Card“-Feeling
+          border: "1px solid rgba(0,0,0,0.08)",
+        } as const,
+        // Divider auf Gold
+        sxDivider: {
+          my: 2,
+          borderColor: "rgba(0,0,0,0.18)",
+          opacity: 0.7,
+        } as const,
+        // Labels/Values für lesbaren Kontrast auf Gold
+        sxList: {
+          "& .label": { color: "rgba(0,0,0,0.78)", fontWeight: 600 },
+          "& .value": { color: "rgba(0,0,0,0.90)", fontWeight: 500 },
+        } as const,
+        // Titel dunkler für Kontrast
+        sxTitle: {
+          color: "rgba(0,0,0,0.92)",
+          textShadow: "0 1px 0 rgba(255,255,255,0.4)",
+        } as const,
+      }
+    : {
+        // Standard-Stile, wenn kein Jackpot-Hit
+        sxCard: {} as const,
+        sxContent: {} as const,
+        sxDivider: { my: 2 } as const,
+        sxList: {} as const,
+        sxTitle: {},
+      };
+
   return (
-    <Card className="card" elevation={4}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
+    <Card
+      className="card"
+      elevation={isJackpotHit ? 8 : 4}
+      sx={goldenStyles.sxCard}
+    >
+      <CardContent sx={goldenStyles.sxContent}>
+        <Typography variant="h6" gutterBottom sx={goldenStyles.sxTitle}>
           {title}
         </Typography>
 
-        <Divider sx={{ my: 2 }} />
+        <Divider sx={goldenStyles.sxDivider} />
 
         {showSkeleton ? (
           <Box>
@@ -91,11 +155,17 @@ export default function DashboardCardLastDraw({
             />
           </Box>
         ) : !lastDrawRecord ? (
-          <Typography variant="body2" color="text.secondary">
+          <Typography
+            variant="body2"
+            color={isJackpotHit ? "inherit" : "text.secondary"}
+          >
             Keine Daten vorhanden.
           </Typography>
         ) : (
-          <ul className="card-list" style={{ height: "100%" }}>
+          <ul
+            className="card-list"
+            style={{ height: "100%", ...goldenStyles.sxList }}
+          >
             <li>
               <span className="label">{`${labelDate}:`}</span>
               <span className="value">{lastDrawRecord.datum}</span>
